@@ -1,9 +1,11 @@
 \documentclass[letterpaper,titlepage,twoside]{article}
 \usepackage{xparse}
 \usepackage[left=2in,right=2in,top=2in,bottom=2in]{geometry}
+%\usepackage{navigator}
 
-\NewDocumentCommand{\word}{v}{\{ \texttt{#1} \}}
+\NewDocumentCommand{\word}{v}{\{~\texttt{#1}~\}}
 \begin{document}
+%\outline[open]{3>}[outlinelocation]{VTIL}
 \begin{titlepage}
   \begin{center}
     \vspace*{2in}
@@ -731,11 +733,141 @@ secondary word is to the inner interpreter word {\bf semi}, which
 simply pops the top address from the return stack and
 %%% ??? Huh: should be "loads the address to the instruction register?
 loads the address of the instruction register, thereby de-nesting one
-level to the original secondary word.  See 
+level to the original secondary word.  See \cite[pages 18--20]{Start}
+for more information on the inner interpreter.  (Note that on machines
+with few registers the ``registers'' above would actually be memory
+locations.)
 
-\begin{thebibliography}
-  \bibitem Brodie, Leo.  {\it Starting Forth}.  2nd ed. Englewood
-    Cliffs: Prentice Hall, 1987.
+This complicated pointer-threading scheme was developed for Forth in
+the days of 8- and 16-bit processors, when typically only one register
+could make use of stack instructions, the system stack register.
+Since TILs make such heavy use of the data stack, for efficiency
+reasons the system stack was used for the data stack, and another
+method of linking subroutines had to be developed, that explained
+above, which really simulates the normal system stack of a processor.
+This implementation is very flexible and also produces very dense
+code, but is unfortunately much slower than if the system stack had
+been used for routine linkage because of the overhead of the innter
+interpreter.\cite{CL}
+
+\subsubsection{Subroutine Threading}
+
+Since many modern processors allow any of several regeisters to be
+used with stack instructions, another method can be used when
+implementing a TIL, that of {\em subroutine}-threading, which is the
+method I used in VTIL.  The VAX architecture allows any general
+purpose register to control a stack, so the normal system stack can be
+used for routine linkage.  With subroutine-threading a word consists
+of a list of jump-to-subroutine or branch-to-subroutine instructions
+instead of a list of pointers to words.  In pure subroutine-threading
+a word consists {\em only} of the jump-to-subroutine instructions;
+hwoever, it is often more useful (and just as easy) to allow other
+machine language instructions to be intermixed with the
+jump-to-subroutine instructions, which is what I have done in VTIL.
+This allows more efficient code and has several other advantages that
+will be discusses later in the section on improvements to VTIL.
+Subroutine-threading is much faster than pointer-threading because
+none of the overhead of the inner interpreter is involved.  It is also
+considerably simpler to implement.  See \cite{CL} for information on a
+commercial implementation of forth using this method.
+
+\subsection{Text Interpreter}
+
+Commands or source text, whether typed by the user at the terminal or
+loaded from a text file, are parsed and acted on byh al oop, which is
+called the text interpreter, or simply the interpreter.  The
+interpreter is actually several conncted routines that are responsible
+for either executing words, compiling words into the dictionary, or
+pushing user entered data onto the data stack.  Wheter a word should
+be compiled is determined by the value of the global variable
+\verb|mode|, which is true (nonzero) if VTIL is in compile mode, and
+false if it is execute mode.  The interpreter is only executed when
+commands from the user are being read at the \verb|VTIL>| prompt; at
+other times words are being directly executed, since they considt of
+machine code.
+
+Regardless of whether the word is to be executed or compiled the
+interpret begins in the same way, by extracting the next blank
+delimited token from the input stream and placing it at the end of the
+dictionary (with actually placing it in the dictionary, which would
+involve incrementing the dictionary pointer past the token) as a byute
+contain the lenght of the token followed by the characters of the
+token.  Next, the address of the {\em context} vocabulary, the
+vocabulary in which words are searched for, is placed on the stack and
+\word{?search} is called.  \word{?search} searches through the context
+vocabulary for  word with a name maching the token.  If it is found
+\word{?search} returns a true on the top of the stack and the address
+of the header for the word under that.  If it is not found a false is
+returned on the top of the stack.  If VTIL is in complie mode and the
+word is not in the context vocabulary, \word{?search} also searches
+the {\em compiler} vocabulary, which contains the words that can only
+be in compile mode.  If it is found a true is returned on the top of
+the stack and the address of the header for that word is returned
+under that, just as normal, and the global variable \verb|state| is
+set true, so that later on another routine will know that it is a
+compile time word and execute it.  If it is not found, a false is
+returned on the top of the stack, just as normal.
+
+If the word was found the headerless routine \word{?execute} is
+called.  First, the address of the code for that word is calculated
+from the address of the header.  Then, if VTIL is in execute mode, a
+jump to subroutine to the address on the top of the stack is done
+(\verb|jsb @(r11)+|), and when that returns control branches to the
+beginning of hte text interpreter loop.  However, if VTIL is in
+compile mode a somewhat more complicated process must be done.  If
+\verb|state| is true, the word is a compile-time word and is executd jast as
+if VTIL were in execute mode.  If \verb|state| is false, the word has
+to be compiled into the dictionary, which is done by
+\word{compile-jsb}.  The machine code for the \verb|jsb| instruction
+is moved into the dictionary along with the code for absolute
+addressing mode, and immediately following that the address from the
+top of the stack is moved into the dictionary.  After this control
+branches to the beginning of the interpreter loop.
+
+If a match was not found at all, the word \word{?number} is called.
+\word{?nubmer} tries to convert the token into a number, according to
+the current system radix (which can be changed to anything between two
+and thirty-six).  If it can do so a true is returned on the top of the
+stack and the number is returned under that.  If the token could not
+be turned into a number a false is returned as the top of the stack.
+Finally, the top of the stack is checked.  If it is false, the unknown
+token is written out in an error message.  Control branches back to
+the top of the interpreter loop.
+
+Checking for stack underflow or overflow is also done each time
+thorugh the interpreter.  The process of getting a token and either
+executing, compiling, or pushing on the loop stack is continued until
+the user is finished and VTIL is exited.
+
+\subsection{Dictionary}
+
+\begin{thebibliography}{12}
+  \bibitem{Start} Brodie, Leo.  {\it Starting Forth}.  2nd ed. Englewood
+    Cliffs: Prentice-Hall, 1987.
+  \bibitem{Think} Brodie, Leo.  {\it Thinking Forth}.  Englewood
+    Cliffs: Prentice-Hall, 1984.
+  \bibitem{CL} Chavez, Lori. ``A Fast Forth for the 68000.''  {\it
+      Dr. Dobb's Journal}.   12.10 (1987): 32--36.
+  \bibitem{ERA}  Eldridge, Rodrick A.  {\it VAX-11 fig-Forth Version
+      2.0 and Glossary}.  Ames: Central Iowa Forth Interest Group.
+    DECUS Program Library Package V-SP-52.
+  \bibitem{EMS}  Ewing, Martin S.  {The Caltech FORTH Manual.}
+    Pasadena: California Institute of Technology, 1974 (Internal
+    Report).
+  \bibitem{HK}  Harris, Kim.  ``Forth Extensibility: or how to write a
+    Compiler in Twenty-five Words or Less.''  {\it Byte}.  5.8 (1980):
+    164--184.
+  \bibitem{HR}  Hauck, Roger.  {\it Stoic (Stack Oriented Interactive
+      Compiler)}.  Cambridge: Smithstonian Institute, 1980 (Internal
+    Documentation).  DECUS Program Library Package V-SP-49.
+  \bibitem{JJ}  James, John S.  ``What is Forth?  A Tutorial
+    Introduction.''  {\it Byte}.  5.8 (1980): 100--126.
+  \bibitem{LRG}  {\it Threaded Interpretive Languages}.  Peterborough:
+    Byte Books, 1981.
+  \bibitem{MCH}  ``The Evolution of Forth, an Unusual Langauge.''  {\it
+      Byte}.  5.8 (1980): 76-90.
+    \bibitem{RTGW}  Ritter, Terry, and Gregory Walker.  ``Varieties of
+      Threaded Code for Language Implementation.''  {\it Byte}.  5.9
+      (1980): 206--227.
 \end{thebibliography}
 \end{document}
-
