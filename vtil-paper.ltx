@@ -1,6 +1,7 @@
 \documentclass[letterpaper,titlepage,twoside]{article}
 \usepackage{xparse}
 \usepackage[left=2in,right=2in,top=2in,bottom=2in]{geometry}
+\usepackage{hyperref}
 %\usepackage{navigator}
 
 \NewDocumentCommand{\word}{v}{\{~\texttt{#1}~\}}
@@ -421,7 +422,7 @@ definition, here is how \word{+!} might be written if it were not
 supplied with the langauge.
 \begin{verbatim}
 : +!  ( n a -- )
-   swap over @ 	  \ get the value of the variable
+   swap over @    \ get the value of the variable
    +              \ add the values
    swap !         \ get the address of variable back on top
                   \ and store value there
@@ -520,7 +521,7 @@ would have looked for an earlier definition of \word{factorial}, not
 the one being currently defined, and not finding it would have aborted
 this definition with an error.
 
-\subsection{Vocabularies}
+\subsubsection{Vocabularies}
 
 Vocabularies are subsets of the dictionary.  They allow the programmer
 to have different contexts for different purposes, so that \word{x} in
@@ -566,7 +567,7 @@ of the application.  This also allows innermost loops of programs to
 be coded efficiently in assembly language, improving the efficiency of
 programs, when such is required.
 
-\subsection{Defining Words That Define New Words}
+\subsubsection{Defining Words That Define New Words}
 Words like \word{long} and \word{longconst} are defined using two
 special compile time words: \word{defer<} and \word{>defer}.  Words
 between \word{defer<} and \word{>defer} in a colon definition are not
@@ -841,6 +842,330 @@ the user is finished and VTIL is exited.
 
 \subsection{Dictionary}
 
+The dictionary is an area of contiguous memory which contains teh
+data, code, and deaders for each defined word.  As new words are
+defined the dictionary grows towards the top of memory.  The current
+version of VTIL has allocated 16 kilobytes for expansion of the
+dictionary, but the size of this area may be increased as desiered by
+increasing a symbol in the VAX-Macro source code.
+
+Every entry in the VTIL dictionary has the following fields:
+\begin{description}
+  \item[link] A longword that contains teh address of the header of
+    the previous word in the dictionary.  The link field of the first
+    word in the dictionary (and any independent vocabularies, such as
+    the compiler  vocabulary) contains a zero, a null pointer, to
+    indicate the end of the list.
+  \item[length] A byte containing the length of the word's name.   The
+    maximum name length is 80 characters.  During compilation of
+    colon definitions, the high bit ({\em smudge bit}) of the length
+    byte is set, preventing this definition of the word from being
+    used recursively and allowing earlier definitions of this word to
+    be used in defining this word.
+  \item[name] {\em length} bytes containing the characters of the name
+    of the word.
+  \item[code] The executable code for this word.
+  \item[data] The optional data for this word.
+\end{description}
+
+The current version of VTIL has these fields in each word in the
+order of the preceding list; however, such an order is almost
+completely arbitrary from the user's point of view (though not to
+the implementer!), and could be switched, as long as words to
+convert from the address of one field to the address of another
+field are written.
+
+Searching the dictionary is very simple.  Since the header of each
+word consists of the link field followed by the name field, one
+can simply step through the linked list and compare the token one
+is searching for with the name of each word.  The search is
+stopped when a match is found or the link to the next word is a
+null pointer (zero).  Searches are always (and only, since
+vocabularies are singly linked lists) done from the most recent
+definition to the oldest definition.
+
+\subsection{Compilation}
+
+Compiling into the dictionary is a simple process in VTIL.  Register
+nine is the {\em dictionary pointer}, which always points to the end of
+the dictionary.  Compiling is simply a matter of copying the
+information into the area of memory pointed to by the dictionary
+pointer and incrementing the dictionary pointer over the new
+information.  The VAX's autoincrement and autodecrement addressing
+modes are extremely useful here, since they allow one to move data
+directly into the dictionary and not have to worry about incrementing
+the dictionary pointer.  So, compiling words often consist largely of
+move instructions.  The difficult matter is figuring out what to
+compile into the dictionary.
+
+The simplest word is one that does nothing when it is executed.  It is
+compiled by setting up the header for the word and putting a
+\verb|rsb| immediately after the header as the first and only
+instruction in the word.  Compiling a word that consists only of calls
+to other words is done by copying a \verb|jsb| and the addressing mode
+specifier for absolute addressing mode to the dictionary, followed by
+the address of the code for the word being called, for each word that
+is to be called.  Most of the compiling that is done is of these siple
+types: compiling a header, compiling \verb|jsb| instructions, and
+compiling \verb|rsb| instructions.  Really, any single instruction is
+easy to compile.  The more difficult parts of compiling, as well as
+the more interesting, come in dealing with control structures,
+especially loops.  Following is a discussion of the
+\word{if ... else ... endif} control structure, which will illustrate
+the general ideas behind words the compile control structures.  The
+dictionary pointer is \verb|R9| and the loop stack pointer is
+\verb|R10|.  Words for the beginning of control structures generally
+save data that the ending word must know on the loop stack instead of
+the data stack, to avoid disturbing what the user may have placed on
+the data stack.
+
+Here is the VAX-Macro code for \word{if}:
+\begin{verbatim}
+if:
+        movb    #op_tstl,(r9)+       ;; tstl
+        movb    #adm_ainc_r11,(r9)+  ;; (r11)+
+        movb    #op_bneq,(r9)+       ;; bneq
+        movb    #^x03,(r9)+          ;; to (pc+3)
+        movb    #op_brw,(r9)+        ;; brw
+        movl    r9,-(r10)    ; save address of displacement
+        movw    #0,(r9)+     ; save space for displacement
+        movl    r9,-(r10)    ; save address to calculate
+                             ; displacement from end of if
+        rsb
+\end{verbatim}
+
+The first five lines of code compile the test of the top of the stack
+and set up the branches to the true part and the false part.  The end
+result is code in the dictionary equivalent to the following
+VAX-Macro.
+\newpage
+\begin{verbatim}
+        tstl    (r11)+  ; top of stack is true if nonzero
+        bneq    10$     ; branch INTO true part
+        brw     100$    ; branch OVER true part
+10$:
+\end{verbatim}
+
+I used the \verb|bneq| to branch into the true part instead of just
+having a \verb|beql| branch around it, allowing \word{if} statements
+with more ethan 127 bytes of code in each branch, since \verb|brw|
+uses a signed VAX memory word and \verb|beql| uses a signed byte
+offset.  Since the length of hte true part will not be known until an
+\word{else} or \word{endif} is found, the sixth line saves the address
+of displacement for the jump over the true part on the loop stack
+and the seventh line initializes the displacement to zero, saving
+space for it in the dictionary.  Finally, the eight line saves on the
+loop stack the address that the displacement over the true part will
+be calculated from.
+
+Here is the VAX-Macro code for \word{else}:
+\begin{verbatim}
+else:
+        movb    #op_brw,(r9)+  ; branch over false part
+        movl    r9,r0          ; save address of displacement
+        movw    #0,(r9)+       ; save space for displacement
+        movl    49,r1          ; save address to calculate
+                               ; displacement from
+; make branch to false part (fill in displacement in if)
+        subl3   (r10)+,r9,r2   ; calculate displacement
+        movw    r2,@(r10)      ; save displacement
+        addl2   #4,r10   ; pop displacement address off stack
+        movl    r0,-(r10)      ; save displacement address
+        movl    r1,-(r10)      ; save address to displace from
+        rsb                    ; end of else
+\end{verbatim}
+
+The first four lines of this code compile the branch over the false
+part into the dictionary and save the address of the displacement and
+the and the address to displace to in registers, since the top of the
+loop stack has information that must be used now to fill in the
+displacements from the \word{if}.  Lines seven through nine calculate
+the displacement over the true part and save it in the code compiled
+by the \word{if}.  Finally, the last two lines before the \verb|rsb|
+save the displacement address and the address to displace from ont he
+loop stack, so they will be preserved until the \word{endif}.
+
+\newpage
+Here is the VAX-Macro code for \word{endif}:
+\begin{verbatim}
+endif:
+        subl3   (r10)+,r9,r0 ; calculate displacement
+        movw    r0,@(r10)    ; save displacement
+        addl2   #4,r10       ; pop displacement address
+                             ; off loop stack
+        rsb                  ; end of endif
+\end{verbatim}
+
+The first line calculates the displacement over the preceding branch
+(which could either be the \word{if} or the \word{else} branch).
+The second line saves that displacement in the code that was compiled
+by either \word{if} or \word{else}.
+
+\subsection {Error Handling}
+
+Error handling in VTIL is simple but relatively robust, allowing the
+user to remain in VTIL after all but the most serious errors.  Simple
+errors, such as a non-existing file being specified to \word{load},
+are caught by the word in question and indicated to the user.  Words
+for reading input from the terminal truncate lines too long for their
+buffers without telling the user.  More complex or more severe errors,
+such as access violations, are generally caught by a condition handler
+which signals them using the \verb|$PUTMSG_S| system service and then
+unwinds the stack and restarts VTIL.  \verb|Ctrl/c|s are trapped by
+an AST routine that signals the VTIL error ``Interrupted by user''.
+This signal is then caught by the condition handler and an unwind and
+restart of VTIL is performed as normal.
+
+\section{Improvements}
+
+After having implemented VTIL it is easy to see many ways in which it
+could be improved.  Most of these are additional capabilities that
+would make it easier for teh user to interact with VTIL or that would
+allow programs to interact more fully with the normal VAX
+environment.  Undoubtedly more work with the language will reveal
+other things that also need to be improved (for instance, the current
+string routines are clumsy in concept and execution).
+
+Perhaps the most important thing to add to VTIL is some sort of file
+access.  Currently, the only form of mass storage VTIL has access to
+is the block file; however, named files of indefinite length are
+usually easier to work with, and since VTIL runs on top of an
+operating system the gains of efficiency that would accrue in the case
+where VTIL itself is the operating system  and does its own block
+input and output are lost in any case.  VTIL would therefore profit
+from a set of words for opening, reading, writing, and closing normal
+files.  The difficulty of this will be in figuring out how to do this
+dynamically, rather than merely allocating a fixed number of file
+control blocks, so that as many files can be open at one time as are
+needed by the users application.  Ideally, all of VAX RMS would be
+available to the user; this goal was accomplished in STOIC, which
+allows access to RMS and most of the VAX System Services as well.
+
+Another important enhancement would be allowing \word{load}s to be
+nested.  This would allow the programmer to create words in small text
+files which could be loaded singly to test the words independently,
+but could be all linked together by nested \word{load}s when the
+application is complete.  Keeping source code in small linked files
+instead of a single huge file eases testing and debugging, since only
+one file needs to be changed.
+
+VTIL does not currently check to see if its control structures are
+nested correctly in a definition.  VTIL doesn't care in the least if
+the programmer forgets an \word{endif} or \word{loop}, though the
+programmer may care a great deal!  While this is not as serious a
+problem as it might seem, since VTIL words are short, nesting is
+rarely deep, and finding such problems is therefore usually simple, it
+would be nicer if VTIL itself could find these problems.  One method
+would be during compilation for each control structure that begins a
+block of code to push a unique value onto the loop stack and each
+control structure that ends a block of code to check that the top fo
+the loop stack was indeed put there by the corresponding word.  If it
+was not, a word would be called that would step down through the loop
+stack listing the improperly closed control structures until there
+were no more left and then abort compilation.
+
+Another area where VTIL needs improvement is in its interactive
+execution of words; the inability to use any of the loop or control
+structures and the need for two different versions of some words (like
+\word{ascii}, which pushes the ASCII value of the first character of
+the next token to the stack, and \word{[ascii]}, which compiles the
+ASCII code of the first character of the next token into the current
+word) for both compile-time and run-time is annoying and confusing.
+This could be eliminated by using a {\em compile buffer}, into which
+words that are executed interactively are compiled instead of
+immediately executed.  At the end of a line of commands, the
+interpreter could place a return from subroutine instruction at the
+end of the buffer and perform a jump to subroutine to the beginning of
+the buffer.  Since the same process of compiling now goes on
+regardless of whether one is executing or interpreting these words
+there will be no need to have two versions of words.
+
+This would also allow the use of control structures in interactive
+mode.  Currently, all control structure words are found only when
+inside a colon definition because they compile things into the
+dictionary and disturb the stacks.  If the compile buffer were added,
+though, they would be able to perform their normal compiling tasks
+into the compile buffer, allowing them to be used interactively.  In
+order to keep a loop from being executed before it is closed by the
+word to end that particular loop, each opening loop word would
+increment a {\em loop depth} count and each closing word would
+decrement the counter.  The compile buffer would be executed only when
+the loop counter is zero; that is, only at the end of a line when
+there are no unclosed loops.  Otherwise, the interpreter will get
+another line of commands from the user.  This method will also
+eliminate the need for a separate compiler vocabulary.  Unfortunately,
+this scheme would complicated the task of defining words, especially
+colon definitions.
+
+An enhancement that would allow more flexibility in the execution and
+compilation of words, as well as incrase efficiency of the compiled
+code is an {\em attribute byte} for each word.  This byte would
+contain a value that would tell the interpreter how to deal with the
+word; for instance, a word that needed to be executed immediately,
+such as \word{do}, which starts a \word{do ... loop}, would have the
+attribute {\em jump-to-me}, while another word like \word{+rot} which
+should be compiled into the compile buffer or definition would have
+the attribute {\em compile-jsb-to-me}.  Several other attributes for
+different purposes are possible.
+
+If a length for each word were also stored in its header, an attribute
+{\em expand-me} could be created.  Words with the {\em expand-me}
+attribute are copied into the compile buffer instead of having a jump
+to subroutine constructed to them.  This inline expansion of code
+would make VTIL much more efficient without increasing the code size
+much, if any.  Consider the code for the word \word{+}:
+\begin{verbatim}
+i_plus:
+        addl2   (r11)+,(r11)
+        rsb
+\end{verbatim}
+
+If this code (excluding the rsb) were expanded into each definition
+where it was used, it would faster and smaller in code size than
+compiling a \verb|jsb| to it.
+
+\section{Conclusions}
+
+VTIL has proved to be a very interesting exercise in language
+implementation.  The language itself is a good general purpose
+programming language, with its only major limitations being in access
+to files, a limitation that can be overcome.  VTIL, compared to a
+normal interpreter or compiler, takes relatively little time to
+implement, which is valuable in cases where resources are limited but
+a more powerful programming environment is needed.  It is a very
+flexible language that the user can adapt to their specific
+application.  VTIL is easily extended to handle complex problems.
+Debugging VTIL programs is very easy because programs are separated
+into small pieces (words) that can be easily tested and modified
+separately.  Testing a word is simple because of the interactive
+nature of VTIL and the simplicity of the stack-based implicit
+parameter passing that VTIL uses for communication between words.
+Although it was implemented in VAX-Macro on a VAX, VTIL could just as
+easily be implemented on most machines.  Once the kernel and compiler
+vocabularies have been implemented on another machine VTIL programs
+from a VAX could be easily ported to the other machine, yet the
+machine specific resources of each machine could be utilized fully if
+needed.   There are also drawbacks to VTIL, however.  It uses many
+concepts that are unfamiliar to a programmer used to more conventional
+languages.  The postfix notation necessitated by the stack is alien
+and difficult for many people to adjust to.  The greatly reduced
+reliance on variables in calculation is also greatly discouraging to
+traditional programmers.  It can be criticized as an untyped language
+is not built in.  However, type-checking can be added if desired.
+VTIL is obviously not as efficient as a good compiler, but it is much
+more efficient than the typical interpreter.
+
+VTIL has proved itself to be a reasonably powerful language that can
+be implemented with relatively few man-hours.  The line editor which I
+wrote in VTIL shows that it can be used for reasonable applications.
+The extensibility of the language makes it ideal for developing ones
+own programming language environment.  It embodies the interesting
+characteristics that make TILs so different from more conventional
+languages.  I have enjoyed this project immensely, and plan to
+continue working with VTIL and improving it.
+
+\newpage
+\addcontentsline{toc}{section}{References}
 \begin{thebibliography}{12}
   \bibitem{Start} Brodie, Leo.  {\it Starting Forth}.  2nd ed. Englewood
     Cliffs: Prentice-Hall, 1987.
@@ -862,12 +1187,12 @@ the user is finished and VTIL is exited.
     Documentation).  DECUS Program Library Package V-SP-49.
   \bibitem{JJ}  James, John S.  ``What is Forth?  A Tutorial
     Introduction.''  {\it Byte}.  5.8 (1980): 100--126.
-  \bibitem{LRG}  {\it Threaded Interpretive Languages}.  Peterborough:
-    Byte Books, 1981.
-  \bibitem{MCH}  ``The Evolution of Forth, an Unusual Langauge.''  {\it
-      Byte}.  5.8 (1980): 76-90.
-    \bibitem{RTGW}  Ritter, Terry, and Gregory Walker.  ``Varieties of
-      Threaded Code for Language Implementation.''  {\it Byte}.  5.9
-      (1980): 206--227.
+  \bibitem{LRG} Loeliger, R. G.  {\it Threaded Interpretive
+      Languages}.  Peterborough: Byte Books, 1981.
+  \bibitem{MCH} More, Charles H.  ``The Evolution of Forth, an Unusual
+    Langauge.''  {\it Byte}.  5.8 (1980): 76-90.
+  \bibitem{RTGW} Ritter, Terry, and Gregory Walker.  ``Varieties of
+    Threaded Code for Language Implementation.''  {\it Byte}.  5.9
+    (1980): 206--227.
 \end{thebibliography}
 \end{document}
