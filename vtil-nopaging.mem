@@ -1,0 +1,563 @@
+
+
+
+            VTIL - VAX Threaded Interpretive Language
+
+
+
+                           T. Kurt Bond
+
+
+
+                           4 March 1988
+
+1  INTRODUCTION
+
+VTIL is  a  VAX/VMS  implementation  of  a  stack  based  threaded
+interpretive  language,  using  subroutine  threading.   What is a
+threaded interpretive langauge (hearafter called a TIL}?  The main
+ideas  behind  a  threaded  interpretive  langauge  are reasonable
+efficiency, extensibility, and flexibility:  unlike a conventional
+language  such as Pascal where the langauge is fixed and cannot be
+changed or added to,  a  threaded  interpretive  langauge  can  be
+extended  and  changed to suit the user and the user's application
+by building from a relatively small, simple core.  In other words,
+the  language  adapts to your methods, rather than you adapting to
+its methods.
+     Now, there are other languages of which  extensibility  is  a
+main   feature,   such   as  LISP.   However,  these  are  usually
+inefficient, and the one main idea  behind  a  TIL  is  reasonable
+efficiency.   To  allow  this, a TIL starts with only the simplest
+features, and allows the user  to  add  the  others  if  they  are
+needed.   Also,  even the most extensible languages have a liit to
+how much you can change.  For instance, most will not allow you to
+change  the  syntax  of  the  language,  regardless  of  how  much
+capability you can add.  In a TIL, however, you  start  with  very
+simple  syntax and can add new syntax if your application requires
+it.
+
+2  USERS GUIDE
+
+2.1  Starting Out
+
+In order to use the VTIL programming lagnauge you need to run  the
+VTIL interpreter/compiler.
+
+     $ set def dua1:[bondk.seminar] 
+     $ run vtil 
+
+VTIL will print its prompt "VTIL>"  and  wait  for  you  to  enter
+commands.   To exit VTIL you can type ctrl/z or type "exit" at the
+"VTIL>" prompt.
+     To execute a VTIL word (like "exit" to exit the language) you
+just  type  the  the  letters  that  make up the name of the word,
+preceded and followed by any  number  of  spaces.   Tabs  are  not
+allowed   outside   of  string  constants.   Since  VTIL  is  case
+sensitive, you must type its commands in the same case as they are
+given  in  this  manual.  To enter a number into VTIL's data stack
+(stacks will be discussed more later) just type the number,  which
+can  have  a  leading minus sign.  VTIL currently workds only with
+integers.  VTIL will not execute the or enter the number into  the
+stack  until  you  hit  <return>.   You can place as many words or
+numbers on a line as you wish.
+     If you enter an unknown word, the offending word is echoed to
+the terminal and the line it was in is also echoed, like this:
+
+      Unknown token { xxxx_I'm_unknown } In line: 1 2 3
+     xxxx_I'm_unknown xyz 1 3 + .  
+
+AFter an error the rest of the input stream line is discarded  and
+the data and loop stacks are cleared.
+     If you have started a command that is taking a long time, you
+can  interrupt  it  by typing ctrl/c, which will return you to the
+"VTIL>" prompt (this is useful for stopping infinite loops).  VTIL
+will also catch access violations and most other errors, but there
+is a built-in limit to the number of errors that  it  will  catch.
+After  a  certain  number of errors and ctrl/c's are trapped, VTIL
+will abort with a message indicating that the  maximum  number  of
+errors  has  been exceeded.  This is intended to stop an unattened
+program  with  errors  instead  of   allowing   it   to   continue
+indefinitely.
+
+2.1.1  Notation For Specifying VTIL Words In Text
+
+Because VTIL words often  contain  punctuation  marks  that  might
+otherwise  be  confusing,  when  they are mentioned in this manual
+they will be enclosed in { } pairs, as will any sequence  of  VTIL
+words  in  the text.  For instance, the word to store a value in a
+variable is { ! }.  Also, the string "..." in a sequence  of  VTIL
+words  indicates  a  series  of  words  that were omitted as being
+irrelevant to the current discussion.
+
+2.1.2  Postfix And Simple Arithmetic
+
+Unlike most langauges, VTIL uses  the  postfix  notation  for  all
+operations  instead  of  the  more  familiar  infix (or algebraic)
+notation.  To enter a number into the stack, just type the  number
+(which  can  have  a leading minus sign, but must be an interger).
+To see the value of the top of the stack, use the word { . }.   Be
+warned,  however:   { . } pops the top of the stack, so the number
+is  lost  after  it  is  used.   Most  VTIL  words  consume  their
+arguments.   The  words for addition, subtraction, multiplication,
+division,  and  modulus  are  supplied  and  have   the   expected
+mathematical  symbol  as  their name (except for modulus, which is
+{ mod }).  Another arithmetic word is  { /mod }  which  takes  two
+stack  items  and  leaves  the quotient and remainder of those two
+words on the stack, the remainder on top.  Here are  some  example
+calculations  in  postfix  followed by a backslash and their infix
+translations.  Note that in postfix parenthesis are never needed.
+
+     1 2 3 * +    \ is in infix (1 + (2 * 3)) 
+     2 3 4 + *    \ is in infix 2 * (3 + 4) 
+
+2.1.3  VTIL Comments
+
+There are two types of  comments  in  VTIL.   The  first  kind  of
+comment  is  called  a "skip line", and it starts with a { \ } and
+continues until the end of the line.  The { \ } must be  separated
+from  other  text  by at least one space on each side.  The second
+type of comment, called an "inline comment" or a "stack  comment",
+starts  with  a  { ( }  and ends with the the end of the line or a
+{ ) }, whichever comes first.  The initial { ( } must be separated
+from  other text by at least one space on each side.  This type of
+comment is usually used for comments  that  are  embedded  between
+words.
+
+2.1.4  Stack Effect Comments
+
+The stack provides a consistent way to pass arguments to  a  word.
+However,  this  means one has to keep track of the contents of the
+stack very carefully.  Stack effect comments,  also  called  stack
+pictures  or  simply stack comments, are special types of comments
+used to show what a VTIL word  expects  on  the  stack  before  it
+executes  and  what  it leaves on the stack after it executes (the
+word's *effects* on the stack).   The  basic  form  of  the  stack
+effect  comment  is  { ( -- ) },  which is the stack comment for a
+word that has no effect  on  the  stack.   If  the  word  consumes
+arguments from the stack, they are listed to the left of the "--".
+If the word places any values they are listed to the right of  the
+"--".      Another    example    of    a    stack    picture    is
+{ ( n1 n2 -- n3 n4 ) }, which indicates that the word expects  two
+items  to be on the stack, and leaves two items on the stack after
+it executes.  The first two items  on  the  stack  when  the  word
+executes  are  consumed,  and it leaves two different items on the
+stack when it is done executing.  The items in the  stack  comment
+are  in  the  same  order  as they would be entered by hand at the
+keyboard, so "n2" is the top of  the  stack  before  the  word  is
+executed  and  "n4"  is  the  top  of  the stack after the word is
+executed.
+
+2.1.5  Stack Manipulation Words
+
+Because VTIL users the stack to store so much information, it  has
+many  owrds  for  rearranging  the  contents  of  the  stack.  For
+instance, since most words consume their arguments, you often need
+to  duplicated a value so you can use the original value later but
+use the copy now.  This can be accomplished with the word { dup }.
+Following are the most important stack manipulation words.
+
+     +rot      ( n1 n2 n3 -- n3 n1 n2 ) Rotate the top three items
+               of  the  stack  up, bringing the second item to the
+               top and moving the previous top to the third entry.
+     -rot      ( n1 n2 n3 -- n2 n3 n1 ) Rotate the top three items
+               of  the  stack  down, briing the third entry to the
+               top and pushing the other two entries down.
+     drop      ( n1 -- ) Drop the top of the stack.
+     dup       ( n -- n n ) Duplicate the top of the stack.
+     over      ( n1 n2 -- n1 n2 n1 ) Duplicate the second item  of
+               the stack on top of the stack.
+     swap      ( n1 n2 -- n2 n1 ) Swap the top two  items  on  the
+               stack.
+     Of course, you can define new stack manipulation  words  with
+these  and  other  VTIL  words  if  you need them (we will discuss
+defining new words late).  One for  you  to  consider  writing  is
+{ under }  which  is  sort  of the reverse of { over }.  Its stack
+comment is { ( n1 n2 --n2 n1 n2}.
+
+2.2  Defining New Words
+
+Now that you have learned how to execute words, you need  to  know
+old  words  to  make  new words, which can themselves be combiined
+with other words to make new words.  The idea of starting  with  a
+small set of basic capabilities and building the capabilities that
+you need, and only those capabilities  that  you  need,  from  the
+initial  set  is  one  of  the  important concepts of VTIL and all
+threaded interpretive languages.
+     All words are invoked in the same  way,  regardless  of  what
+they  do:   by  their  name.   The  most  common type of words are
+constants, variables, and colon definitions.  Names of  words  can
+contain  any  characters  except a blank; however it is not a good
+idea to use any non-printing character, such as  a  tab  or  other
+control  character  (indeed, in a later version of VTIL such names
+may become illegal altogether).  This flexibility  allows  you  to
+chose  extremely meaning names, such as { all-here? }, but it also
+allows you to choose extremely unmeaning names as  well,  such  as
+{ -&^*!# }.   If  you choose your names well you often end up with
+very English-like source code.
+
+2.2.1  Constants
+
+The form of a  constant  definition  is  { <n> longconst <name> },
+which  creates a word <name> that pushes <n> on the stack whenever
+it is executed.
+
+2.2.2  Variables
+
+The form of a variable definition  is  { <n> long <name} },  which
+creates  a  word <name> that pushed the address of a long variable
+to the stack whenever it is executed.  The variable is initialized
+to  <n>.   The word { @ } (pronounced fetch) is executed to obtain
+the value of the variable.  { @ } fetches a long value from memory
+at  the  address  on  top  of  the  stack.   Its  stack comment is
+{ (a -- n }.  To store a value  in  a  variable  the  word  { ! },
+pronouced  store, is used.  { ! }'s stack comment is { ( n a -- },
+where <n> is the value to store and <a> is the address to  storeit
+at.   An  example  of  the  use  of  variables and { ! } and { @ }
+follows.
+
+     x @  1 +  x !
+
+This is the sequence that adds  one  to  a  variable.   First  the
+address  of  the  variable is pushed on the stack (by { x }), then
+the value of the variable is fetched (by { @ }), then one is added
+to  the  value  (by  { 1 + }), then the address of the variable is
+pushed on the stack again, and finally the value  is  stored  into
+the variable by { ! }.
+     If  this  procedure  seems  clumsy  to  you,  do  not  worry;
+variables  are  not  nearly  as  important  in  VTIL  as  in other
+languages  because  all  calculation  is  done   on   the   stack,
+eliminating  the  need  for temporary variables.  Only the initial
+value and the final result need variables, and then  only  at  the
+beginning  or end of the calculation.  Indeed, variables are often
+not needed even then, since most words receive their initial  data
+laready on the data stack.  However, VTIL is flexible, so in those
+cases that you must work with a variable, incrementing  a  counter
+or  some  such,  there  are  other,  more  convieniet ways to deal
+directly with the value of a variable.  For instance, the sequence
+{ 3 x +!}  adds  three  to  the  the  value  of  x, and words like
+{ 1+! }, which adds one to the value of any variable, are easy  to
+write if they are needed.
+     There are also words { byte } and { short } that define  byte
+and  short  integer  variables.   To access byte variables you use
+{ b@ } and { b! }, and to access short variables you use { s@} and
+{ s! }.   The  data  stack  is  a  long  wide,  but byte and short
+variables are automatically extended to  the  corrrect  size  when
+they  are  placed on the stack by "zero extending" them.  That is,
+bytes and shorts are considered to be unsigned numbers  when  they
+are  placed on the stack, and are always positive.  If you need to
+work with them as signed numbers, the words  { bs@ }  and  { ss@ }
+fetch them and extend them to the correct size by "sign extending"
+them, considering them to the signed numbers instead.
+
+2.2.3  Colon Definitions
+
+Colon definitions are collections of words that execute one  after
+another,  just  as procedures and functions in other languages are
+collections of statements that execute  one  after  another.   The
+form  of a colon definition is { : <name> ... ; }, where <name> is
+the name this word word will  have.   They  start  with  the  word
+{ : },  which is why they are called colon definitions.  The colon
+is followed by the name for this word, which has the same rules as
+names  for any other type of word.  Following the name is the list
+of words that make up the definition, terminated by a  { ; }.   As
+an example colon definition, here is how you might write { +! } if
+it were not supplied with the language.
+
+     : +!  ( n a -- )
+        swap over @    \ get the value of the variable
+        +              \ add the value
+        swap !         \ get the address of variable back on top
+                       \ and store value there
+     ; \ end of +!
+
+2.2.3.1  Why VTIL Words Should Be *SHORT*
+
+VTIL words are almost always very short 5 to  10  lines  is  about
+right  (if  you  use  the  horizontal coding style of Forth, which
+packs as many words on a line as possible, 3 to 5 lines  is  about
+right).   Why  are  VTIL  words  so  short?   There  are many good
+reasons.  Short words are easy to write, much easier to test,  and
+easier to understand and change later, with the fewest connections
+to other words.  Learnig to  factor  out  the  functions  of  your
+application  and  write short wors that accomplish those functions
+is one of the most important things  you  must  do  when  using  a
+threaded interpretive langauge.
+
+2.2.3.2  Compiletime Versus Runtime Words
+
+VTIL has two different operating modes:  execute mode and  compile
+mode.   In  execute  mode, the words in the source are immediately
+executed.  In compile mode, the words in the source  are  compiled
+into  the dictionary.  VTIL normally is in compile mode only after
+a { : } and before a { ; }.  Some words, however, are in a special
+vocabulary  called  the compiler vocabulary which is only searched
+when VTIL is in comple mode.  These words are called "compiletime"
+words  because  instead of being compiled into the dictionary when
+VTIL is in compile mode, they are executed.   That  is,  they  are
+executed  while  the  word is being compiled, at "compiletime" All
+other words are executed at "runtime," when the word is executed.
+     Why do we need compiletime words?  Well, all the loop control
+words,  such  as  { do ... loop },  and the other control stucture
+words, such as { if ... else ... endif }  are  compiletime  words.
+These words set up the loops or the control structures in the word
+being defined, but are not  themselves  compiled  into  the  word.
+Usually  compiletime  wors  compile some information into the word
+being defined that is figured out during compilation  rather  than
+during  execution, whehn that information has to be used.  To make
+a word  a  compiletime  word,  follow  the  { ; }  that  ends  the
+definition  with  { compiletime },  which  moves the most recently
+defined  word  in  the  { current }  vocabulary  to  the  compiler
+vocabulary.
+     Note that { ; } itself has to be a compiletime word,  because
+it  has  to  execute  to  switch VTIL from compile mode to execute
+mode.  If it were not executed during compile mode, there would be
+no  way  to  exit  compile  mode.   Also, sometimes during a colon
+definition you want  to  execute  words  that  would  normally  be
+compiled.   To  do  so  you  enclose them between { [ } and { ] }.
+{ [ } temporarily turns off compile mode and { ] } turns  it  back
+on.
+
+2.2.4  Arrays
+
+Unlike most languages, VTIL does not provide  you  with  an  array
+data  type.   Instead, you define your own array types to suit the
+problem you are working on and define your own  words  to  do  the
+indexing into the arrays.  If you need to do range checking on the
+indices into your arrays, you put that in the indexing words.   If
+not,   you  don't.   This  sort  of  flexibility  is  one  of  the
+characteristics of VTIL.
+     To define  an  array  you  use  the  word  { array }  in  the
+following  form:   { <nbytes> array <name> } where <nbytes> is the
+number of bytes to reserve for the array and <name> is the name of
+the  array.   When  the  new  word <name> is executed, it puts the
+address of the first byte of the array on  the  stack.   For  each
+array  you define you can also write a word to do the indexing, or
+use the same word if your arrays are of the same type.
+
+2.3  Source Code In Text Files
+
+Obviously a language is not of much use if you  have  to  type  in
+your  program  each  time  you run it.  So, with VTIL you can type
+your program into a text file and then load the text file whenever
+you  want  to  use  the  program.   To  load  a file you issue the
+following command { load <filename> },  where  <filename>  is  teh
+name of the file to load, without any spaces.  Note that { load }s
+currently cannot be  nested:   you  cannot  include  the  { load }
+command in a source text file.  However, this may change in future
+versions of VTIL.
+     Probalby the most effective way to interact with VTIL  is  to
+write  short  words and test the out immediately by typing them in
+at the keyboard and exeuting them with test data (which is easy to
+do,  since  all words get their information from the stack).  When
+you have fully tested the word, you can add it to your source code
+text  file.   If, however, your word is complicated or you need to
+keep track of different versions, you can type it into a  separate
+source file and use { load } to just load that one word.  If there
+is an error during a { load }, it will  be  signaled  just  as  an
+ordinary error is, except that the number of the line and the name
+of the file that the error occurred in will also be written to the
+terminal.
+     To make it easier to make changes to your source code, a word
+that  invokes  the  EVE  editor has been included, so you can edit
+your program without leaving VTIL.  The form of  this  command  is
+{ eve <filename },  where  <filename> is the name of the file that
+you want to edit.  Normal qualifiers for the EVE command can  also
+be inluded after the <filename>, but now spaces are allowed in the
+command line.
+
+2.4  Strings
+
+2.4.1  String Formats
+
+2.4.2  String Defining Words
+
+2.4.3  String Manipulating Words
+
+2.5  Vocabularies
+
+Vocabularies are subsections of the dictionary.  They allow you to
+have  different contexts, so that { x } in one vocabulary does one
+thing, but when you are in another vocabulary you can have another
+{ x }  that  does something else.  The when you switch back to the
+first vocabulary the first  vocabulary  the  first  definition  of
+{ x }   applies.    The  word  { vocabulary }  used  in  the  form
+{ vocabulary <name> } creates  a  new  vocabulary  with  the  name
+<name>,  which  is invoked by a word called <name>.  When the word
+<name> is executed it sets the { context } vocabulary so that VTIL
+searches in vocabulary <name> for the words to execute or compile.
+Vocaularies created by { vocabulary } are  linked  back  into  the
+"kernel"  vocabulary  (which  has  all the runtime words that VTIL
+starts out with in it) just before the word <name>, so that if the
+word  isn't  found  in  vocabulary <name> the kernel vocabulary is
+also searched.  This allows you to use all the  kernel  vocabulary
+words  even  when  you  are  in  another vocabulary.  The sequence
+{ <name> definitions } changes  the  { current }  vocabulary  (the
+vocabulary  new words are linked to when they are defined) so that
+all new definitions are compiled into vocabulary <name> instead of
+the  previous  { current } vocabulary.  You can switch { context }
+back to the  kernel  vocabulary  by  saying  { kernel defintions }
+(which also sets { context } to the kernel vocabulary.
+
+2.6  Numeric Output Conversion
+
+2.7  Assembler
+
+VTIL includes its own assembler, and allows you  to  use  assembly
+language  anywhere in a colon definition.  Why does it allow this?
+Well, there are  many  situations  whre  some  capability  of  the
+particular  machine  one  is  using is needed in a progra, but can
+only be reached by using assembly language.  If this capability is
+encapsulated  in  a  word  or  group of words that act like normal
+words tot he rest of the program, only these few words  will  need
+to  be  changed  if one later needs to move the program to another
+machine.  If the  whole  program  had  been  written  in  assembly
+language, instead of just a few sections, the task of transporting
+it would be  much  more  difficult.   Allowing  assembly  language
+anywhere  in  a  colon  definition  is  the way VTIL allows you to
+exploit the capabilities of the machine you are on to the fullest,
+yet  still  hide  that  machine  specific doe from the rest of the
+application that doesn't depend on  the  specific  machine.   This
+also allows the innermost loops of programs to be coded effciently
+in assembly language, improving the efficiency of  programs,  when
+such is required.
+
+2.8  Definine New Defining Words
+
+How do you define words liek { long }, { longconst } or { array }?
+You   use   two   special  compile  time  words:   { defer< }  and
+{ >defer }.  Words between { defer< } and { >defer }  in  a  colon
+definition  aren't  executed when the word being defined executes.
+Instead, when that word executeds they are compiled into the  word
+which  is at *that* point being defined, and will be executed when
+*that* word is executed.  Here is an example:
+
+     : 4byte  ( n -- )    \ a word that defines 4byte variables
+        create            \ enclose next token in dictionary
+        \ compile this into word when *this* word executes
+        defer<
+           \ move value of variable onto stack
+           MOVEAB b^r b^ 2 -(ds)
+           RSB    \ return from word
+        >defer
+        \ save space for variable 4 bytes long
+        \ and initialize it to <n>
+        MOVL (ds)+ (edp) +
+     ;
+
+This example shows how the word with the same effect  as  { long }
+might be defined.
+     In essence, the compilation of the sequence of words  between
+{ defer< }  and  { >defer }  is  *deferred* until the wrod that is
+being defined is executed, at which point those words are compiled
+into  whatever  new  word  is  then begin defined.  Obviously, all
+words with { defer< ... >defer}  sequences  in  them  have  to  be
+compile time words.
+
+2.9  Block I/O Words
+
+3  REFERENCE MANUAL
+
+This part of the manual is intended for reference.  It contains  a
+complete  list  of  all  words  in  the  VTIL  language kernel and
+compiler vocabularys, with a short explanation of each.   It  also
+contains some comments on the implementation of VTIL for those who
+are interested, including information that anyone who wants to use
+VTIL's  assembler  will  need.  The header format of VTIL words is
+also explained.
+
+3.1  DAta Types
+
+The basic data types in VTIL are  byte,  short,  long,  and  text.
+Currently  VTIL  only  handles  integers, but this may change in a
+future version.  A  byte  occupies  8  bits  in  memory,  a  short
+occupies  2  bytes  (16  bits,  a  VAX  memory "word"), and a long
+occupies 4 bytes (32 bits, a VAX  memory  "longword").   The  data
+stack is a long wide; that is, the largest item it ca hadle as one
+item is a long.  However, it is easy to write words that treat two
+or more stack items as single item if you should need to deal wiht
+data types that are that large.
+     Text is  basicallly  just  any  string  of  bytes  containing
+characters.   However,  to  help  keep track of the length of such
+srings  three  different  "string"  formats  have  been   defined:
+byte-counted  string,  which  is  a  byte containing the number of
+characters in the string followed by the characters;  word-counted
+or  short-counted  string,  which is a short (2 bytes, VAX memmory
+word) containing the number of characters in the  string  followed
+by  the  characters,  and  maxlen-short-counted string, which is a
+short containing  the  maximum  length  of  hte  string,  a  short
+containing  the  current length of the string, and the characters.
+Note that the maxlen-short-counted  string  variables  return  the
+address of the current length of the string.  Ther are no specific
+words to byte-counted string variables, but { array } can be  used
+easily to create such sring variabels.
+
+3.2  Terminology
+
+                        Items in stack comments
+
+     ?    "?" is not an item on the  stack  itself.   Instead,  it
+          indicates  that  items  to  the left of the "?" (further
+          down on the stack) may or may not be present,  depending
+          on  the  values  of items to the right of the "?" (which
+          are on top of the stack).  For instance, a stack comment
+          of  ( a -- a > f } indicates that the word leaves a flag
+          on the top of the stack, and depending on the  value  of
+          the flag will also leave an address on the stack.
+     a    address
+     b    unsigned byte (integer, 1 byte)
+     c    unsigned character (1 byte)
+     f    boolean flag; 0 = false, true <> 0 (usually -1)
+     l    long (integer, 4 bytes)
+     n    integer (usually meaning number, a longword)
+     s    short (integer, 2 bytes)
+
+Note that *all* stack items are at least a longword in width.  For
+instance,  a  { b }  stack  item  merely says that the programmmer
+should consider the stack as containing a value that will  fit  in
+an unsigned byte.  Words that use data types that are smaller than
+a longword will only use the first part of the longword  in  their
+calculations, but will still pop the whole longword containing the
+smaller data type from the stack, not just the  the  smaller  data
+type.   In  other words, the stack pointer can only be manipulated
+in 4 byte increments or decrements.
+
+3.3  Format Of Entries
+
+Each entry starts with a line containing the name of the  word  on
+the  left  side  and  the stack effect comment for the word on the
+other side, separated by two blank lines.  Following a blank  line
+is the explanation of the word.
+                                                            Page 2
+
+
+3.4  Kernel Vocabulary
+
+                                                            Page 3
+
+
+3.5  Compiler Vocabulary
+
+3.6  Assembler
+
+3.7  Miscellaneous Internals And Implementation Notes
+
+
+                          Register Usage
+
+r11       -- data stack pointer
+r10       -- loop stack pointer
+r9        -- end of dictionary pointer
+r8-r6     -- temporary storage when using character instructions
+r0-r5     -- temporary storage
+
+                     Header format for a word
+
+long      -- link to previous word  in  dictionary  (header  field
+             addresss, hfa; link field addrss lfa)
+byte      -- number of bytes in the name of the word,  maximum  80
+             (name field address, nfa)
+byte(s)   -- characters of name
+code...   -- executable code for this word  (code  field  address,
+             cfa)
+data...   -- optional data for this word (parameter field address,
+             pfa)
