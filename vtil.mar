@@ -1,0 +1,642 @@
+
+        .title  VTIL VAX Threaded Interpretive Language
+        .ident  /v1.01/         	; version number
+;******************************************************************************
+;
+; VTIL -- VAX Threaded Interpretive Language
+;
+;	Program:	V T I L . MAR
+;	Written By:	Thomas Kurt Bond
+;	Version:	v1.01
+;	Date:		7 February 1988
+;
+; Description:
+;     This program was written for my Senior Seminar Project at West Virginia
+; Wesleyan College in the spring of 1988.
+;
+;     This program implements a Threaded Interpretive Language (TIL) in
+; VAX Macro, using subroutine threading.  Essentially, it is an interactive
+; compiler.
+;
+; History
+; Ver	  When	   Who	What
+; 1.00	  020788   tkb  Initial version.
+; 1.01    021288   tkb  Uses a smudge bit to prevent word being defined from
+;                       being found while defining it.  ({ recurse } allows
+;                       recursion.)  Also limits length of names to 80 characters
+;                       allowing the name-length byte to have the smudge bit
+;                       in it.
+;******************************************************************************
+;!> VTIL.MAR -- VAX Threaded Interpretive Langague, an interactive compiler.
+
+;
+; Set up source code formatting macros.
+;
+
+;+++
+;m> newpage -- change the subtitle and move to a new page.
+;---
+        .macro  newpage subtitle
+        .page
+        .sbttl  subtitle
+        .endm
+        
+;******************************************************************************
+;
+; Conditional Assembly Control Symbols
+;
+;******************************************************************************
+ca_trapping = 0		; If this is defined, code for a condition handler
+			; is assembled.  We don't always want the condition
+                        ; handler because it also catched breakpoints in the
+                        ; debugger.
+ca_controlc = 0         ; If this is defined, code to trap control/c and
+                        ; return to the VTIL interpreter is assembled.
+                        ; Note that this uses the trapping so it is useless
+                        ; if `ca_trapping' is not defined.
+
+	newpage <External Symbols>
+;******************************************************************************
+;
+; External Symbols
+;
+;******************************************************************************
+	.dsabl  global
+        .extrn  dc$_term
+        .extrn  dsc$k_dtype_t, dsc$k_class_s
+        .extrn  io$_setmode, io$m_ctrlcast
+        .extrn  lib$_inpstrtru
+        .extrn  lib$get_input, lib$put_output, lib$signal
+        .extrn	ots$cvt_l_ti
+        .extrn  rms$_eof, rms$_fnf
+        .extrn  tpu$tpu
+        .extrn  vtil_ctrlc, vtil_maxerrors
+        $chfdef                         ; condition handling facility
+
+
+newpage <General Notes>
+;******************************************************************************
+;
+; General Notes
+;
+;******************************************************************************
+;
+; Word -- A VTIL word is the equivalent of the procedure and/or function of
+; Pascal or other langauges.  (Context will have to determine whethere we
+; are talking about VTIL words or memory 2-byte words.)    A word finds any
+; parameters it needs on the data stack, and leaves any result on the stack
+; also.  VTIL words (or sequences of words) will be singled out from normal text
+; by enclosing them in { } pairs, since many of them include punctuation marks
+; that might be otherwise confusing.  Also, the string `...' inside a { }
+; pair will indicate a sequence of VTIL words omitted as irrelevent to the
+; explaination.
+;
+; Stack Comments.  A stack comment shows what a word expects to find on the
+; stack and what results it leaves on the stack after execution.
+; A stack comment looks like the following: ( n1 n2 -- n1 ).  The rightmost
+; item on each side of the `--' is the top of the stack, so the items in the 
+; stack comment are in the same order as they would be if you entered them from
+; the terminal.  The `--' separates the items that word expects to find on
+; the stack from the items that it leaves on the stack.  Ex: After you enter
+; { 1 2 3 }, 3 is on the top of the stack.  In ( n1 n2 n3 -- x1 x2 ) n3 is
+; on top of the stack before the word executes, and x2 is on top of
+; the stack after that word executes.
+;
+; Items in stack comments:
+; 	?	-- `?' is not an item on the stack itself.  Instead, it
+;                  indicates that items to the left of the `?' (further
+;                  down on the stack) may or may not be present, depending
+;                  on the value of items to the right of the `?' (which
+;                  are on top of the stack).  For instance, a stack comment
+;                  of ( a -- a ? f ) indicates that the word leaves a
+;                  flag on the top of the stack, and depending on the value
+;                  of the flag will also leave an address on the stack.
+;	a	-- address
+;	b	-- unsigned byte (integer, 1 byte)
+;       c       -- unsigned characcter (1 byte)
+;       f       -- boolean flag; 0 = false, true <> 0 (usually 1)
+;       l       -- long (integer, 4 bytes)
+;       n       -- integer (usually meaning number.  A longword)
+;       s       -- short (integer, 2 bytes)
+;
+;       Note that *all* stack items are at least a longword in width.
+;       a ( b ) stack item merely says that the programmer should consider
+;       the stack as containing a value that will fit in an unsigned
+;       byte.  Words that use data types that are smaller than a longword
+;       will only use th first part of the longword in their calculations, 
+;       but will still pop the whole longword containing the smaller data
+;       type from the stack, not just the smaller data type.  In other words,
+;       the stack pointer can only be manipulated in 4 byte increments or
+;       decrements.
+;
+; Starting Vocabularies -- At the moment, there are only two starting
+; vocabularies `compiler' and `kernel', which are independent of each other.
+; All later vocabularies should be linked into one of thse.  But See v1_*.
+;
+;******************************************************************************
+        newpage <Implementation Notes>
+;******************************************************************************
+;
+; Implementation Notes
+;
+;******************************************************************************
+;
+; r11, ds       -- data stack pointer
+; r10, ls       -- loop stack pointer
+; r9, eodp      -- end of dictionary pointer
+; r8-r4 are used for temporary storage when using character instructions.
+;
+; header format for a word
+;	long	-- back link to next word in dictionary (hfa, lfa)
+;       byte    -- count of name byes (nfa)
+;       byte(s) -- bytes of name
+;       code    -- executable code for this word (cfa)
+;       data    -- optional data for this word (pfa)
+;
+; Names
+; Since none of the VTIL kernel and compiler words contain underscores,
+; the following conventions were followed so there would be no conflict
+; between names in the MACRO-32 source and in the VTIL.  For instance,
+; { context } is the name of a word in the kernel that pushes the address
+; of the current vocabulary variable on the stack.  However, the definition
+; of context in the MACRO source makes `context' a label wich jsb'ing to
+; executes the word, so `context' can't be used in MACRO as a label for
+; the variable as well.
+;
+;	<name>	   -- label of start of a VTIL word called <name>
+;	_<name>	   -- internal branch points
+;	adm_<name> -- addressing mode constant value
+;       c_<name>   -- constant value
+;       ca_<name>  -- conditional assembly control symbols
+;	i_<name>   -- label of start of a VTIL word whose <name> doesn't
+;		      otherwise fit this naming convention, du to the
+;                     character limitations in VAX MACRO symbols.
+;                     For eample, i_plus = { + }, i_plus_store = { +! }
+;	op_<name>  -- opcode constant value
+;	r_<name>   -- internal routine <name> that is readed by branching and
+;                     not by jumping to subroutine.
+;	s_<name>   --  internal subroutine that is reached by a call.
+;       q_<name>   -- label of start of a VTIL word with name `?<name>'.
+;       v_<name>   -- internal variable name.
+;       vl_<name>  -- internal vocabulary link symbol used by the header macro
+;                     to link built-in vocabularies together.
+;
+;	Names of words other than looping words or branching words that should
+;	occur in pairs generally have VTIL names like { name( } and
+;       { )name } or { name< } and { >name } and internal names like
+;       i_name_begin and i_name_end.
+;
+; To make finding words easie, all the words have a header comment
+; like this:
+;	;+++
+;       ;s> name -- explanation
+;       ;---
+; where `s' is `c' for the compiler words, `k' for the kernel words,
+; `m' for macros, `r' for routines, and `s' for subroutines.
+;
+; The string `;??? starts an internal note to the programmer.  These notes
+; generally comment about an alternate method of doing something or suggest
+; areas that should be improved.
+;
+;******************************************************************************
+	newpage <Constants>
+;******************************************************************************
+;
+; Constants -- Symbol definitions for constant values
+;
+;******************************************************************************
+;
+; General constants
+;
+c_true		= -1            	; true value, actually anything
+                                        ;  but 0 is true
+c_false		= 0                     ; false value
+c_max_errs      = 20                    ; Maximum number of fatal errors allowed
+c_max_name_len  = 80                    ; Maximum length of word names
+c_blank         = 32                    ; ascii blank
+c_com1_begin    = ^a/\/                 ; start first type of comment with `\'
+c_com1_end      = 0                     ; end w/something not in a line of text
+                                        ; so it will skip the whole line
+c_com2_begin	= ^a/(/                 ; start second type of comment with `('
+c_com2_end      = ^a/)/                 ; end with `)'
+c_inuse         = 1                     ; buffer in use flag
+c_modified      = 2                     ; bufffer updated flag
+c_max_blocks    = 3                     ; number of block i/o buffers
+c_block_size    = 1024                  ; size for block i/o buffer
+c_keysize       = 4                     ; size of key (longword record number)
+c_d_blks_in_blk = c_block_size / 512    ; number of disk blocks in VTIL block
+c_max_len       = 160                   ; maximum length of input line
+c_screen_len    = 80                    ; screen is 80 chars wide
+c_pad_moat      = 265                   ; distance of pad from eodp
+c_ds_size       = 1024 * 4              ; data stack size: 1024 items of
+                                        ; 4 bytes each
+c_ls_size	= 512 * 4               ; loop stack size: 512 items of
+                                        ; 4 bytes each
+;
+; opcodes == constants for compiling opcodes into dictionary
+;
+op_acbl		= ^xf1
+op_addl2        = ^xc0
+op_bneq         = ^x12
+op_brw          = ^x31
+op_jsb          = ^x16
+op_movab        = ^x9e
+op_moval        = ^xde
+op_movaw        = ^x3e
+op_movb         = ^x90
+op_movc3        = ^x28
+op_movl         = ^xd0
+op_rsb          = ^x05
+op_tstl         = ^xd5
+;
+; addressing modes -- constants for compiling addressing modes into dictionary.
+;	In order by register and addressing mode.
+;
+adm_r0		= ^x50			; r0
+adm_r9          = ^x59                  ; r9
+adm_def_r9      = ^x69                  ; (r9)
+adm_ainc_r9     = ^x89                  ; (r9)+
+adm_r10         = ^x5a                  ; r10
+adm_def_r10     = ^x6a                  ; (r10)
+adm_adec_r10    = ^x7a                  ; -(r10)
+adm_ainc_r10    = ^x8a                  ; (r10)+
+adm_b_dis_r10   = ^xaa                  ; b^(r10)
+adm_def_r11     = ^x6b                  ; (r11)
+adm_adec_r11    = ^x7b                  ; -(r11)
+adm_ainc_r11    = ^x8b                  ; (r11)+
+adm_immediate   = ^x8f                  ; immediate mode
+adm_absolute    = ^x9f                  ; absolute mode
+adm_b_rel       = ^xaf                  ; byte relative
+
+;
+; Assembly-tie vocabulary links -- symbols used during assembly to link
+;	the starting vocabularies together.   These start out at 0 so that
+;       all vocabularies will end with a null pointer.  During assembly,
+;       each link holds the address of the link fields of the most recently
+;       defined.  When a word is defined with the `header' macro then
+;       link field of the new word is initialized to the valu of the
+;       link and the link is changed to the address of the link field of the
+;       new word.
+;
+vl_compiler = 0		   ; Links the compiler vocabulary together
+vl_kernel = 0              ; Links the kernel vocabulary together
+;******************************************************************************
+        newpage <Macros>
+;******************************************************************************
+;
+; Macros -- Macro Definitions
+;
+;******************************************************************************
+;!+++t
+;m> header -- macro to start all words in code
+;	This macro sets up the header for the VTIL words, and inserts it
+;       into the linked vocabulary list.  Because it uses backslash delimited
+;       strings, none of the words in the starting vocabularies built in
+;       the macro source code should have backslashes in their names.
+;
+;!---
+        macro   header  macname,name=<>,branch=v1_kernel
+        .long   branch  	; back link to the previous word in this branch
+        branch = -4     	; where to link the next word to in this branch
+        .nchr  nchr, ^\name\	; nchr = length( name )
+        .if    le, nchr         ; nchr <= 0
+           .ascic \macname\     ; no auxillary name, use principle one
+        .if_false               ; else
+          .ascic \name\         ; use auxillary name
+        .endc                   ; end if
+macname:                        ; use name of word as branch label
+	.endm                   ; end of macro header
+
+
+;!+++
+;m> iserror -- simplistic error checking routine.  If error code in r0,
+;	die messily.
+;!---
+        .macro	iserror,badwhere=_error_exit,?goodwhere
+        blbs    r0,goodwhere    ; no error, go on
+        brw     badwhere        ; error, branch to error handler
+goodwhere:
+        .endm   iserror
+
+
+;!+++
+;m> isstrerr -- simplistic error checking routine.  If error code in r0,
+;	unless lib$_inpstrtru, die messily
+;!---
+        .macro  isstrerr badwhere=_error_exit,?goodwhere
+        cmpl    #lib$_inpstrtru,r0      ; string truncation on error?
+        beql    goodwhere               ; yes, ignore and go on
+        blbs    r0,goodhwere            ; no error, go on
+        brw     badwhere                ; error, branch to error handler
+goodwhere:
+        .endm   isstrerr
+
+        newpage <Data Section>
+;******************************************************************************
+;
+; Data Section -- Contains the stacks, i/o buffers, misc buffers,
+;	and the system variables.
+;
+;******************************************************************************
+        .psect  vtildata,long,noexe
+;
+; data stack allocation
+;
+c_ds_end:
+        .blkb   c_ds_size       ; reserve c_ds_size bytes for data stack
+c_ds_start:
+;
+; Loop stack allocation
+;
+c_ls_end:
+        .blkb   c_ls_size       ; reserve c_ls_size bytes for loop stack
+c_ls_start:
+
+
+;
+; message string variables
+;	.ascid strings are used by lib$get_input and lib$put_output
+;       .ascic strings are used by { write }
+;
+v_greeting:
+        .ascid  /VTIL v1.01 -- Welcome to TIL-land!/	; Greet the user
+v_vtilprompt:
+        .ascid  /VTIL> /        ; prompt for system input
+v_usrprompt:
+        .ascid  /? /            ; prompt for programmer input
+v_undermess:
+        .ascid  /Stack Underflow!/
+v_overmess:
+        .ascid  /Stack Overflow!/
+v_unknown:
+        .ascic  /Unknown token: { /
+v_unknown2:
+        .ascic  / } in line: /
+v_infilemess:
+        .ascic  /In file: /
+v_filenotfound:
+        .ascid  /File not found!/
+v_unkn_blk_mess:
+        .ascic  /Uknown Block Number: /
+v_wordnotfound:
+        .ascic  /Word Not Found: /
+v_nametoolong:
+        .ascic  /Name too long: /
+v_nametrunc:
+        .ascic  /Truncated to: /
+
+
+;
+; variables for system input
+;
+v_inbuf:
+        .blkb   c_max_len       ; buffer for system input
+v_org_inlen:
+        .word   0               ; original length of line
+v_inlen:                        ; word to hold length of remaining unprocessed
+        .word   0               ; characters
+v_inptr:
+        .long   v_inbuf         ; pointer to current location in string
+v_in_dsc:
+        .word   c_max_len       ; maximum length for system input
+        .byte   dsc$k_dtype_t   ; data type text
+        .byte   dsc$k_class_s   ; descriptor class
+        .long   v_inbuf         ; pointer to input buffer
+
+
+;
+; rms buffers for loading source from a file instead of keyboard
+;
+        .align  long            	; so rms macros won't complain
+v_infab:
+        $fab
+;		fnm=<infile>,-  	; primary input file name
+;		dnm=<vtil.vtil>         ; default input file extension
+v_inrab:
+        $rab    fab=v_infab,-           ; pointer to fab
+                rop=rah,-               ; read-ahead option
+                ubf=v_inbuf,-           ; record buffer
+                usz=c_max_len           ; and size
+v_fnamelen:
+        .byte   0               ; length of file name for { load }
+v_fname:
+        .blkb   c_max_len       ; buffer for fil ename for {load}
+
+
+;
+; rms buffers for VTIL block i/o (which is actually rms record i/o)
+;
+        .align long
+v_blkfab:
+        $fab    dnm=<vtilblocks.dat>,-  ; default input file name
+                fac=<get,upd>,-         ; block i/o operations
+                fnm=<vtilblocks>,-      ; input file name
+                mrs=c_block_size,-      ; maximum record size
+                rfm=<fix>               ; fixed length records
+v_blkrab:
+        $rab    fab=v_blkfab,-          ; pointer to fab
+                kfb=v_blkkey,-          ; pointer to key
+                ksz=c_keysize,-         ; size of key
+                rac=<key>,-             ; random access by record number
+                ubf=v_blkbuff,-         ; address of user buffer
+                usz=c_block_size        ; and the record size
+v_blkkey:
+        .long                           ; buffer for key (longword pos rec #)
+v_blockio:
+        .byte   c_false                 ; true when block file is open
+v_current_buff:                         ; Buffer # of most recently accessed
+	.long	0                       ; block
+
+v_buf_inuse:
+        .blkb   c_max_blocks            ; flags for inuse and modified
+v_buf_blk_nums:
+        .blkl   c_max_blocks            ; block numbers in buffers
+
+;
+; Moved the Block i/o buffers away from the rest of the block i/o stuff
+; to the end of the dictionary because that is safer.  They are away from
+; other variables that might get overwritten if someone tries to write
+; too long a string to the buffers, for instance.
+;
+
+
+;
+; variables for terminal input
+;
+v_readlen:
+        .word                   ; length of returned input
+v_readdsc:
+        .word   c_max_len       ; maximum length
+        .byte   dsc$k_dtype_t   ; data type text
+        .byte   dsc$k_class_s   ; descriptor class
+v_readaddr:
+        .long   0               ; pointer to the input buffer
+; v_static_dsc is the middle of a descriptor so it can be copied onto ds
+; to make full desciptor when top fo stack is ( addr count )
+v_static_dsc:
+        .byte   dsc$k_dtype_t   ; data type text
+        .byte   dsc$c_class_s   ; descriptor class
+v_outlen:
+        .word   0               ; length of output
+v_outbuf:
+        .blkb   c_max_len       ; output bufer
+
+
+;
+; Variables for calling the EVE editor using its callable interface.
+;
+v_tpu_com:                      ; buffer for constant section of command
+	.ascii	\tpu/section=eve$dir:eve_edt \ ; use my version of eve
+c_tpu_com_leen = . - v_tpu_com  ; length of command is a constant
+v_tpu_com2:                     ; buffer for user section of command
+	.blkb	c_max_len
+v_tpu_dsc:
+        .word   0               ; descriptor for command to pass to tpu$tpu
+        .byte   dsc$k_dtype_t   ; data type text
+        .byte   dsc$k_class_s   ; descriptor class
+        .long    v_tpu_com      ; pointer to tpu command buffer
+;
+; Buffers for $ASSIGN, $DASSIGN, and $QIO
+;
+v_input_name:
+        .ascid  /sys$command/
+v_input_chan:
+        .blkw   1
+;
+; Buffers for $GETCHN_S
+;
+v_getchn_ret_len:               ; returned length of buffer info
+	.long	0
+v_getchn_in_buf:                ; input buffer for getchn, tells about output
+                                ; buffer
+	.long	8               ; length of output buffer
+v_getchn_buf_adr:
+        .long   v_getchn_buf    ; address of output buffer
+v_getchn_buf:                   ; output buffer
+	.quad	0               ; cleared to begin
+
+;
+; System Variables
+;
+v_trap_depth:           ; depth to unwind stack in trap handler
+	.long	1       ; unwind to establisher, i.e, main body, 1 deep
+v_ctrlc_depth:          ; depth to unwind stack in control/c handler
+	.long	2	; unwind to main program, 2 deep (ctrlc and a_start)
+v_errors:
+        .long   0       ; Number of errors caught by condition handler so far
+v_returnstack:          ; original return stack pointer.  Save it when we 
+	.long   0       ; abort out of jsb's we return from the right spot
+v_context:		; points to data field of the word for the vocabulary
+	.long	0       ; in which words are searched for.
+v_current:		; points to data field of the word for the vocabulary
+	.long	0       ; that new words are linked into.
+v_compiler:             ; Pointer to most recent word in compiler vocabulary
+	.long	0
+v_kernel:		; Pointer to most recnet word in kernel vocabulary
+	.long	0       ; data field of { kernel }
+v_infile:		; Flag.  If true, reading from an input file.
+	.byte	c_false	; If false, reading from terminal.  Set by { load }
+v_filelinenum:          ; number of lines read from input file
+	.long	0	; used in error reporting
+v_state:                ; Flag.  True if compiletime word found
+	.byte	c_false ; in compile mode (then set to false by ?execute),
+                        ; otherwise false.
+v_mode:                 ; Flag.  True if in compile mode, false if execute mode.
+	.byte	c_false ; true => compile word, false => execute word
+v_radix:
+        .long   10      ; base for number conversion on input and output
+v_hld:
+        .long   0       ; pointer to number output conversion buffer
+
+        newpage <Kernel Built-ins>
+        .psect  vtilcode,exe,nowrt
+;******************************************************************************
+;
+; Kernel Built-Ins -- Original vocabulary of words.  All other vocabularies
+;	link into this one, except the compiler (compiletime word) vocabulary.
+;
+;******************************************************************************
+_kernel_begin:
+
+
+;+++t
+;k> ! (store) -- ( n a -- ) store longword `n?' at `a'.
+;---
+        header  i_store,<!>
+        movl    4(r11),@(r11)           ; store item at what's pointed to by
+                                        ; top of stack
+	addl2	#8,r11                  ; pop arguments
+        rsb                             ; end of !
+
+
+;+++
+;k> # -- ( n1 -- n2 ) generate next output character in number conversion.
+;	used between { <# } and { #> }.
+;---
+        header	i_sharp,<#>
+        movl    v_radix,-(r11)  ; put radix on stack
+        jsb     i_div_mod       ; get next digit
+        jsb     tochar          ; make it appropriate ascii char
+        jsb     hold            ; put in output string
+        rsb                     ; end of #
+
+
+;+++
+;k> #> -- ( n1 -- a n2 ) End numeric output.  Leaves length and address of
+;	numeric text on stack for { write }.
+;---
+        header  i_sharp_greater,^\#>\
+        movl    v_hld,(r11)             ; drop number, put address of output
+                                        ; on stack
+	addl3	r9,#c_pad_moat,r0       ; get address of pad
+        subl3   v_hld,r0,-(r11)         ; put count on stack
+                                        ; count = pad - hld
+	rsb	                        ; end of #>
+
+
+;+++
+;k> #s -- ( n1 -- n2 ) Convert all all digits of n1 to output string.  Leaves 0.
+;	Used between { <# } and { #> }.
+;---
+        header  i_sharp_s,<#s>
+        jsb     i_sharp                 ; output at least one character
+        tstl    (r11)                   ; is top not = 0?
+        bneq    i_sharp_s               ; yes, do it again
+        rsb                             ; no, exit
+                                        ; end of #s
+
+
+;+++
+;k> (# -- ( -- ) Start count of items on the stack.  Used with { #) }.
+;	Uses the loop stack!
+;---
+        header  i_count_begin,<(#>
+        movl    r11,-(r10)              ; save address of top of stack
+        rsb                             ; end of (#
+
+
+;+++
+;k> (and) -- ( n1 n2 -- n3 ) bitwise and of n1 and n2.
+;---
+	header  i_bit_and,<(and)>
+        mcoml   (r11),(r11)     	; make ones comp because blc ones
+                                	; comps mask
+	bicl2	(r11)+,(r11)    	; and it
+        rsb                     	; end of (and)
+
+
+;+++
+;k> (not) -- ( n1 n2 -- n3 ) bitwise not of n1 and n2.
+;---
+        header  i_bit_not,<(not)>
+        mcompl  (r11)(r11)      	; not it
+        rsb                             ; end of (not)
+
+
+;+++ page 17
+;k> (or) -- ( 
+
+
+; Local Variables:
+; comment-start: ";"
+; End:
