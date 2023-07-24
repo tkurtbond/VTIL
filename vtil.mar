@@ -834,8 +834,67 @@ _kernel_begin:
 
 ;+++
 ;k> : -- ( -- ) (colon) defining word that starts a word definition.
-; Page 21
-        
+;	sets { mode } to true
+;       Note that { : } is a compiling word an so is in compiler vocab.
+;---
+        header  i_colon,<:>
+        movl    v_current,v_context     ; search same vocab we are defining into
+        jsb     create                  ; create header for new word
+;??? Should I now set the high bit in the length byte (To prevent word from
+; being found during its own definition)?
+	jsb	smudge                  ; set smudge bit so word isn't found
+        movb    #c_true,v_mode          ; set compiler v_mode
+        rsb                             : end of :
+
+
+;+++t
+;k> < -- ( n1 n2 -- f ) true if n1 < n2, false otherwise.
+;---
+        header  i_less,^\<\
+        compl   (r11)+,(r11)+           ; reverse order, so n2 > n1
+        bgtr    10$                     ; yes
+        movl    #c_false,-(r11)         ; no, leave with false
+        rsb                             ; return
+10$:
+        movl    #c_true,-(r11)          ; yes, leave with true
+        rsb                             end of <
+
+
+;+++
+;k> <# -- ( -- ) start numeric output conversion.
+;---
+        header	i_less_sharp,^\<#\
+        addl3   r9,c_pad_moat,v_hld     ; pad hld !
+        rsb                             ; end of <#
+
+
+;+++t
+;k> <= -- ( n1 n2 -- f ) true if n1 <= n2, false otherwise.
+;---
+        header  i_less_equal,^\<=\
+        cmpl    (r11)+,(r11)+           ; reverse order, so n2 >= n1
+        bgeq    10$                     ; yes
+        movl    #c_false,-(r11)         ; no, leave with false
+        rsb                             ; return
+10$:
+        movl    #c_true,-(r11)          ; yes, leave with true
+        rsb                             ; end of <
+
+
+;+++t
+;k> = -- ( n1 n2 -- f ) true if n1 = n2, false otherwise
+;---
+        header  i_equal,<=>
+        cmpl    (r11)+,(r11)+           ; n2 = n1?
+        beql    10$                     ; yes
+        movl    #c_false,-(r11)         ; no, leave with false
+        rsb                             ; return
+10$:
+        movl    #c_true,-(r11)          ; yes, leave with true
+        rsb                             ; end of =
+
+
+;+++ Page 22
 ; Local Variables:
 ; comment-start: ";"
 ; End:
