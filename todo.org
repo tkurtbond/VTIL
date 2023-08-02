@@ -1,0 +1,5 @@
+* TODO Replace all `x's with 'x'.
+* TODO spell check.
+* TODO draw ascii pictures of header format.
+* TODO draw ascii pictures of memory layout.
+* TODO Correct captialization and punctuation of all comments.
