@@ -1832,8 +1832,290 @@ _kernel_begin:
 
 
 ;+++
-;k> hex -- ( mid Page 38
+;k> hex -- ( -- ) Set the base to hexidecimal.
+;---
+	header	hex
+	movl	#16,v_radix		; switch to base 16 (hexadecimal)
+	rsb				; end of hex
+
+
+;+++
+;k> hld -- ( -- a ) Variable hld, return address of hld.
+;---
+	header	hld
+	moval	v_hld,-(r11)		; leave address on stack
+	rsb				; end of hld
+
+
+;+++
+;k> hold -- ( -- ) Insert `c' in current numeric output string.
+;---
+	header	hold
+	decl	v_hld			; move pointer down one char
+	movb	(r11),@v_hld		; fill new char w/top of stack
+	addl2	#4,r11			; pop char off stack
+	rsb				; end of hold
+
+
+;+++
+;k> i> -- ( -- ) Copy the top of the loop stack to the data stack.
+;	This word is used inside of { do ... loop }'s to get hte index
+;	of the innermost loop onto the top of the stack.
+;---
+	header	i_i_to,^\i>\
+	movl	(r10),-r(11)		; copy w/o consuming ~~~ from loop stack.
+	rsb				; end of i>
+
+
+;+++
+;k> kernel -- ( -- ) Set context to kernel vocabulary.
+;---
+	header	kernel
+	moval	v_kernel,v_context
+	rsb				; end of kernel
+
+
+;+++
+;k> leave -- ( -- ) Leave a { do } loop at end of this iteration.
+;---
+	header	leave
+	movl	(r10),4(r10)		; make limit = index so loop will exit
+	rsb				; end of leave
+
+
+;+++
+;k> load -- ( -- ) Take input from file instead of the terminal.
+;	Format: { load filename }
+;---
+	header	load
+	movl	#c_blank,-(r11)		; set up for blank terminated file name
+	jsb	token			; get v_fname
+	movzbl	(r9),r6			; get count of v_fname
+	movc3	r6,1(r9),v_fname	; move to name buffer
+	movb	r6,v_fnamelen		; save length
+	moval	v_fname,-
+		v_infab+fab$l_fna	; tell it where filespec is
+	movb	v_fnamelen,-
+		v_infab+fab$b_fna	; tell it what size filespec is
+	$open	fab=v_infab		; open input file
+	blbc	r0,10$			; Quit on error
+	$connect rab=v_inrab		; connect to input
+	blbc	r0,20$			; Quit on error
+	brb	40$			; branch to read loop
+10$:
+	cmpl	r0,#rms$fnf		; is it file not found?
+	bneq	15$			; no
+	pushaq	v_filenotfound		;
+	calls	#1,g^lib$put_output	; Tell user file not found
+	rsb				; return
+15$:
+	moval	v_infab,r6		; error: keep fab address
+	brw	_f_err			; signal file error
+20$:
+	moval	v_inrab,r6		; keep rab address
+	brw	_r_err			; signal record error
+40$:
+	movb	#c_true,v_infile	; set input from file flag
+	movl	#0,v_filelinenum	; reinitialize number of lines read
+	rsb				; end of load
+
+
+;+++t
+;k> long -- ( n -- ) Create a word that pushed address of longword on stack,
+;	save space in dictionary, and initialize to `n'.
+;---
+	header	i_long,<long>
+	jsb	create			; enclose next token in dictionary
+	movb	#op_moval,(r9)+		; `moval'
+	movb	#adm_b_rel,(r9)+	; byte relative
+	movb	#2,(r9)+		; (pc+2)
+	movb	#adm_adec_r11,(r9)+	; -(r11)
+	movb	#op_rsb,(r9)+		; `rsb'
+	movl	(r11)+(r9)+		; move top of stack into dictionary
+	rsb				; end of long
+
+
+;+++t
+;k> longconst -- ( n -- ) Create a word that pushed a `n' to the stack.
+;---
+	header	longconst
+	jsb	create			; enclose next token in dictionary
+	jsb	literal			; enclose code in dictionary
+	movb	#op_rsb,(r9)+		; stick `rsb' into dictionary to
+					;   end constant word
+	rsb				; end of longconst
+
+
+;+++
+;k> ls>ds -- ( -- n ) Remove `n' from loop stack.
+;---
+	header	i_ls_to_ds,^/ls>ds/
+	movl	(r10)+,-(r11)		; pop from loop stack, move to dstack
+	rsb				; end of ls>ds
+
+
+;+++
+;k> match -- ( a1 n1 a2 n2 -- a3 ? f ) Search for string of length `n2' at
+;	`a2' in string of length `n' at `a'.
+;---
+	header	i_match,<match>
+	matchc	(r11),@4(r11),-		; object string (one we're looking for)
+		8(r11),@12(r11)		; source string (one we're looking in)
+	bneq	100$			; no match found
+; match found, calcualte its address.  matchc leaves in r3 the address of the
+; byte after last byte matched in the source string, so address of matched
+; string is r3 - objectlen.
+	subl3  (r1),r3,r0		; calculate address of matched string
+	addl2  #16,r11			; pop arguments
+	movl   r0,-(r11)		; put address of matched string on stack
+	movl   #c_true,-(r11)		; leave true on top of stack
+	rsb    				; return
+100$:
+; no match found
+	addl2	#16,r11			; pop arguments
+	movl	#c_false,-(r11)		; leave a false ~~~ on top of stack
+	rsb				; end of match
+
+
+;+++
+;k> max -- ( n1 n2 -- n2 ) Leave larger of n1 and n2 on stack.
+;---
+	header	max
+	cmpl	(r11),4(r11)		; compare top two stack items
+	bleq	10$			; Top less than under item?
+; no, top greater
+	movl	(r11),4(r11)		; move greater down stack
+10$:
+	addl2	#4,r11			; pop first argument, since
+					;   great is in second item now
+	rsb				; end of max
+
+
+;+++
+;k> message -- ( a -- ) writes word-counted string at `a' to terminal.
+;---
+	header	message
+	jsb	count			; set up for write
+	jsb	write			; write it out
+	rsb				; end of message
+
+
+;+++
+;k> min -- ( n1 n2 -- n2 ) Leaves small or n1 and n2 on stack.
+;---
+	header	min
+	cmpl	(r11),4(r11)		; compare top two stack items
+	bgeq	10$			; Top is greater than under item
+	movl	(r11),4(r11)		;
+10$:
+	addl2	#4,r11			; pop top stack item since lesser is
+					;   in second line.
+	rsb				; end of min
+
+
+;+++
+;k> mod -- ( n1 n2 -- n3 ) Leave remainder of n1 / n2 on stack.
+;---
+	header	mod
+	divl3	(r11),4(r11),r0		; r0 = n1 / n2
+	mull3	r0,(r11)+,r1		; temp = n2 * n3
+	subl2	r1,(r11)		; n3 = n1 - quotient
+	rsb				; end of mod
+
+
+;+++
+;k> move -- ( a1 a2 w -- ) Copies `w' bytes from `a1' to `a2'.
+;---
+	header	move
+	movc3	(r11),@8(r11),@4(r11)	;
+	addl2	#12,r11			; pop arguments
+	rsb				; end of move
+
+
+;+++
+;k> move&fill -- ( a1 w1 a2 w2 c -- ) copies bytes from `a1' to `a2'.
+;	If `w2' > `wl', fill with c.  If `w2' < `w1', truncate.
+;---
+	header	i_move_fill,<move&fill>
+	movc5	12(r11),@16(r11),-	; sourcelen, source
+		(r11),-			; fill character
+		4(r11),@8(r11)		; destlen, destination
+	addl2	#20,r11			; pop arguments
+	rsb				; end of move/fill
+
+
+;+++
+;k> negate -- ( n -- -n )  Leave two's complement of top stack item on stack.
+;---
+	header	negage
+	mnegl	(r11),(r11)		; negate it
+	rsb				; end of negate
+
+
+;+++
+;k> not -- ( f1 -- f2 ) Logical not of top  of stack; not f1.
+;---
+	header	not
+	tstl	(r11)+			; Is it false?
+	beql	10$			; yes
+	movl	#t_false,-(r11)		; no, leave with false on stack
+	rsb				; return
+10$:
+	movl	#c_true,-(r11)		; it is false, leave with true on stack
+	rsb				; end of not
+
+
+;+++t
+;k> number -- ( -- n ? f ) Try to turn token at eodp into a number.  If
+;	it is a number, leave ( number true ) on stack.  If it is not a number
+;	leave ( false ) on stack.
+;---
+	header	number
+	clrl	r0			; clear result
+	clrl	r1			; clear sign
+	movl	r9, r6			; get pointer to token
+	movzbl	(r6)+,r7		; get byte count
+	cmpb	#^a/-/,(r6)		; does it have a leading minus sign?
+	bneq	_number_top		; no, go on
+	movl	#1,r1			; yes, set flag
+	incl	r6			; advance over sign
+	decl	r7			; length = length - 1
+_number_top:
+	movzbl	(r6),r2			; get byte
+	subl2	#x30,r2			; check in range 0...9
+	tstl	r2			; Is it negative?
+	blss	_invalid_number		; yes, leave with false
+	cmpl	r2,#9			; r2 <= 9
+	bleq	_check_base		; yes, continue
+	cmpl	r2,#^x11		; Is it A or greater?
+	blss	_invalid_number		; no, leave with false
+	cmpl	r2,#^x2a		; is it Z or less
+	bgtr	_check_lowercase	; no, go check if lower case
+	subl2	#7,r2			; convert to ^xA...^xZ
+	brb	_check_base		; now check if it is valid in current
+					; base
+_check_lowercase:
+	cmpl	r2,#^x31		; Is it a or greater?
+	blss	_invalid_number		; no, leave with false
+	cmpl	r2,#^x4a		; Is it z or less?
+	bgtr	_invalid_number		; no, leave with false.
+	subl2	#^x27,r2		; convert to ^xA...^xZ
+_check_base:
+	cmpl	r2,v_radix		; is it in set 0... base-1?
+	bgeq	_invalid_number		; no, leave w/false
+	mull2	v_radix,r0		; result = result * base
+	addl2	r2,r0			; result = result + num
+	decl	r7			; count = count - 1
+	incl	r6			; move to next byte in number
+	tstl	r7			; count = 0?
+	bgtr	_number_top:		; no, do it again
+	tstl	r1			; negative?
+	bgtr	20$			; no
+	mnegl	r0,r0			; yes, negate it.
+20$:
+	Page 43, lower half
 ; Local Variables:
+; mode: indented-text
 ; comment-start: ";"
 ; comment-column: 40
 ; indent-tabs-mode: t
