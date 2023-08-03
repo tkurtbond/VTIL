@@ -24,3 +24,7 @@
   No.  I wouldn't have used them then, I probably should change that
   now.
 * TODO Make all the comments on branch statments start with 'go'.
+* TODO Make sure all words have stack comments on '>' line.
+* TODO Make smudge bit pattern a constant.
+* TODO Make sure all references to LFA, PFA, CFA are in uppercase.
+* TODO Make sure LFA, PFA, CFA are explained in early comment.
