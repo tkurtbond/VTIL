@@ -2113,7 +2113,565 @@ _check_base:
 	bgtr	20$			; no
 	mnegl	r0,r0			; yes, negate it.
 20$:
-	Page 43, lower half
+	movl	r0,-(r11)		; put result on stack
+	movl	#c_true,-(r11)		; put true on stack
+	rsb				; exit with ( number true ) on dstack
+_invalid_number:
+	movl	#c_false,-(r11)		; exit with ( false ) on dstack
+	rsb				; end of number
+
+
+;+++
+;,> octal -- ( -- ) Set the base to octal.
+;---
+	header	octal
+	movl	#8,v_radix		; Switch to base 8
+	rsb				; end of octal
+
+
+;+++t
+;k> or -- ( f1 f2 -- f ) Logical or, f1 or f2.
+;---
+	header	or
+	tstl	(r11)+			; is first true?
+	bneq	10$			; Yes
+	tstl	(r11)+			; Is seconed true?
+	bneq	20$			; Yes
+	movl	#c_false,-(r11)		; Both false, leave with false on stack
+	rsb				; return
+10$:
+	addl2	#4,r11			; pop second item off, don't need
+					;   to check
+20$:
+	movl	#c_true,-(r11)		; Yes, one or both true.  Leave with
+					;   true on stack.
+	rsb				; end of or
+
+
+;+++
+;k> over -- ( n1 n2 -- n1 n2 n1 ) Leave a copy of the second item on the stack.
+;+++
+	header	over			; push copy of n1 on top of stack
+	movl	4(r11),-(r11)
+	rsb				; end of over
+
+
+;+++
+;k> pad -- ( -- a ) Leave address of (edop + c_pad_moat) on stack.
+;	This is a good area to use for temporary storage of such things
+;	as strings.
+;---
+	header	pad
+	addl3	r9,#c_pad_moat,-(r11)	;
+	rsb				; end of pad
+
+
+;+++
+;k> putc -- ( c -- ) Output character `c'.
+;---
+	header	putc
+	cmpw	v_outlen,#c_max_len	; is output buffer full?
+	blss	10$			; no, go on
+	jsb	cr			; yes output it
+10$:
+	movab	v_outbuf,r0		; pointer to start of buffer
+	mobzwl	v_outlen,r1		; index into buffer
+	addl2	r1,r0			; pointer to next available char
+	movb	(r11),(r0)		; move char into buffer
+	addl2	#4,r11			; pop char off stack
+	incw	v_outlen		; increment index (or length)
+	rsb				; end of putc
+
+
+;+++
+;k> radix ( -- a ) leave address of system radix longword on stack.
+;---
+	header	radix
+	moval	v_radix,-(r11)		; leave address on dstack
+	rsb				; end of radix
+
+
+;+++
+;k> read ( a -- ) return a byte-counted string from terminal at `a'
+;---
+	header	read
+	movl	(r11),v_readaddr	; v_readaddr = address to write to
+	incl	v_readaddr		; allow for byte count before string
+	pushaw	v_readlen		; where to put returned length
+; Is there any outstanding output?
+	tstw   v_outlen			;
+	bneq   10$			; yes~~~, branch to output prompt
+	pushl  #0			; omit prompt since no output
+	brb    20$			; skip over prompting
+10$:					; yes, construct a descriptor on stack
+	movab	v_outbuf,-(r11)		; put address of buffer on stack
+	movzwl	v_outlen,-(r11)		; move count on stack
+	movw	v_static_dsc,2(r11)	; move middle of descriptor on stack
+	pushl	r11			; put address of descriptor on rstack
+	addl2	#8,r11			; move stack ptr back over descriptor
+20$:
+	pushaq	v_readdsc		; push address of descriptor
+	calls	#3,g^lib$get_input	; get a line from terminal
+	isstrerr
+30$:
+	clrw	v_outline		; clean output length, since any
+					;   outstanding was just output
+	cvtwb	v_readlen,@(r11)	; save byte-count at address on stack
+	addl2	#4,r11			; pop address off stack
+	rsb				; end of read
+
+
+;+++t
+;k> readstr ( a n -- ) Read line from terminal into word-counted string.
+;	`a' is address of word-counted string.
+;	'n' is maximum length.
+;---
+	header	readstr
+	pushl	4(r11)			; where to put returned length
+	addl2	#2,4(r11)		; move pointer over length word
+	movw	v_static_dsc,2(r11)	; move middle of descriptor on dstack
+	tstw	v_outlen		; Is there any outstanding output?
+	bneq	10$			; yes
+	pushl	#0			; omit prompt since no output
+	brb	20$			; skip over prompting
+10$:					; yes, construct a descriptor on stack
+	movab	v_outbuf,-(r11)		; put address of buffer on stack
+	movzwl	v_outlen,-(r11)		; move count on stack
+	movw	v_static_dsc,2(r11)	; move middle of descriptor on stack
+	clr	v_outlen		; clear output length, since any
+					;   outstanding will be saved.
+	pushl	r11			; put addrss of descriptor on rstack
+	addl2	#8,r11			; move stack ptr back over descriptor
+20$:
+	pushl	r11			; push address of descriptor
+	calls	#3,g^lib$get_input	; get a line from terminal
+	isstrerr
+	addl2	#8,r11			; pop arguments
+	rsb				; end of readstr
+
+
+;+++
+;k> restart -- ( -- ) Restart VTIL, patching it to run again.
+;	Used in cases of error.  Never RETURNs.
+;---
+	header	restart
+	brw 	r_warm_start		; patch it
+					; end of restart
+
+
+;+++
+;k> s! -- ( n a -- ) Store a short integer (first 16 bits of `n' at `a'.~~~ `n' should be a `s'.
+;---
+	header	i_word_store,<s!>
+	movw	4(r11),@(r11)		; store the first 16 bits
+	addl2	#8,r11			; pop arguments
+	rsb				; end of s!
+
+
+;+++
+;k> s, -- ( s -- ) Store low word of `s' in dictinary.
+;---
+	header	i_w_comma,<s,>
+	movw	(r11),(r9)+		; store short in dictinary
+	addl2	#8,r11			; pop arguments
+	rsb				; end of s,
+
+
+;+++
+;k> s@ -- ( a -- n ) Fetch 16 bits from `a' and zero-extend to longword.
+;---
+	header	i_word_fetch,<s@>
+	movzwl	@(r11),(r11)		; get contents
+	rsb				; end of s@
+
+
+;+++
+;k> ss@ -- ( a -- n ) Fetch short at `a' and sign extend it to longword.
+;---
+	header	i_ws_fetch,<ss@>
+	cvtwl	@(r11),(r11)		; get contents, sign extend it
+	rsb				; end of ss@
+
+
+;+++
+;k> save-buffers -- ( -- ) Write all modified buffers and mark them unmodified.
+;---
+	header	i_save_buffers,<save-buffers>
+	clrl	r0			; buffer number
+10$:
+	cmpb	#c_modified,-		; Has the buffer
+		v_buf_inuse(r0)		;   been modified? ~~~ Why not [r0]?
+	bneq	20$			; no, skip it
+	movl	r0,-(r10)		; save the buffer number
+	movl	r0,-(r11)		; set up for buffer-write
+	jsb	i_buffer_write		; write the buffer
+	movl	(r10)+,r0		; get the buffer number back
+	movb	#c_inuse,-		; mark the buffer as
+		v_buf_inuse(r0)		;   in use, but not modified.
+20$:
+	acbl	#c_max_blocks-1,-	; buffer # is in [0 .. c_max_blocks-1]
+		#1,r0,10$		; move to next buffer number, if any 
+	rsb				; end of save-buffers
+
+
+;+++t
+;k> search -- ( a1 -- a2 ? f )  Search vocabulary at `a1' for a match with
+;	byte-counted string at eodp.  Return  ( false ) if not found, or
+;	( addr true ) if found.
+;---
+	header	search
+	tstl	(r11)			; Is it nil pointer on top of stack?
+	beql	10$			; yes, stop search, leave false on stack
+	addl3	#4,(r11),r6		; r6 = Address of byte-count
+	cmpb	(r6),(r9)		; no, ?equal length
+	bneq	20$			; no
+	cvtbw	(r9),r6			; yes, get string length
+	addl3	#5,(r11),r7		; get address of word name
+	addl3	#1,r9,r8		; get address of token
+	cmpc3	r6,(r7),(r8)		; compare strings
+	bneq	20$			; strings don't match
+; string match
+	movl	#c_true,-(r11)		; move true to top of stack
+	brb	10$			; exit leaving ( addr true ) on dstack.
+20$:
+	movl	@(r11),(r11)		; get address of next word
+	brb	search			; try it again
+10$:
+	rsb				; end of search
+
+
+;+++
+;k> short -- ( n -- ) Create a word that pushed the address of two bytes
+;	(a VAX memory `word') on the stack, reserves space in the dictionary
+;	for those two bytes, and initializes it to the value of `n'.
+;---
+	header	i_short,<short>
+	jsb	create			; enclose next token in dictionary
+	movb	#op_movaw,(r9)+		; `movaw'
+	movb	#adm_b_rel,(r9)+	; byte relative
+	movb	#2,(r9)+		; (pc+2)
+	movb	#adm_adec_r11,(r9)+	; -(r11)
+	movb	#op_rsb,(r9)+		; `rsb'
+	movw	(r11),(r9)+		; move top of stack into dictionary
+	addl2	#4,r11			; pop aruments
+	rsb				; end of short
+
+
+;+++
+;k> sign -- ( n -- ) Output minus in pictured numeric if top of stack is < 0.
+;---
+	header	sign
+	tstl	(r11)+			; tos < 0?
+	bgeq	10$			; no, exit
+	movl	#^a\-\,-(r11)		; put ascii for minus sign on stack
+	jsb	hold			; put it in output string
+10$:
+	rsb				; end of sign
+
+
+;+++
+;k> smudge -- ( -- ) Sets the smudge (high) bit in the length byte as the word
+;	that is currently being defined won't be found in itself.
+;---
+	header	smudge
+	movl	@v_current,r0		; address of word being defined
+	addl2	#4,r0			; move over link field
+	bisb2	#^b1000000,(r0)		; set smudge bit
+	rsb				; end of smudge
+
+
+;+++
+;k> sp@ -- ( -- l ) Returns the address of the top fo the data stack before
+;	{ sp@ } is executed.
+;---
+	header	i_sp_fetch,<sp@>
+	movl	r11,-(r11)		; put address of top of stack on stack
+	rsb				; end of sp@
+
+
+;+++
+;k> sp0 -- ( -- l ) Returns the address of the bottom of the data stack.
+;	Note that the stack grows downward, so this is actually the
+;	top in memory of the data-stack structure's space.
+;___
+	header	i_sp_0,<sp0>
+	moval	c_ds_start,-(r11)	; put address on stack
+	rsb				; end of sp0
+
+
+;+++
+;k> space -- ( -- ) Output a space to terminal.
+;---
+	header	space
+	cmpw	v_outlen,#c_max_len	; Is output buffer full?
+	blss	10$			; no, go on
+	jsb	cr			; yes, output it
+10$
+	movab	v_outbuf,r0		; pointer to start of buffer
+	movzwl	v_outlen,r1		; index into buffer
+	addl2	r1,40			; pointer to next available buffer
+	movb	#c_blank,(r0)		; move char into buffer
+	incw	v_outlen		; increment index (or length)
+	rsb				; end of space
+
+
+;+++
+;,> spaces -- ( n -- ) Output `n' spaces to terminal
+;---
+	header	spaces
+	tstl	(r11)			; Is it less than or equal to zero?
+	bleq	100$			; yes, exit
+	movl	#1,-(r11)		; no, save space on stack for index
+10$:
+	jsb	space			; output one space
+	aobls	4(r11),(r11),10$	; (r11) += 1, repeat if (r11) < 4(r11)
+	addl2	#4,r11			; pop index
+100$:
+	addl2	#4,r11			; pop argument
+	rsb				; end of spaces
+
+
+;+++t
+;k> sread ( -- ) Read a line from terminal or file into input stream,
+;	depending on value of { infile }.  if { infile } is true, read
+;	from file; otherwise, read from terminal.
+;---
+	header	sread
+	tstw	v_outlen		; Is there any outstanding output?
+	beql	5$			; no
+	jsb	cr			; yes, output it
+5$:
+	moval	v_inbuf,v_inptr		; start at beginning of line
+	tstb	v_infile		; getting input from file?
+	bneq	10$			; yes, go do it
+; no, get from terminal
+	pushaw	v_inlen			; save returned length
+	pushaq	v_vtilprompt		; use vtil prompt
+	pushaq	v_in_dsc		; address of input descriptor
+	calls	#3,g^lib$get_input	; get a line from terminal
+	blbs	r0,8$			; no error, go on
+	cmpl	#rms$_eof,r0		; Is it eof from terminal?
+	bneq	7$			; no, go die messily
+	brw	_exit			; yes, exit silently
+7$:
+	brw	_error_exit		; die messily
+8$:
+	movw	v_inlen,v_org_inlen	; save original length
+	rsb				; success read from terminal, return
+10$:
+	$get	rab=v_inrab		; get a record
+	blbs	r0,20$			; write the record
+	cmpl	r0,#rms$_eof		; was error end-of-file
+	beql	30$			; successful completion
+; error otherwize
+	moval	v_inrab,r6		; keep rab address
+	brw	_r_err			; signal record error
+20$:
+	movw	v_inrab+rab$w_rsz,-	; input rab set record size
+		v_inlen
+	movw	v_inrab+rab$w_rsv,-
+		v_org_inline
+	incl	v_filelinenum		; increment line number in file
+	rsb				; success read from file, return
+30$:
+	$close	fab=v_infab		; close input
+	movb	#c_false,v_infile	; set v_infile flag false
+	movl	#0,v_filelinenum	; zero file line as well
+	rsb				; end of sread
+
+
+;+++
+;k> strcat -- ( a1 a2 -- ) Catenate string at `a`' to string at `a2'.
+;	Works only with strings defined by { string } or { string" }
+;	since it uses maxlen of string at `a2'.
+;---
+	header	strcat
+	movzwl	@4(r11),r0		; length of src
+	movzwl	@(r11),r7		; length of dest
+	addl3	#2,4(r11),r3		; address of src characters
+	movl	(r11),r2		; address of dest
+	subl3	#2,r2,r4		; address of maxlen of dest
+	addl3	#2,r2,r2		; address of dest char
+	movzwl	(r4),r5			; maxlen of dest
+	subl3	r7,r5,r6		; space available in dest
+	cmpl	r6,r0			; less space available than to copy
+	bleq	10$			; yes, use space available in dest as len
+	movl	r0,r6			; no, move all characters in src
+10$:
+	addl2	r7,r2			; start at end of dest chars
+	movc3	r6,(r3),(r2)		; copy the string
+	addw2	r6,@(r11)		; store the new length
+	addl2	#8,r11			; pop arguments
+	rsb				; end of strcat
+
+
+;+++
+;k> strcmp -- ( a1 a2 -- n ) Compare word-counted strings.
+;	Return 0 if string at `a`' = string at `a2'.
+;	Return >0 if string at `a`' > string at `a2'.
+;	Return <0 if string at `a1' < string at `a2'.
+;---
+	header	strcmp
+	movzwl	@4(r11),r0		; length of str1
+	addl3	#2,4(r11),r1		; address of chars in str1
+	movzw	@(r11),r2		; length of str2
+	addl3	#2,(r11),r3		; address of chars in str2
+	addl2	#8,r11			; pop top two stack items
+	cmpc5	r0,(r1),#0,r2,(r3)	; compare chars with 0 fill
+	beql	10$			; str1 = str2
+	bgtr	20$			; str1 > str2
+	movl	#-1,-(r11)		; str1 < str2
+	rsb				; exit
+10$:
+	movl	#0,-(r11)		; str1 = str2
+	rsb				; exit
+20$:
+	movl	#1,-(r11)		; str1 > str2
+	rsb				; end of strcmp
+
+
+;+++
+;k> strcpy -- ( a1 a2 -- ) copy word counted string at `a1' to w-string at `a2'.
+;	Both must be word-counted, and string at `a2' must have maxlen 2bytes
+;	(i.e., defined by { string } or { string" }).
+;---
+	header	strcpy
+	movl	(r11),r0		; get address of destination
+	movl	4(r11),r1		; get address of source
+	movzwl	(r1),r6			; length of source
+	subl3	#2,r0,r2		; address of destination max len
+	movzwl	(r2),r2			; dest max len
+	cmpl	r2,r6			; max len < source len?
+	bgeq	10$			; no
+	movl	r2,r6			; yes, use max len for src len
+10$:
+	movc3	r6,2(r11),2(r0)		; move the strings
+	movw	r6,@(r11)		; save the new length of dest
+	addl2	#8,r11			; pop arguments
+	rsb				; end of strcpy
+
+
+;+++
+;k> string -- ( n -- ) Create a string variable with maximum length of `n'.
+;	The first 2 bytes of the string contains its length.
+;	The 2 bytes previous to the string contains its maximum length.
+;---
+	header	string,<string>
+	jsb	create			; make the header
+	movb	#op_movaw,(r9)+		; `movaw'
+	movb	#adm_b_rel,(r9)+	; byte relative
+	movb	#4(r9)+			; (pc+4)
+	movb	#adm_adec_r11,(r9)+	; -(r11)
+	movb	#op_rsb,(r9)+		; rsb
+	movw	(r11),(r9)+		; maximum length
+	movw	#0,(r9)+		; make high byte of current count
+	addl2	(r11)+,r9		; save space for characters
+	rsb				; end of string
+
+
+;+++
+;k> string" -- ( n -- ) Create a string variable with maximum length of `n',
+;	and initialize with string from input stream up until next `"'.
+;	The first 2 bytes of the string contain its length.
+;	The 2 bytes previous to the string contains its maximum length.
+;---
+	header	i_string_quote,<string">
+	jsb	create			; make the header
+	movb	#op_movaw,(r9)+		; `movaw'
+	movb	#adm_b_rel,(r9)+	; byte relative
+	movb	#4,(r9)+		; byte relative
+	movb	#adm_adec_r11,(r9)+	; -(r11)
+	movb	#op_rsb,(r9)+		; `rsb'
+	movw	(r11),(r9)+		; maximum length
+	movl	r9,-(r10)		; save address of current length on lstack
+	movb	#0,(r9)+		; make high byte of current count
+					;   zero since token returns a b-counted
+					;   string
+	movl	#^a\"\,-(r11)		; set up for quote terminated token
+	jsb	token			; get the token
+	movzbl	(r9)+,r0		; get count and move over to first char
+	cmpw	(r11),r0		; is max length < token length
+	bgeq	10$			; no
+	movl	(r11),r0		; yes, only allow maxlen chars from
+					;   token
+10$:
+	movw	r0,@(r10)		; save current length
+	addl2	#4,r10			; pop temp storage from loop stack.
+	addl2	(r11)+,r9		; save space for characters
+	rsb				; end of string"
+
+
+;+++
+;k> strmax -- ( -- ) Return maximum length of string at `a'.
+;---
+	header	strmax
+	subl2	#2,(r11)		; get address of max len
+	movzwl	@(r11),(r11)		; get maximum length
+	rsb				; end of strmax
+
+
+;+++
+;k> strpos -- ( a1 n1 a2 n2 -- a3 n3 ? f ) Find pos and len of substring in str.
+;	Searches string whose text is at `a2' and length is `n2' for substring
+;	whose text is at `a`' and whose length is `n1'.  Returns true on top of
+;	stack if found and under that { a3 n3 }, address and length of located
+;	substring.  Otherwise returns false.
+;---
+	header	strpos
+	matchc	8(r11),-		; length of object string (to find)
+		@12(r11),-		; address of object string
+		(r11),-			; length of source string (to search in)
+		@4(r11)			; address of source string
+	bneq	10$			; match not found
+	movl	8(r11),r0		; save length of object string
+	subl3	r0,r3,r1		; calculate start addr of found string
+	addl2	#16,r11			; pop arguments
+	movl	r1,-(r11)		; put address of found string on stack
+	movl	r0,-(r11)		; put length of found string on stack
+	movl	#c_true,-(r11)		; put true on stack
+	rsb				; rturn
+10$:
+	addl2	#16,r11			; pop arguments
+	movl	#c_false,-(r11)
+	rsb				; end of strpos
+
+
+;+++
+;k> swap -- ( n1 n2 -- n2 n1 ) exchange the top two items on the stack.
+;---
+	header	swap
+	movl	(r11),r0		; temp = n2
+	movl	4(r11)(r11)		; n2 = n1
+	movl	r0,4(r11)		; n1 = saved n2
+	rsb				; end of swap
+
+
+;+++
+;k> tochar -- convert top fo stack from 0..9, A..Z to '0'..'9','A'..'Z'
+;	( n -- c ) where n is a number and c is a char.
+;	If not in rnage leave alow.
+;---
+	header	tochar
+; with 10 numbers and 26 letters, largest base is 36.
+; didgits go from 0 to 35.
+	tstl	(r11)	  		; n < 0?
+	blss	100$			; yes, exit
+	cmpl	(r110,#35		; n > 35
+	bgtr	100$			; yes, exit
+	cmpl	(r11),#9		; n > 9 (not a `number') ~~~base 10 digit
+	bgtr	10$			; yes, make it 'A' .. 'Z'
+	addl2	#48,(r11)		; no, make it a '1' .. '9'
+	brb	100$			; exit
+10$:
+	addl2	#55,(r11)		; make it 'A' .. 'Z'
+100$:
+	rsb				; end of tochar.
+
+
+;+++t Just down from top of page 53.
+
+
+
 ; Local Variables:
 ; mode: indented-text
 ; comment-start: ";"
