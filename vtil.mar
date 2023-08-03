@@ -2668,7 +2668,138 @@ _invalid_number:
 	rsb				; end of tochar.
 
 
-;+++t Just down from top of page 53.
+;+++t
+;k> token -- ( c -- ) Get next token from input stream and put it in dictionary.
+;	Note that this dos NOT increment the dictionary pointer!
+;---
+	header	token
+	cmpb	#c_blank,(r11)		; ?c = ' '~~~, an ascii blank
+	bneq	_gettoken		; if anything but space, don't skip
+_skipwhitespace:
+	skpc	(r11),v_inlen,@v_inptr	; skip whitespace
+	bneq	_startfound		; if something other than whitespace
+					; found
+        jsb     sread                   ; get a new line, only whitespace found
+	brb	_skipwhitespace		; do it over
+_startfound:
+	movl	r1,v_inptr		; where non-whitespcae found
+	movw	r0,v_inlen		; bytes remaining in string
+_gettoken:
+	clrl	r6
+	rlrl	r7
+	locc	(r11),v_inlen,@v_inptr	; locate character
+	subw3	r0,v_inlan,r6		; (v_inlen = r0) = number of chars
+					;   to copy
+        movw    r0,v_inlen              ; these are only bytes left (including one
+					; located~~~close paren?
+	movl	r1,r7			; save address of found char
+	cvtwb	r6,(r9)			; store byte length
+	addl3	#1,r9,r8		; where to put in dictinary
+	movc3	r6,@v_inptr,(r8)	; move string to dictinary
+	movl	r7,v_inptr		; v_inptr points into string
+	tstw	v_inlen			; Are any more char?  (including
+					;   located one)
+	beql	10$			; no, exit
+	subw2	#1,v_inlen		; yes, move over terminator
+					;   (located char)
+	addl2	#1,v_inptr
+10$:
+	addl2	#4,r11			; pop terminator off stack
+	rsb				; end of token
+
+
+;+++t
+;k> unlink -- ( -- ) Unlink the most current word from the current vocab.  Used
+;	when a definition is aborted by an unknown token.
+;---
+	header	unlink
+	movl	@v_current,r8		; reclaim directory space
+	movl	(r9),@v_current		; get pointer to last word in current
+					; vocab from link field of word
+					; we just deleted
+	rsb				; end of unlink
+
+
+;+++
+;k> unsmudge -- clear the smudge (high) bit in the word being defined, so
+;	that it can be found again.
+;---
+	header	unsmudge
+	movl	@v_current,r0		; address of word being defined
+	addl2	#4,r0			; move over link field
+	bicb2	#^b10000000		; clear smudge bit
+	rsb				; end of unsmudge
+
+
+;+++
+;k> update -- ( -- ) Mark the most recent block as updated.
+;---
+	header	update
+	movl	v_current_buff,r0	; get buffer number of current block
+	movb	#c_modified,-		;
+		v_buf_inuse(r0)		; mark buffer as updated
+	rsb				; end of update
+
+
+;+++
+;k> variable -- ( -- ) Create a word that pushed its PFA on the stack.
+;	Doesn't reserve any space.  Use for making initialized arrays.
+;	PF = parameter field address = address of data following end
+;	of code body of work.
+;---
+;??? This concept is fuzzy.  Work on it.
+	header	  variable
+	jsb	  create		; enclose next token in dictionary
+	movb	  #op_movb,(r9)+	; `movb'
+	movb	  #adm_b_rel,(r9)+	; byte relative
+	movb	  #2,(r9)+		; (pc+2)
+	movb	  #adm_adec_r11,(r9)+	; -(r11)
+	movb	  #op_rsb,(r9)+		; `rsb'
+	rsb	  			; end of variable
+
+
+;+++
+;k> vlist -- ( -- ) List context vocabulary
+;---
+	header	vlist
+	movl	@v_context,r0		; get address of context vocabulary
+	movl	r0,-(r11)		; get address of most recent word
+10$:
+	tstl	(r11)			; nil pointer?
+	beql	100$			; yes, exit
+	addl3	(r11),#4,-(r11)		; get address of name field
+	jsb	bcount			; set up for write
+	movl	(r11),-(r11)		; set up for ?cr
+	jsb	q_n_cr			; start new line if word too long
+	jsb	write			; tell user
+	movl	#c_blank,-(r11)		; blank to separate words
+	jsb	putc			; output it
+	movl	@(r11),(r11)		; get previous word's LFA
+	brb	10$			; try it again
+100$:
+	addl2	#4,r10			; pop pointer off stack
+	rsb				; end of vlist
+
+
+;+++
+;k> vocabulary -- ( -- ) Defining word.  Creates a new vocabulary. when the word
+;	defined by this is executed, context is set to the new vocabulary.
+;---
+	header	vocabulary
+	movl	@v_context,-(r10)	; save LFA of word to link to
+	jsb	create			; make header for new vocab~~~ word
+	movb	#op_moval		; `moval'
+	movb	#adm_b_rel,(r9)+	; byte relative
+	movb	#6,(r9)+		; (pc+2) ~~~ isn't this pc+6?
+	#movb	adm_absolute,(r9)+	; absolute mode (address in next lword)
+	moval	v_context,(r9)+		; context
+	movab	#op_rsb,(r9)+		; rsb
+	movl	(r10)+,(r9)+		; initialize link
+	rsb				; end of vocabulary
+
+
+;+++t
+;k> write -- ( a w -- ) Write string of length `w' at address `a' out to  terminal.  Middle of Page 55, IMG_1062.jpeg
 
 
 
