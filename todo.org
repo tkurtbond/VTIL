@@ -3,3 +3,24 @@
 * TODO draw ascii pictures of header format.
 * TODO draw ascii pictures of memory layout.
 * TODO Correct captialization and punctuation of all comments.
+* TODO Make all continued comments indented by three.
+* TODO Make sure to mention that i/o to terminal is buffered.
+* TODO Reword line comments in strcpy.
+* TODO Make all comments for `jsb create' have the same structure.
+* TODO Reconcile comments in { string } and { string" }.
+  The comment "make high byte of current count" in { string } seems
+  similar to the one in { string" } that starts the same, but the one
+  in { string } seems to be truncated.  And should the "movw#0,(r9)+
+  on the same line be a movb instead, as in { string" }?
+* TODO Shouldn't strpos length arguments be shorts?
+  In stack comments `n' means longword; it should be `s', since these
+  can never be greater than word sized, since the maximum length in a
+  string created by { string } or { string" } is a word.  What about
+  signed and unsigned?  That's probably unsigned, isn't it?  Have to
+  check everywhere that those lengths are used...
+* TODO Make all uses of .. and ... indicating ranges consistent.
+  I was probably using Pascal syntax for intervals [low..high], but I
+  noticed at least one '...'.  Use math interval notations instead?
+  No.  I wouldn't have used them then, I probably should change that
+  now.
+* TODO Make all the comments on branch statments start with 'go'.
