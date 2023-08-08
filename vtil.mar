@@ -1,5 +1,5 @@
 
-	.title	VTIL VAX Threaded Interpretive Language
+.title	VTIL VAX Threaded Interpretive Language
 	.ident	/v1.01/			; version number
 ;******************************************************************************
 ;
@@ -40,7 +40,7 @@
 	.page
 	.sbttl	subtitle
 	.endm
-	
+
 ;******************************************************************************
 ;
 ; Conditional Assembly Control Symbols
@@ -94,7 +94,7 @@ newpage <General Notes>
 ; Stack Comments.  A stack comment shows what a word expects to find on the
 ; stack and what results it leaves on the stack after execution.
 ; A stack comment looks like the following: ( n1 n2 -- n1 ).  The rightmost
-; item on each side of the `--' is the top of the stack, so the items in the 
+; item on each side of the `--' is the top of the stack, so the items in the
 ; stack comment are in the same order as they would be if you entered them from
 ; the terminal.	 The `--' separates the items that word expects to find on
 ; the stack from the items that it leaves on the stack.	 Ex: After you enter
@@ -123,7 +123,7 @@ newpage <General Notes>
 ;	a ( b ) stack item merely says that the programmer should consider
 ;	the stack as containing a value that will fit in an unsigned
 ;	byte.  Words that use data types that are smaller than a longword
-;	will only use th first part of the longword in their calculations, 
+;	will only use th first part of the longword in their calculations,
 ;	but will still pop the whole longword containing the smaller data
 ;	type from the stack, not just the smaller data type.  In other words,
 ;	the stack pointer can only be manipulated in 4 byte increments or
@@ -524,7 +524,7 @@ v_ctrlc_depth:		; depth to unwind stack in control/c handler
 	.long	2	; unwind to main program, 2 deep (ctrlc and a_start)
 v_errors:
 	.long	0	; Number of errors caught by condition handler so far
-v_returnstack:		; original return stack pointer.  Save it when we 
+v_returnstack:		; original return stack pointer.  Save it when we
 	.long	0	; abort out of jsb's we return from the right spot
 v_context:		; points to data field of the word for the vocabulary
 	.long	0	; in which words are searched for.
@@ -1406,7 +1406,7 @@ _kernel_begin:
 
 ;+++
 ;k> buffer-read -- ( n -- a ) read into a block into buffer `n'.  The block
-;	number is already in the buffer.  Leave `a', the address of the 
+;	number is already in the buffer.  Leave `a', the address of the
 ;	block buffer.  This word assumes that buffer is correctly set up
 ;	(block number, etc).
 ;---
@@ -1859,7 +1859,7 @@ _kernel_begin:
 
 ;+++
 ;k> i> -- ( -- ) Copy the top of the loop stack to the data stack.
-;	This word is used inside of { do ... loop }'s to get hte index
+;	This word is used inside of { do ... loop }'s to get the index
 ;	of the innermost loop onto the top of the stack.
 ;---
 	header	i_i_to,^\i>\
@@ -1969,7 +1969,7 @@ _kernel_begin:
 	addl2  #16,r11			; pop arguments
 	movl   r0,-(r11)		; put address of matched string on stack
 	movl   #c_true,-(r11)		; leave true on top of stack
-	rsb    				; return
+	rsb				; return
 100$:
 ; no match found
 	addl2	#16,r11			; pop arguments
@@ -2255,7 +2255,7 @@ _invalid_number:
 ;	Used in cases of error.  Never RETURNs.
 ;---
 	header	restart
-	brw 	r_warm_start		; patch it
+	brw	r_warm_start		; patch it
 					; end of restart
 
 
@@ -2310,7 +2310,7 @@ _invalid_number:
 		v_buf_inuse(r0)		;   in use, but not modified.
 20$:
 	acbl	#c_max_blocks-1,-	; buffer # is in [0 .. c_max_blocks-1]
-		#1,r0,10$		; move to next buffer number, if any 
+		#1,r0,10$		; move to next buffer number, if any
 	rsb				; end of save-buffers
 
 
@@ -2579,7 +2579,7 @@ _invalid_number:
 	jsb	create			; make the header
 	movb	#op_movaw,(r9)+		; `movaw'
 	movb	#adm_b_rel,(r9)+	; byte relative
-	movb	#4,(r9)+		; byte relative
+	movb	#4,(r9)+		; (pc+4)
 	movb	#adm_adec_r11,(r9)+	; -(r11)
 	movb	#op_rsb,(r9)+		; `rsb'
 	movw	(r11),(r9)+		; maximum length
@@ -2654,7 +2654,7 @@ _invalid_number:
 	header	tochar
 ; with 10 numbers and 26 letters, largest base is 36.
 ; didgits go from 0 to 35.
-	tstl	(r11)	  		; n < 0?
+	tstl	(r11)			; n < 0?
 	blss	100$			; yes, exit
 	cmpl	(r110,#35		; n > 35
 	bgtr	100$			; yes, exit
@@ -2679,7 +2679,7 @@ _skipwhitespace:
 	skpc	(r11),v_inlen,@v_inptr	; skip whitespace
 	bneq	_startfound		; if something other than whitespace
 					; found
-        jsb     sread                   ; get a new line, only whitespace found
+	jsb     sread                   ; get a new line, only whitespace found
 	brb	_skipwhitespace		; do it over
 _startfound:
 	movl	r1,v_inptr		; where non-whitespcae found
@@ -2690,7 +2690,7 @@ _gettoken:
 	locc	(r11),v_inlen,@v_inptr	; locate character
 	subw3	r0,v_inlan,r6		; (v_inlen = r0) = number of chars
 					;   to copy
-        movw    r0,v_inlen              ; these are only bytes left (including one
+	movw    r0,v_inlen              ; these are only bytes left (including one
 					; located~~~close paren?
 	movl	r1,r7			; save address of found char
 	cvtwb	r6,(r9)			; store byte length
@@ -2755,7 +2755,7 @@ _gettoken:
 	movb	  #2,(r9)+		; (pc+2)
 	movb	  #adm_adec_r11,(r9)+	; -(r11)
 	movb	  #op_rsb,(r9)+		; `rsb'
-	rsb	  			; end of variable
+	rsb				; end of variable
 
 
 ;+++
@@ -2782,15 +2782,15 @@ _gettoken:
 
 
 ;+++
-;k> vocabulary -- ( -- ) Defining word.  Creates a new vocabulary. when the word
+;k> vocabulary -- ( -- ) Defining word.  Creates a new vocabulary. When the word
 ;	defined by this is executed, context is set to the new vocabulary.
 ;---
 	header	vocabulary
 	movl	@v_context,-(r10)	; save LFA of word to link to
-	jsb	create			; make header for new vocab~~~ word
+	jsb	create			;   make header for new vocab~~~ word
 	movb	#op_moval		; `moval'
 	movb	#adm_b_rel,(r9)+	; byte relative
-	movb	#6,(r9)+		; (pc+2) ~~~ isn't this pc+6?
+	movb	#6,(r9)+		; (pc+2) ~~~ isn't this (pc+6)?
 	#movb	adm_absolute,(r9)+	; absolute mode (address in next lword)
 	moval	v_context,(r9)+		; context
 	movab	#op_rsb,(r9)+		; rsb
@@ -2799,9 +2799,250 @@ _gettoken:
 
 
 ;+++t
-;k> write -- ( a w -- ) Write string of length `w' at address `a' out to  terminal.  Middle of Page 55, IMG_1062.jpeg
+;k> write -- ( a w -- ) Write string of length `w' at address `a' out to  terminal.
+;---
+	header	write
+	cmpw	v_outlen,#c_max_len	; Is output buffer full?
+	blss	10$			; no, go get some
+; yes, output it
+	moval	v_outbuf,-(r11)		; put address on stack
+	movzwl	v_outlen,-(r11)		; put length on stack
+	movw	v_static_dsc,2(r11)	; put rest of descriptor in
+	pushl	r11			; address of descriptor
+	calls	#1,g^lib$put_output	; output it
+	addl2	#8,r11			; pop top two entries (descriptor)
+	clrw	v_outlen		; nothing left in buffer
+10$:
+	movzwl	v_outlen,r6		; get length
+	subl3	r6,#c_max_len,r7	; space available in output buffer
+	movab	v_output,r0		; pointer into buffer
+	addl2	r6,r0			; next available byte
+	cmpl	(r11),r7		; chars to output <= available
+	bgtr	20$			; no, do a part
+	movc3	(r11),@4(r11),(r0)	; move the string into the output buffer
+	addw2	(r11),v_outlen		; save the new # of chars in buffer
+	addl2	#8,r11			; pop top two entries off stack
+	rsb				; return
+20$:					; more chars to output than buffer space
+	movc3	r7,@4(r11),(r0)		; move some into buffer
+	subl3	r7,(r11)		; new length to output
+	addl2	r7,4(r11)		; new place to start in chars to output
+	addw2	r7,v_outlen		; new # of chars in buffer
+	movab	v_outbuf,-(r11)		; address of buffer on stack
+	movzbl	v_outlen,-(r11)		; count on stack
+	movw	v_static_dsc,2(r11)	; put middle of descriptor in
+	pushl	r11			; address of descriptor
+	calls	##,g^lib$put_output	; display it
+	clrw	v_outlen		; nothing in buffer now
+	addl2	#8,r11			; pop descriptor off stack
+	tstl	(r11)			; Are there any remaining characters?
+	bgtr	10$			; yes, try it again
+	addl2	#8,r11			; pop arguments
+	rsb				; end of write
 
 
+;+++
+;k> xor -- ( f1 f2 -- f ) logical xor; f1 xor f2.
+;---
+	header	xor
+	tstl	(r11)+			; is the first one false?
+	beql	10$			; yes
+	tstl	(r11)+			; no, is the second one false?
+	beql	30$			; yes, leave with true
+	brb	20$			; no leave with false
+10$:					; first one false
+	tstl	(r11)+			; Is the second one true?
+	bneq	30$			; yes, leave with true
+20$:					; leave with false
+	movl	#c_false,-(r11)		; leave with false
+	rsb				; return
+30$:
+	movl	#c_true,-(r11)		; leave with true
+	rsb				; end of xor
+
+
+;+++
+;k> ] -- ( -- ) enter compile mode.  Used with { [ } in definitions.
+;---
+	header i_right_back,<]>
+	movb   #c_true,v_mode		; enter compile mode
+	rsb				; end of l
+
+
+_kernel_end:
+	newpage <cCompiler Built-ins>
+;*******************************************************************************
+;
+; Compiler Built-ins -- a new word is unlinked from the current vocabulary
+;	and linked into the compilier vocabulary by the word { compiletime }.
+;	Computer (or compiletime} words are only search for during the
+;	definition of new words, which prevents them from mucking about with
+;	the stacks and the dictionary when we are interpreting the user's
+;	commands.
+;
+;*******************************************************************************
+compiler_begin:
+
+
+;+++
+;c> (variable) - ( -- ) compiles the code body of a word that pushes the
+;	address of its parameter field on the stack.  Must be the last word
+;	in the word...
+;---
+;??? This concept is fuzzy.  Work on it.
+     header	  i_variable,<(variable)>vl_compiler
+     movb	  #op_movab,(r9)+	; `movab'
+     movb	  #adm_b_rel,(r9)+	; byte relative
+     movb	  #2,(r9)+		; (pc+2)
+     movb	  #adm_adec_r11,(r9)+	; -(r11)
+     movb	  #op_rsb,(r9)+		; `rsb'
+     rsb				; end of (variable)
+
+
+;+++
+;c> +loop -- ( n -- ) where n is an increment.  Edns { do .. +loop }.  Adds top
+;	of stack to loop index and branches to { do } if ((index > 0) and
+;	(index < limit)), or if ((index < 0) and (index > limit)).~~~ WTF: and should be or???
+;	In other words, { +loop } with a positive argument is like Pascal's
+;	{ for index := start to finish do ... } and with a negative argument
+;	it is like { for index := start downto finish do }.
+;---
+	header	i_plus_loop,<+loop>,vl_compiler
+	movb	#op_acbl,(r9)+		; `acbl'
+	movb	#adm_b+dis_r10		; b^(r10)
+	movb	#4,(r9)+		; 4 byte displacement for previous adm
+	movb	#adm_ainc_r11,(r9)+	; (r11)+
+	movb	#adm_def_r10,(r9)+	; (r10)
+	movl	r9,r0			; save address of branch word
+	movw	#0,(r9)+		; save space for branch displacement
+	subl3	r9,(r10)+,r1		; calculate displacement
+	movw	r1,(r0)			; save displacement
+	movw	#op_add12,(r9)+		; `addl2'	pp index&limit from ls
+	movb	#^x08,(r9)+		; s^#8
+	movb	#adm_r20,(r9)+		; r10
+	rsb				; end of +loop
+
+
+;+++
+;c> ." -- ( -- ) compile text until netx `"' into dictinary to be printed when
+;	the current word is executed.
+;---
+	header	i_dot_quote,<.">,v_compiler
+	movb	#op_movab,(r9)+		; `movab'
+	movb	#adm_b_rel,(r9)+	; byte relative
+	movb	#5,(r9)+		; (pc+5)	skip length byte too
+	movb	#adm_adec_r11,(r9)+	; -(r11)
+	movb	#op_brw,(r9)+		; `brw'
+	movl	r9,-(r10)		; save address of displacement
+	movw	#0,(r9)+		; save space for displacement
+	movl	#^a\"\,-(r11)		; set up for `"' delimited tokens
+	jsb	token			; get token
+	movbzbl	(r9),r0			; get length of token
+	addl3	#1,r0,r1		; calc displacement (count length too)
+	movw	r1,@(r1))		; fill in displacement
+	addl2	#4,r10			; pop item off loop stack
+	addl2	r1,r9			; save string in dictionary
+	movb	#op_movl,(r9)+		; `movl'
+	movb	#adm_immediate,(r9)+	; immeidate mode
+	movl	r0,(r9)+		; length of string
+	movb	#adm_adec_r11,(r9)+	; -(r11)
+; we now have ( address count ) on stack (when new word executed)
+	movb	#op_jsb,(r9)+		; `jsb'
+	movb	#adm_absolute,(r9)+	; absolute mode
+	moval	write,(r9)+		; address of subroutine to jsb to
+	jsb				; end of ."
+
+
+;+++
+;c> ; (semicolon) -- ( -- ) Terminate a definition started by { : }.
+;	Sets { mode } to false and adds an rsb to the definition.
+;---
+	header	i_semicolon,<;>,v_compiler
+	movb	#op_rsb,(r9)+		; put an rsb in to end word
+	movb	#c_false,v_mode		; switch off compiler v_mode
+;??? might need to unset high bit in count of name (smudge) bit
+	jsb	unsmudge      	     	; clear smudge bit so word is found
+	rsb				; end of ;
+
+
+;+++
+;c> >defer -- ( -- ) ends a section of code that is to copied to the
+;	dictionary whenever this word is executed (i.e., { >defer } ends code
+;	to be executed by all words defined by the word we are now compiling).
+;	{ >defer } is used to define words that define words.
+;---
+;???  This concept is fuzzy.  Work on it.  May be fuzzy, but it works...
+	header	   i_defer_end,^\>defer\,v_compiler
+	subl3	   (r10)+,r9,r0		; calculate length and displacement
+	movw	   r0,@(r10)+		; store displacement
+	movw	   r0,@(r10)+		; store length
+; make new word advance dictionary pointer over just added code
+	movb	#op_addl2,(r9)+		; `addl2'
+	movb	#adm_immediate,(r9)+	; i^#
+	movl	r0,(r0)+		; amount to advance
+	movb	#adm_r9,(r9)+		; r9
+	rsb				; end of >defer
+
+
+;+++
+;c> again -- ( -- ) Terminate a { repeat ... if ... again } loop.  { agin }
+;	unconditionally branches back to the { repeat }.
+;---
+	header	again,,vl_compiler
+; save values for calculating displacement in if.
+	movl  (r10)+,r0			; save address to displace from if
+	movl  (r10)+r1			; save address for displacement
+; construct negative branch from { again } to { repeat }
+	movb	#op_brw,(r9)+		; `brw'
+	movl	r9,r2			; save address for negative displacement
+	movw	#0,(r9)+		; save space for displacement
+	subl3	r9,(r10)+,r3		; calculate negative displacment
+	movw	r3,(r2)			; save negative displacement
+; construct forward branch from { if } to after { again }
+	subl	r0,r9,r4		; calculate { if }'s displacment
+	movw	r4,(r1)			; save displacement
+	rsb				; end of again
+
+
+;+++
+;c> b^ -- ( -- ) Convert next token to number and enclose low byte in dictionary.~~~ byte immediate???
+;---
+	header	i_b_up,<b^>,vl_compiler
+	movl	#c_blank,-(r11)		; set up for blank delimeted token
+	jsb	token			; get it
+	jsb	number			; try to make it a number
+	tstl	(r11)+			; is it a number?
+	bneq	10$			; yes
+	rsb				; no, for now just exit~~~??? FIXME!
+10$:
+	movb	(r11),(r9)+		; save byte in dictionary
+	addl2	#4,r11			; pop value from dstack
+	rsb				; end of b^
+
+
+;+++
+;c> defer< -- ( -- ) start a section of code that is to be copied to dictionary
+;	whenever this word is executed (i.e., { defer< } starts code to be
+;	executed by all words defined by the word we are now compiling).
+;	Used in defining words that are to define words.
+;---
+;??? This concept is fuzzy.  Work on it.
+	header	i_defer_begin,^\defer<\,vl_compiler
+	movb	#op_movc,(r9)+	; `movc3'
+	movb	#adm_immediate,(r9)+	; I^x immediate mode
+	movl	r9,-(r10)		; save address to put length in on
+					;   the loop stack
+	movw	#0,(r9)+		; save space for length
+	movb	#adm_b_relative,(r9)+	; byte relative
+	movb	#4,(r9)+		; (pc+4)
+	movb	#adm_def_r9,(r9)+	; (r9)
+	movb	#op_brw,(r9)+		; `brw'
+	movl	r9,-(r10)		; save address to put branch
+					;   displacement at on loop stack
+	movw	#0,(r9)+		; save space for the displacement
+	movl	49,-(r10)		; save address of data start on loop
+					;   stack to calculate data length
+	
 
 ; Local Variables:
 ; mode: indented-text
