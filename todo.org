@@ -20,11 +20,13 @@
   check everywhere that those lengths are used...
 * TODO Make all uses of .. and ... indicating ranges consistent.
   I was probably using Pascal syntax for intervals [low..high], but I
-  noticed at least one '...'.  Use math interval notations instead?
-  No.  I wouldn't have used them then, I probably should change that
-  now.
+  noticed at least one '...', which is wrong, since that's an
+  ellipsis.  Sigh.  Use math interval notations instead?  No.  I
+  wouldn't have used them then, I probably should change that now.
 * TODO Make all the comments on branch statments start with 'go'.
 * TODO Make sure all words have stack comments on '>' line.
 * TODO Make smudge bit pattern a constant.
 * TODO Make sure all references to LFA, PFA, CFA are in uppercase.
 * TODO Make sure LFA, PFA, CFA are explained in early comment.
+* TODO Make sure '...' is used everywhere inside { }, not '..'.
+  Inside { } we're (almost?) always using an ellipsis, not a range.
