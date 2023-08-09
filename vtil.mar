@@ -3042,7 +3042,601 @@ compiler_begin:
 	movw	#0,(r9)+		; save space for the displacement
 	movl	49,-(r10)		; save address of data start on loop
 					;   stack to calculate data length
-	
+	rsb				; end of defer<
+
+
+;+++
+;c> do -- ( n1 n2 -- ) Program control structure; starts { do ... +loop },
+;	{ do ... downloop }, and { do ... loop }.  Note that all do
+;	loops execute at least once.  `n1' is the limit and `n2' is the
+;	number to start the index at.
+;---
+	header	i_do,<do>,vl_compiler	; VAX/VMS debug thinks do is a command
+	movb	#op_movl,(r9)+		; `movl'	save index
+	movb	#adm_ainc_r11,(r9)+	; (r11)+
+	movb	#adm_r0,(r9)+		; r0
+	movb	#op_movl		; `movl'	put limit on lstack
+	movb	#adm_ainc_r11,(r9)+	; (r11)+
+	movb	#adm_adec_r10,(r9)+	; -(r10)
+	movb	#op_movl,(r9)+		; `movl'	put index on lstack
+	movb	#adm_r0,(r9)+		; r0
+	movb	#adm_adec_r10,(r9)+	; -(r10)
+	movl	r9,-(r10)		; save address to branch to
+	rsb				; end of do
+
+
+;+++
+;c> downloop -- ( -- ) Ends a { do ... downloop }.  Adds -1 to the loop index
+;	and branches to { do } if ((index < 0) and (index > limit)).~~~ inverted?
+;	In other words, { downloop } is like Pascal's
+;	{ for index := start downto finish do }.
+;---
+	header	downloop,,vl_compiler
+	movb	#op_acbl,(r9)+		; `acbl'
+	movb	#adm_b_dis_r10,(r9)+	; b^(r10)
+	movb	#4,(r9)+		; 4 byte displacement for previous adm
+	movb	#adm_immediate,(r9)+	; immediate mode
+	movl	#-1,(r9)+		; -1 is addend
+	movb	#adm_def_r10,(r9)+	; (r10)
+	movl	r9,r0			; save address of branch word
+	movw	#0,(r9)+		; save space for branch displacement
+	subl3	r9,(r10)+,r1		; calculate displacement
+	movw	r1,(r0)			; save displacement
+	movb	#op_addl2,(r9)+		; `addl2'	pop index&limit from lstack
+	movb	#^x08,(r9)+		; s^#8
+	movb	#adm_r10,(r9)+		; r10
+	rsb				; end of downloop
+
+
+;+++
+;c> else -- ( -- ) In control structure { if ... else ... endif } { else }
+;	else ends the true branch and starts the false branch.
+;---
+	header	else,,vl_compiler
+	movb	#op_brw,(r9)+		; branch over false part
+	movl	r9,r0			; save address of displacement
+	movw	#0,(r9)+		; save space for displacement
+	movl	r9,r1			; save address to calculate
+					;   displacement from
+; make branch to false part (fill in displacement in if)
+	subl3	(r10)+,r9,r2		; calculate displacement
+	movw	r2,@(r10)		; save displacment
+	addl2	#4,r10			; pop address of displacement off lstack
+	movl	r0,-(r10)		; save address of displacement
+	movl	r1,-(r10)		; save address to displace from
+	rsb				; end of else
+
+
+;+++
+;c> endif -- ( -- ) { endif } ends either of { if } or { else } branches.
+;	{ if ... else ... endif } and { if ... endif } are both legal.
+;---
+	header	endif,,vl_compiler
+	subl3	(r10)+,r9,r0		; calculate displacement
+	movw	r0,@(r10)		; save displacement
+	addl2	#4,r10			; pop address of displacement off lstack
+	rsb				; end of endif
+
+
+;+++
+;c> endwhile -- ( -- ) ends a { while ... endwhile }.  Unconditionally branches
+;	back to { while }.
+;---
+	header	endwhile,,vl_compiler
+	movb	#op_brw,(r9)+		; brw back to test
+	movl	r9,r0			; address to put displacement in
+	movw	#0,(r9)+		; save space for displacement
+	subl3	(r10)+,r9,r1		; displacement to after loop
+	movw	r1,@(r10)		; fill in displacement to after loop
+	addl2	#4,r10			; pop off address of displacement
+	subl3	r9,(r10)+,r1		; displacement back to beginning
+	movw	r1,(r0)			; save displacement
+	rsb				; end of endwhile
+
+
+;+++
+;c> if -- ( n -- ) In { if ... else ... endif } or { if ... endif },
+;	if the top of the stack is true, execute the code following
+;	the { if } until an { endif } or an { else }.  At an { else } skip to
+;	the code after the { endif }.  If the top of the stack
+;	is false, skip to the { endif } or { else }.
+;	In the { repeat ... if ... again } if the top fo the stack is true the
+;	code up to the { again } is executed and then a branch back to
+;	{ repeat } is done.  If the top of the stack is false, execution jumps
+;	to the code after the { again }.
+;---
+	header	if,,vl_compiler
+	movb	#op_tstl,(r9)+		; `tstl'
+	movb	#adm_ainc_r11,(r9)+	; (r11)+
+	movb	#op_bneq,(r9)+		; `bneq'
+	movb	#^x03,(r9)+		; to (pc+3)
+	movb	#op_brw,(r9)+		; `brw'
+	movl	r9,-(r10)		; save address of displacement
+	movw	#0,(r9)+		; save space for displacmnent
+	movl	r9,-(r10)		; save address to calculate
+					;   displacement from
+	rsb				; end of if
+
+
+;+++
+;c> l^ -- ( -- ) Convert next token to number and enclose in dictionary.
+;---
+	header	i_l_up,<l^>,vl_compiler
+	movl	#c_blank,-(r11)		; set up for blank delimited token
+	jsb	token			; get it
+	jsb	number			; try to make it a number
+	tstl	(r11)+			; Is it a number>
+	bneq	10$			; yes
+	rsb				; no, for now just exit~~~ WTF, no error?
+10$:
+	movl	(r11)+,(r9)+		; save long in dictionary
+	rsb				; end of l^
+
+
+;+++
+;c> literal -- ( -- ) convert top of stack to a literal in current word.
+;---
+	header	literal,,vl_compiler
+	movb	#op_movl,(r9)+		; `movl'
+	movb	#adm_immediate,(r9)+	; immediate mode
+	movl	(r11)+,(r9)+		; move top of stack into dictionary
+	movb	#adm_adec_r11,(r9)+	; -(r11)
+	rsb				; end of literal
+
+
+;+++
+;c> loop -- ( -- ) Ends a { do ... loop }.  Adds 1 to loop index and branches
+;	to { do } if ((index >= 0) and (index < limit)).  In other words,
+;	{ loop } is like Pascal's { for index := start to finish do ... }.
+;---
+	header	i_loop,<loop>,vl_compiler ; VAX/VMS debuffer thinks loop is a a command
+	movb	#op_acbl,(r9)+		  ; `acbl'
+	movb	#adm_b_dis_r10,(r9)+	  ; b^(r10)
+	movb	#4,(r9)+		  ; 4 byte displacement for previous adm
+	movb	#^x01,(r9)+		  ; s^#1
+	movb	#adm_def_r10,(r9)+	  ; (r10)
+	movl	r9,r0			  ; save address of branch word
+	movw	#0,(r9)+		  ; save space for branch displacement
+	subl3	r9,(r10)+,r1		  ; calculate displacement
+	movw	r1,(r0)			  ; save displacement
+	movb	#op_addl2,(r9)+		  ; `addl2'	pop index&limit from lstack
+	movb	#^x08,(r9)+		  ; s^#8
+	movb	#adm_r10,(r9)+		  ; r10
+	rsb				  ; end of loop
+
+
+;+++
+;c> recurse -- ( -- ) Compile a jsb to the word that is currently being defined,
+;	allowing recursion.
+;---
+	header	recurse,,vl_compiler
+	movl	@v_context,-(r11)	; get address of current word
+	jsb	cfa			; get the code field address
+	jsb	i_compile_jsb		; compile it into current word
+	rsb				; end of recurse
+
+
+;+++
+;c> repeat -- ( -- ) Start { repeat ... until } and { repeat ... if ... again }
+;	loops.
+;---
+	header	repeat,,vl_compiler
+	movl	r9,-(r10)		; save address to branch to
+	rsb				; end of repeat
+
+
+;+++
+;c> w^ -- ( -- ) Convert next token to number, enclose low 16 bits in dictionary.
+;	This is used with the assembler, mainly, which is why it is w^ instead
+;	of  s^.
+;---
+	header	i_s_up,<w^>,vl_compiler
+	movl	#c_blank,-(r11)		; set up for blank delimited token
+	jsb	token			; get it
+	jsb	number			; try to make it a number
+	tstl	(r11)+			; Is it a number?
+	bneq	10$			; yes
+	rsb				; no, for now just exit~~~ WTF, no error?
+10$:
+	movw	(r11),(r9)+		; save word in dictionary
+	addl2	#4,r11			; pop value from dstack
+	rsb				; end of w^
+
+
+;+++
+;c> until -- ( f -- ) End a { repeat ... until } loop.  If top of stack is
+;	false, branch back to the { repeat }, else fall out of loop.
+;---
+	header	until,,v1_compiler
+	movb	#op_tstl,(r9)+		; `tstl'
+	movb	#adm_ainc_r11,(r9)+	; (r11)+
+	movb	#op_bneq,(r9)+		; `bneq'
+	movb	#3,(r9)+		; (pc+3)
+	movb	#op_brw,(r9)+		; `brw'
+	movl	r9,r0			; save address of displacement
+	movw	#0,(r9)+		; save space for displacement
+	subl3	r9,(r10)+,r1		; calcualte negative displacement
+	movw	r1,(r10)		; save negative displacement
+	rsb				; end of until
+
+
+;+++
+;c> while -- ( f -- ) Start a { while ... endwhile } loop.  If top of stack
+;	is true, execute code to { endwhile }, which loops back to { while }.
+;	If false, skip to after the { endwhile }.
+;---
+	header	while,,vl_compiler
+	movl	r9,-(r10)		; save address to branch to at endwhile
+	movb	#op_tstl,(r9)+		; `tstl'
+	movb	#adm_ainc_r11,(r9)+	; (r11)+
+	movb	#op_bneq,(r9)+		; `bneq'
+	movb	#3,(r9)+		; over brw false_part
+	movb	#op_brw,(r9)+		; `brw'
+	movl	r9,-(r10)		; save address of displacement to
+					;   statements after loop
+	movw	#0,(r9)+		; save space for displacement
+	movl	r9,-(r10)		; address to make diplacement to
+					;   after loop from~~~ awkward phrasing
+	rsb				; end of while
+
+
+;+++
+;c> [ -- ( -- ) leave compile mode without terminating definition.
+;	Must be followed by { ] }.
+;---
+	header	i_left_brack,<[>,vl_compiler
+	movb	#c_false,v_mode
+	rsb				; end of [
+
+
+;+++
+;c> [ascii] -- ( -- n ) compile ascii value of 1st char of next token into word.
+;---
+	header	i_compile_ascii,<[ascii]>,vl_compiler
+	movl	#c_blank,-(r11)		; set up for blank separated token
+	jsb	token			; get it
+	movzbl	1(r9),-(r11)		; put ascii value of 1st char of token on stack
+	jsb	literal			; compile it into the dictionary
+	rsb				; end of ascii
+
+
+_compiler_end:
+	newpage <Enter VTIL>
+;*******************************************************************************
+;
+; Enter VTIL -- Set up condition handler and call main program.
+;
+;*******************************************************************************
+
+
+;+++
+;s> vtil -- entry procedure of vtil
+;---
+	.entry	vtil,^m<r6,r7,r8,r9,r10,r11>
+    .if defined ca_trapping
+        .print ; Trapping is enabled
+	moval	s_trap,(fp)		; set up condition handler
+    .if_false
+        .print ; Trapping is not enabled
+    .endc
+    .if defined ca_controlc
+        .print ; Control/C Trapping is enabled
+; If a terminal, set up control/c trap
+	$assign_s chan=v_input_chan,-	; connect to sys$command
+		devname=v_input_name
+	blbs	r0,1$			; exit on error~~~Success, so branch over error exit
+	brw	vtil_exit		; exit vtil
+1$:
+	$getchn_s chan=v_input_chan,-	; find out if it is a terminal
+		prilen=v_getchn_ret_len,- ; where to put length
+		pribuf=v_getchn_in_buf  ; where to find input buffer
+
+	cpmb	#dc$_term,v_getchnl_buf+4 ; is it a terminal?
+	bneq	5$			; not a terminal, so don't enable ctr-c
+; enable control-c trapping
+	.show	   meb,me
+	$qio_w	chan=v_input_chan,-
+		func=#IO$_SETMODE!IO$CTRLCAST,-
+		p1=enable_ctrlc,-
+		p3=#3
+	blbs	r0,6$			; no error, go on, don't deassign channel
+	brw	vtil_exit
+5$:
+;	$dassign_s chan=v_input_chan    ; channel not a terminal, deassign it.
+6$:
+    .if_false
+        print ; Control/c trapping not enabled
+    .endc
+
+	calls	#0,s_cold_start		; call subroutine to start from scratch
+; If we have returned from cold start there was an error caught by the
+; trap subroutine and we want to a warm start.
+10$:
+	calls	#0,s_warm_start		; call subroutine to do warm start.
+; If we have returned from warm start there was an error caught by the
+; trap subroutine and we want to do another warm start.
+	brb	10$
+
+;+++
+;r> vtil_exit -- exit if errors in setting up control-c ast or traps
+;---
+vtil_exit:
+	pushl	r0
+	calls	#1,g^lib$signal
+	ret				; this is return from main program.
+
+
+;+++
+;s> enable_ctrlc -- enable controlc trapping.
+;---
+	.entry	enable_ctrlc,^m<>
+; reenable ctrlc handler...
+	$qio_s	chan=v_input_input,=
+		func=#IO$_SETMODE!IO$M_CTRLCAST,-
+		pi=enable_ctrlc,-
+		p3=#3
+	pushl	#vtil_ctrlc
+	calls	#1,g^lib$signal		; this should NOT return!
+	rsb				; end of enable_ctrlc
+
+
+;+++
+;s> trap --  trap routine.  Don't exit VTIL unless maximum number of errors
+;	has been exceeded.
+;---
+	.entry	s_trap,^m<>
+; output some sort of error message
+	movl  chf$l_sigarglst(ap),r1
+	pushl #1
+	pushl chf$l_sig_name(r1)
+	$putmsg_s msgvec=(r1)
+; somewhere we need to figure out how to message this as well
+	incl   v_errors			; increment number of errors
+	cmpl   v_errors,#c_max_errs	; the max number of errors exceeded?
+	btgr   10$			; yes, go exit
+	movl   chf$l_mcharglst(ap),r0	; get address of mechanism array
+	movl   chr$l_mch_depth,(r0),0	; get depth, so we will unwind to
+		v_trap_depth		;   the main program
+	unwind_s depadr=v_trap_depth	; unwind stack
+	ret				; return to main progam
+10$:
+	pushl	#0			; number of fao parameters
+	pushl	#vtil_maxerrors		; message number
+	pushl	#2			; number of longs in message vecor,
+					; not including this one.
+	movl	sp,r0			; save address of buffer
+	$putmsg_s msgvec=(r0)		; write message
+	$exit_s				; exit
+					; end of trap
+
+	newpage <Initialization>
+;*******************************************************************************
+;
+; Initialization
+;
+;*******************************************************************************
+
+;+++
+;s> cold_start -- do all initial setup
+;+++
+	.entry	s_cold_start,^m<>
+	movl	sp,_v_returnstack	; save original return stack pointer
+	movl	#c_dict_begin,r9	; initialize dictionary pointer
+; vl_compiler and vl_kernel are symbols that contain location of last word in
+; these vocabularies, which are built-in.
+	movl	#vl_compiler,v_compiler	; Initialize compiler vocabulary
+	movl	#vl_kernel,v_kernel	; Initialize kernel vocabulary
+; greet user
+	pushaq	v_greeting
+	calls	#1,g^lib$put_output	; greet user
+	moval	v_kernel,v_context	; Initialize context
+	moval	v_kernel,v_current	; Initialize current
+	brw	_initialize		; skip patching stuff
+
+
+;+++
+;s> warm_start -- do a warm start.  Called from main program.  Branched to
+;	internally.
+;---
+	.entry	s_warm_start,^m<>
+; only greet user if entered from main program.  Otherwise we are recovering
+; from an internal error and are only patching, not recovering from a trap.
+	pushaq	   v_greeting
+	calls	   #1,g^lib$put_output	; greet user
+	moval	   v_kernel,v_context	; Initialize context
+	moval	   v_kernel,v_current	; Initialize current
+;+++
+;r> warm_start -- so we can brw to it as well as call it
+;---
+r_warm_start:
+
+; The following patches system variables and delivers error messages to the user
+; about the cause of the boom.
+	tstb	v_mode		        ; were we compiling before error?
+	beql	10$			; no
+	jsb	unlink			; yes, unlink unfinished word
+10$:
+	movb	#c_false,v_mode		; put in execute mode
+	movb	#c_false,v_state	;   just in case
+	movw	#0,v_inlen		; so start with new line
+	movw	#0,v_org_inline		;   just in case
+	tstb	v_infile		; Are we getting from file?
+	beql	20$			; no
+	$close	fab=v_infab		; yes, close file
+	movb	#c_false,v_infile	; set infile flag false
+	movl	#0,v_filelinenum	; zero file line as well
+	movab	v_infilemesg,-(r11)	; put address of 'In file:' on stack
+	jsb 	bcount			; convert from ascic to write format ( address count )
+	jsb	write			; put in output
+	moval	v_fname,-(r11)		; put address of filename on stack
+	movzbl	v_fnamelen,-(r11)	; put count of filename on stack
+	jsb	write			; write filename out to terminal
+20$:
+	jsb	q_cr			; finish off outstanding input, if any
+	movl	v_returnstack,sp	; restore original return stack pointer
+
+;
+; The following is also done during a cold start.
+;
+_initialize:
+	; Initialize stacks.
+	moval	c_ds_start,r11 		; move address of data stack to ds pointer
+	moval	c_ls_start,r10		; move address of loop stack to ls pointer
+
+
+	newpage <Interpreter>
+;*******************************************************************************
+;
+; Interpreter -- Take commands from the user (or a file) and execute them.
+;
+;*******************************************************************************
+_interpreter:
+	movl	#c_blank,-(r11)		; set up for space delimeted token
+	jsb	token			; get the next token
+; is it a comment?
+	cmpb	#1,(r9)			; token only one byte long?
+	bneq	10$			; no
+	cmpb	#c_com1_begin,1(r9)	; is it a \
+	beql	_strip_comment		; yes, strip comment
+	cmpb	#c_com2_begin,1(r9)	; Is it a (
+	beql	_strip_comment2		; yes, strip second type of comment
+10$:
+	jsb	q_search		; search for the word
+	tstl	(r11)+			; was it found?
+	beql	30$			; no, go see if number
+	brb	_q_execute		; yes, go see if execute or compile
+30$:
+	jsb	q_number		; see if it is a number
+	tstl	(r11)+			; was it valid?
+	bneq	_interpreter		; yes, leave with number on the stack
+	brw	_unknowntoken		; no, tell user bad token
+
+
+_strip_comment:
+	movl	#c_com1_end,-(r11)	; end of first type of comment
+	jsb	token			; get the token
+	brw	_interpreter		; end of strip comment
+
+
+_strip_comment2:
+	movl	#c_com2_end,-(r11)	; end of second type of comment
+	jsb	token			; get the token
+	brw	_interpreter		; end of strip comment2
+
+
+_q_execute:
+	jsb	cfa			; get the code field address of
+					; the word
+	cmpb	v_mode,v_state		; v_mode = v_state?~~~ what does this tell us???
+	bneq	10$			; no, go compile it
+	movb	#c_false,v_state	; set v_state false~~~ Why???
+	jsb	@(r11)+			; yes, execute it
+	cmpl	r10,$_cs_end		; stack overflow?
+	blss	_overflow		; yes, go announce it
+	cmpl	r11,#c_ds_start		; stack underflow?
+	bgtr	_underflow		; yes, go announce it
+	brw	_interpreter		; everything ok, do it again
+10$:
+	movb	#c_false,v_state	; set v_state false~~~ what does this tell us???
+	jsb	i_compile_jsb		; compile a jump to the word whose
+					;   cfa addressis at the top of stack
+	brw	_interpreter		; everthing ok, do it again
+
+
+_underflow:
+	jsb	cr			; make sure everything is output
+	pushaq	v_undermess		; push address of underflow message
+	calls	#1,g^lib$put_output	; tell user
+	brw	r_warm_start			; clean up VTIL
+
+
+_overflow:
+	jsb	cr			; make sure everything is output
+	pushaq	v_overmess		; make sure everything is output
+	calls	#1,g^lib$put_output	; tell user
+	brw	r_warm_start			; clean up VTIL
+
+
+_unknowntoken:
+	movab	v_unknown,-(r11)	; push address of unknown token message
+	jsb	bcount			; convert it to ( address count )
+	jsb	write			; tell user
+	movl	r9,-(r11)		; get address of token
+	incl	(r11)			; move address over byte-count
+	movzbl	(r9)-(r11)		; get byte count of string on stack
+	jsb	write			; show user bad token
+	movab	v_unknown2,-(r11)	; Put address of 'In line:' on stack
+	jsb	bcount			; convert it to ( address count )
+	jsb	write			; tell user
+	tstb	v_infile		; In a file?
+	beql	10$			; no
+	movl	v_filelinenum,-(r11)	; yes, print line number
+	jsb	i_dot			; put number in output buffer
+10$:
+	jsb	cr			; end line
+	moval	v_inbuf,-(r11)		; get address of original line
+	cvtwl	v_org_inlen,-(r11)	; length of original line
+	jsb	write			; show user
+	jsb	cr			; end line
+	brw	r_warm_tart			; go clean up VTIL
+
+
+	newpage <Exit Routines>
+;*******************************************************************************
+;
+; Exit Routines -- Routines to handle successful and unsuccessful  exits
+;
+;*******************************************************************************
+_error_exit:				; die messily
+	pushl	r0			; put error message number on stack
+	calls	#1,g^lib$signal		; signal error
+	ret				; return
+
+
+_f_err:	pushl	fab$l_stv(r6)		; push stv and sts of fab
+	pushl	fab$l_sts(r6)		; on the stack
+	calls	#2,g^lib$signal		; signal error
+	brb	_exit
+
+
+_r_err:	pushl	rab$l_stv(r6)		; push stv and sts of rab
+	pushl	rab$l_sts(r6)		; on the stack
+	calls	#2,g^lib$signal		; signal error
+
+
+_done:	$close	fab=v_infile		; close input
+
+
+_exit:
+	movl	#1,r0			; successful completion
+	$exit_s	r0			; exit with status
+
+
+	newpage <Dictionary Space>
+;*******************************************************************************
+;
+; Dictionary
+;
+;*******************************************************************************
+	.psect	vtildict
+c_dict_begin:
+	. = .+<16 * 1024>		; reserve space for dictinary~~~ why not a constant
+c_dict_end:
+
+
+;
+; Block i/o buffers -- Here because that is the safest place for them.
+;
+v_blkbuff:
+	.blkb	c_max_blocks * c_block_size ; buffer for block i/o
+
+
+;*******************************************************************************
+;
+; End of VTIL, and transfer address
+;
+;*******************************************************************************
+	.end	vtil
 
 ; Local Variables:
 ; mode: indented-text
