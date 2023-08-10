@@ -7,7 +7,7 @@ vtil-nopaging.doc : vtil-nopaging.mem
         @stripcrlf $(MMS$SOURCE) $(MMS$TARGET)
 
 clean : 
-        del/log *.exe.*,*.obj.*,*.lis.*,*.map.*
+        del/log *.exe.*,*.obj.*,*.lis.*,*.map.*,*.mem.*,*.doc.*
 
 zipsrc : 
         today = f$cvtime (,, "DATE")
@@ -16,5 +16,3 @@ zipsrc :
 	! It's not really accurate unless we start from scratch.
 	if f$search (zipfile) .nes. "" then delete 'zipfile';*/log
 	zip -r 'zipfile' vtil.dir -x *.obj *.exe *.hlb *.lis *.map 
-
-        
