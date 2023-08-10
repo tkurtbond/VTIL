@@ -1,4 +1,4 @@
-
+;
 .title	VTIL VAX Threaded Interpretive Language
 	.ident	/v1.01/			; version number
 ;******************************************************************************
@@ -295,7 +295,7 @@ vl_kernel = 0		   ; Links the kernel vocabulary together
 ;	the macro source code should have backslashes in their names.
 ;
 ;!---
-	macro	header	macname,name=<>,branch=v1_kernel
+	.macro	header	macname,name=<>,branch=v1_kernel
 	.long	branch		; back link to the previous word in this branch
 	branch = -4		; where to link the next word to in this branch
 	.nchr  nchr, ^\name\	; nchr = length( name )
@@ -312,7 +312,7 @@ macname:			; use name of word as branch label
 ;m> iserror -- simplistic error checking routine.  If error code in r0,
 ;	die messily.
 ;!---
-	.macro	iserror,badwhere=_error_exit,?goodwhere
+	.macro	iserror badwhere=_error_exit,?goodwhere
 	blbs	r0,goodwhere	; no error, go on
 	brw	badwhere	; error, branch to error handler
 goodwhere:
@@ -326,7 +326,7 @@ goodwhere:
 	.macro	isstrerr badwhere=_error_exit,?goodwhere
 	cmpl	#lib$_inpstrtru,r0	; string truncation on error?
 	beql	goodwhere		; yes, ignore and go on
-	blbs	r0,goodhwere		; no error, go on
+	blbs	r0,goodwhere		; no error, go on
 	brw	badwhere		; error, branch to error handler
 goodwhere:
 	.endm	isstrerr
@@ -475,7 +475,7 @@ v_readaddr:
 ; to make full desciptor when top fo stack is ( addr count )
 v_static_dsc:
 	.byte	dsc$k_dtype_t	; data type text
-	.byte	dsc$c_class_s	; descriptor class
+	.byte	dsc$k_class_s	; descriptor class
 v_outlen:
 	.word	0		; length of output
 v_outbuf:
@@ -487,7 +487,7 @@ v_outbuf:
 ;
 v_tpu_com:			; buffer for constant section of command
 	.ascii	\tpu/section=eve$dir:eve_edt \ ; use my version of eve
-c_tpu_com_leen = . - v_tpu_com	; length of command is a constant
+c_tpu_com_len = . - v_tpu_com	; length of command is a constant
 v_tpu_com2:			; buffer for user section of command
 	.blkb	c_max_len
 v_tpu_dsc:
@@ -629,7 +629,7 @@ _kernel_begin:
 ;k> (not) -- ( n1 n2 -- n3 ) bitwise not of n1 and n2.
 ;---
 	header	i_bit_not,<(not)>
-	mcompl	(r11)(r11)		; not it
+	mcoml	(r11),(r11)		; not it
 	rsb				; end of (not)
 
 
@@ -800,7 +800,7 @@ _kernel_begin:
 ;---
 	header	i_divide,</>
 	divl2	(r11)+,(r11)
-	rsb				end of /
+	rsb				; end of /
 
 
 ;+++
@@ -810,7 +810,7 @@ _kernel_begin:
 	header	i_div_mod,</mod>
 	divl3	(r11),4(r11),r0		; r0 = n1 / n2 = n3
 	mull3	r0,(r11)+,r1		; tmp = n2 * n3
-	subl	r1,(r11)+,r1		; r1 = n1 - (n2 * n3) = n4
+	subl3	r1,(r11)+,r1		; r1 = n1 - (n2 * n3) = n4
 	movl	r0,-(r11)		; push n3, quotient
 	movl	r1,-(r11)		; push n4, remainder
 	rsb				; end of /mod
@@ -844,20 +844,20 @@ _kernel_begin:
 ; being found during its own definition)?
 	jsb	smudge			; set smudge bit so word isn't found
 	movb	#c_true,v_mode		; set compiler v_mode
-	rsb				: end of :
+	rsb				; end of :
 
 
 ;+++t
 ;k> < -- ( n1 n2 -- f ) true if n1 < n2, false otherwise.
 ;---
 	header	i_less,^\<\
-	compl	(r11)+,(r11)+		; reverse order, so n2 > n1
+	cmpl	(r11)+,(r11)+		; reverse order, so n2 > n1
 	bgtr	10$			; yes
 	movl	#c_false,-(r11)		; no, leave with false
 	rsb				; return
 10$:
 	movl	#c_true,-(r11)		; yes, leave with true
-	rsb				end of <
+	rsb				; end of <
 
 
 ;+++
@@ -1029,14 +1029,14 @@ _kernel_begin:
 ; searched from the second word.  Perhaps I should set the smudge bit (gasp!
 ; Horrors!).
 ; get pointer to pointer to start of vocab
-	movel @v_context,-(r11)		; get address of current word
+	movl @v_context,-(r11)		; get address of current word
 ;??? took out to test smudge bit
 ;	tstb  v_mode			; Are we compiling?
 ;	beql  5$			; no, go on.
 ; yes, so skip address of word we are defining, so we can use
 ; previous definitions of this word.
 ;	movl	@(r11),(r11)		; get address of previous word
-5$
+5$:
 	jsb	search			; search it
 	tstl	(r11)			; Was it found?
 	bneq	10$			; yes, exit with ( addr true ) on dstack
@@ -1152,7 +1152,7 @@ _kernel_begin:
 ;k> b! -- ( b a -- ) store 8 bits of `b' at address `a'.
 ;---
 	header	i_b_store,<b!>
-	movb	r(r11),@(r11)		; store byte at what's pointed to by
+	movb	4(r11),@(r11)		; store byte at what's pointed to by
 					; top of stack
 	addl2	#8,r11			; pop arguments
 	rsb				; end of b!
@@ -1182,7 +1182,7 @@ _kernel_begin:
 ;---
 	header	bcount
 	movzbl	@(r11),r0		; get length of string
-	incl	(r11),			; move over byte-count
+	incl	(r11)			; move over byte-count
 	movl	r0,-(r11)		; put count on stack
 	rsb				; end of bcount
 
@@ -1222,7 +1222,7 @@ _kernel_begin:
 	clrl   r0			; start with buffer 0
 10$:
 	cmpl	(r11),-			; does this buffer contain the
-		v_buf_blnk_nums[r0]	;   block we are looking for?
+		v_buf_blk_nums[r0]	;   block we are looking for?
 	beql	100$			; yes, go on
 	aoblss	#c_max_blocks,r0,10$	; move to next buffer, if any
 ;
@@ -1238,7 +1238,7 @@ _kernel_begin:
 	clrl	r0
 30$:
 	cmpb	#c_modified,-		; Has this buffer
-		v_buf_inuse[40]		;   been modified?
+		v_buf_inuse[r0]		;   been modified?
 	bneq	90$			; no, read block into it
 	aoblss	#c_max_blocks,r0,30$	; move to next buffer if any
 ; all buffers are modified, so we must write out out and use it.
@@ -1252,9 +1252,9 @@ _kernel_begin:
 	movl	(r11),-			; Save the new block number in
 		-v_buf_blk_nums[r0]	;   buffer
 	movb	#c_inuse,-		; flag that buffer is in use
-		v_buff_inuse[r0]
+		v_buf_inuse[r0]
 	movl	r0,(r11)		; set up for buffer-read
-	jsb	i_buffer_rad		; read block into buffer
+	jsb	i_buffer_read		; read block into buffer
 	rsb				; return
 ;
 ; block already in memory
@@ -1272,7 +1272,7 @@ _kernel_begin:
 ;k> block-close -- ( -- ) Close the block file
 ;---
 	header	i_block_close,<block-close>
-	tsb	v_blockio		; is the block file open?
+	tstb	v_blockio		; is the block file open?
 	beql	100$			; no, return
 	$close	fab=v_blkfab		; Yes, close block file
 	blbs	r0,10$			; go on if no error
@@ -1327,13 +1327,13 @@ _kernel_begin:
 	movl	(r11)+,-		; get VTIL block (rms record) number
 		v_blkkey		;   into key buffer
 	movw	#c_block_size,-		; get proper VTIL block (rms record)
-		v_blkrab+rab$_w_rsi	;   size into fab
+		v_blkrab+rab$w_rsz	;   size into fab
 	$find	rab=v_blkrab		; find the correct block
 	$update	rab=v_blkrab		; write the block
 	blbs	r0,100$			; no errors, go on
 	brw	_error_exit		; exit and signal error
 100$:
-	rsb				end of block-write
+	rsb				; end of block-write
 
 
 ;+++
@@ -1554,7 +1554,7 @@ _kernel_begin:
 ;---
 	header	cr
 	movab	v_outbuf,-(r11)		; move address of output buffer on stack
-	movzwl	v_outbut,-(r11)		; put count on stack
+	movzwl	v_outbuf,-(r11)		; put count on stack
 	movw	v_static_dsc,2(r11)	; put middle of descriptor on ~~~ Is this correct?
 	pushl	r11			; push address of output descriptor
 	calls	#1,g^lib$put_output	; output it
@@ -1704,7 +1704,7 @@ _kernel_begin:
 	movzbl	(r9),r6			; save length
 	addl3	#1,r9,r7		; start of string
 	movc3	r6,(r7),v_tpu_com2	; move string into buffer
-	addw3	#c_tput_com_len,r6,-	; put length in descriptor
+	addw3	#c_tpu_com_len,r6,-	; put length in descriptor
 		v_tpu_dsc
 	pushaq	v_tpu_dsc		; push address of command
 	calls	#1,g^tpu$tpu		; call tpu
@@ -1783,7 +1783,7 @@ _kernel_begin:
 	movl	r9,-(r11)		; address of token not found in search
 	jsb	bcount			; get address of text and length
 	jsb	write			; write the name of the word
-	brw	f_warm_start		; end of forget
+	brw	r_warm_start		; end of forget
 
 
 ;+++
@@ -1863,7 +1863,7 @@ _kernel_begin:
 ;	of the innermost loop onto the top of the stack.
 ;---
 	header	i_i_to,^\i>\
-	movl	(r10),-r(11)		; copy w/o consuming ~~~ from loop stack.
+	movl	(r10),-(r11)		; copy w/o consuming ~~~ from loop stack.
 	rsb				; end of i>
 
 
@@ -1896,14 +1896,14 @@ _kernel_begin:
 	moval	v_fname,-
 		v_infab+fab$l_fna	; tell it where filespec is
 	movb	v_fnamelen,-
-		v_infab+fab$b_fna	; tell it what size filespec is
+		v_infab+fab$b_fns	; tell it what size filespec is
 	$open	fab=v_infab		; open input file
 	blbc	r0,10$			; Quit on error
 	$connect rab=v_inrab		; connect to input
 	blbc	r0,20$			; Quit on error
 	brb	40$			; branch to read loop
 10$:
-	cmpl	r0,#rms$fnf		; is it file not found?
+	cmpl	r0,#rms$_fnf		; is it file not found?
 	bneq	15$			; no
 	pushaq	v_filenotfound		;
 	calls	#1,g^lib$put_output	; Tell user file not found
@@ -1931,7 +1931,7 @@ _kernel_begin:
 	movb	#2,(r9)+		; (pc+2)
 	movb	#adm_adec_r11,(r9)+	; -(r11)
 	movb	#op_rsb,(r9)+		; `rsb'
-	movl	(r11)+(r9)+		; move top of stack into dictionary
+	movl	(r11)+,(r9)+		; move top of stack into dictionary
 	rsb				; end of long
 
 
@@ -2058,7 +2058,7 @@ _kernel_begin:
 	header	not
 	tstl	(r11)+			; Is it false?
 	beql	10$			; yes
-	movl	#t_false,-(r11)		; no, leave with false on stack
+	movl	#c_false,-(r11)		; no, leave with false on stack
 	rsb				; return
 10$:
 	movl	#c_true,-(r11)		; it is false, leave with true on stack
@@ -2082,7 +2082,7 @@ _kernel_begin:
 	decl	r7			; length = length - 1
 _number_top:
 	movzbl	(r6),r2			; get byte
-	subl2	#x30,r2			; check in range 0...9
+	subl2	#^x30,r2			; check in range 0...9
 	tstl	r2			; Is it negative?
 	blss	_invalid_number		; yes, leave with false
 	cmpl	r2,#9			; r2 <= 9
@@ -2108,7 +2108,7 @@ _check_base:
 	decl	r7			; count = count - 1
 	incl	r6			; move to next byte in number
 	tstl	r7			; count = 0?
-	bgtr	_number_top:		; no, do it again
+	bgtr	_number_top		; no, do it again
 	tstl	r1			; negative?
 	bgtr	20$			; no
 	mnegl	r0,r0			; yes, negate it.
@@ -2175,7 +2175,7 @@ _invalid_number:
 	jsb	cr			; yes output it
 10$:
 	movab	v_outbuf,r0		; pointer to start of buffer
-	mobzwl	v_outlen,r1		; index into buffer
+	movzwl	v_outlen,r1		; index into buffer
 	addl2	r1,r0			; pointer to next available char
 	movb	(r11),(r0)		; move char into buffer
 	addl2	#4,r11			; pop char off stack
@@ -2214,7 +2214,7 @@ _invalid_number:
 	calls	#3,g^lib$get_input	; get a line from terminal
 	isstrerr
 30$:
-	clrw	v_outline		; clean output length, since any
+	clrw	v_outlen		; clean output length, since any
 					;   outstanding was just output
 	cvtwb	v_readlen,@(r11)	; save byte-count at address on stack
 	addl2	#4,r11			; pop address off stack
@@ -2238,7 +2238,7 @@ _invalid_number:
 	movab	v_outbuf,-(r11)		; put address of buffer on stack
 	movzwl	v_outlen,-(r11)		; move count on stack
 	movw	v_static_dsc,2(r11)	; move middle of descriptor on stack
-	clr	v_outlen		; clear output length, since any
+	clrw	v_outlen		; clear output length, since any
 					;   outstanding will be saved.
 	pushl	r11			; put addrss of descriptor on rstack
 	addl2	#8,r11			; move stack ptr back over descriptor
@@ -2406,7 +2406,7 @@ _invalid_number:
 	cmpw	v_outlen,#c_max_len	; Is output buffer full?
 	blss	10$			; no, go on
 	jsb	cr			; yes, output it
-10$
+10$:
 	movab	v_outbuf,r0		; pointer to start of buffer
 	movzwl	v_outlen,r1		; index into buffer
 	addl2	r1,40			; pointer to next available buffer
@@ -2424,7 +2424,7 @@ _invalid_number:
 	movl	#1,-(r11)		; no, save space on stack for index
 10$:
 	jsb	space			; output one space
-	aobls	4(r11),(r11),10$	; (r11) += 1, repeat if (r11) < 4(r11)
+	aoblss	4(r11),(r11),10$	; (r11) += 1, repeat if (r11) < 4(r11)
 	addl2	#4,r11			; pop index
 100$:
 	addl2	#4,r11			; pop argument
@@ -2469,8 +2469,8 @@ _invalid_number:
 20$:
 	movw	v_inrab+rab$w_rsz,-	; input rab set record size
 		v_inlen
-	movw	v_inrab+rab$w_rsv,-
-		v_org_inline
+	movw	v_inrab+rab$w_rsz,-
+		v_org_inlen
 	incl	v_filelinenum		; increment line number in file
 	rsb				; success read from file, return
 30$:
@@ -2514,7 +2514,7 @@ _invalid_number:
 	header	strcmp
 	movzwl	@4(r11),r0		; length of str1
 	addl3	#2,4(r11),r1		; address of chars in str1
-	movzw	@(r11),r2		; length of str2
+	movzwl	@(r11),r2		; length of str2
 	addl3	#2,(r11),r3		; address of chars in str2
 	addl2	#8,r11			; pop top two stack items
 	cmpc5	r0,(r1),#0,r2,(r3)	; compare chars with 0 fill
@@ -2560,7 +2560,7 @@ _invalid_number:
 	jsb	create			; make the header
 	movb	#op_movaw,(r9)+		; `movaw'
 	movb	#adm_b_rel,(r9)+	; byte relative
-	movb	#4(r9)+			; (pc+4)
+	movb	#4,(r9)+		; (pc+4)
 	movb	#adm_adec_r11,(r9)+	; -(r11)
 	movb	#op_rsb,(r9)+		; rsb
 	movw	(r11),(r9)+		; maximum length
@@ -2641,7 +2641,7 @@ _invalid_number:
 ;---
 	header	swap
 	movl	(r11),r0		; temp = n2
-	movl	4(r11)(r11)		; n2 = n1
+	movl	4(r11),(r11)		; n2 = n1
 	movl	r0,4(r11)		; n1 = saved n2
 	rsb				; end of swap
 
@@ -2656,7 +2656,7 @@ _invalid_number:
 ; didgits go from 0 to 35.
 	tstl	(r11)			; n < 0?
 	blss	100$			; yes, exit
-	cmpl	(r110,#35		; n > 35
+	cmpl	(r11),#35		; n > 35
 	bgtr	100$			; yes, exit
 	cmpl	(r11),#9		; n > 9 (not a `number') ~~~base 10 digit
 	bgtr	10$			; yes, make it 'A' .. 'Z'
@@ -2686,9 +2686,9 @@ _startfound:
 	movw	r0,v_inlen		; bytes remaining in string
 _gettoken:
 	clrl	r6
-	rlrl	r7
+	clrl	r7
 	locc	(r11),v_inlen,@v_inptr	; locate character
-	subw3	r0,v_inlan,r6		; (v_inlen = r0) = number of chars
+	subw3	r0,v_inlen,r6		; (v_inlen = r0) = number of chars
 					;   to copy
 	movw    r0,v_inlen              ; these are only bytes left (including one
 					; located~~~close paren?
@@ -2727,7 +2727,7 @@ _gettoken:
 	header	unsmudge
 	movl	@v_current,r0		; address of word being defined
 	addl2	#4,r0			; move over link field
-	bicb2	#^b10000000		; clear smudge bit
+	bicb2	#^b10000000,(r0)	; clear smudge bit
 	rsb				; end of unsmudge
 
 
@@ -2788,10 +2788,10 @@ _gettoken:
 	header	vocabulary
 	movl	@v_context,-(r10)	; save LFA of word to link to
 	jsb	create			;   make header for new vocab~~~ word
-	movb	#op_moval		; `moval'
+	movb	#op_moval,(r9)+		; `moval'
 	movb	#adm_b_rel,(r9)+	; byte relative
 	movb	#6,(r9)+		; (pc+2) ~~~ isn't this (pc+6)?
-	#movb	adm_absolute,(r9)+	; absolute mode (address in next lword)
+	movb	adm_absolute,(r9)+	; absolute mode (address in next lword)
 	moval	v_context,(r9)+		; context
 	movab	#op_rsb,(r9)+		; rsb
 	movl	(r10)+,(r9)+		; initialize link
@@ -2815,7 +2815,7 @@ _gettoken:
 10$:
 	movzwl	v_outlen,r6		; get length
 	subl3	r6,#c_max_len,r7	; space available in output buffer
-	movab	v_output,r0		; pointer into buffer
+	movab	v_outbuf,r0		; pointer into buffer
 	addl2	r6,r0			; next available byte
 	cmpl	(r11),r7		; chars to output <= available
 	bgtr	20$			; no, do a part
@@ -2825,14 +2825,14 @@ _gettoken:
 	rsb				; return
 20$:					; more chars to output than buffer space
 	movc3	r7,@4(r11),(r0)		; move some into buffer
-	subl3	r7,(r11)		; new length to output
+	subl2	r7,(r11)		; new length to output
 	addl2	r7,4(r11)		; new place to start in chars to output
 	addw2	r7,v_outlen		; new # of chars in buffer
 	movab	v_outbuf,-(r11)		; address of buffer on stack
 	movzbl	v_outlen,-(r11)		; count on stack
 	movw	v_static_dsc,2(r11)	; put middle of descriptor in
 	pushl	r11			; address of descriptor
-	calls	##,g^lib$put_output	; display it
+	calls	#1,g^lib$put_output	; display it
 	clrw	v_outlen		; nothing in buffer now
 	addl2	#8,r11			; pop descriptor off stack
 	tstl	(r11)			; Are there any remaining characters?
@@ -2890,7 +2890,7 @@ compiler_begin:
 ;	in the word...
 ;---
 ;??? This concept is fuzzy.  Work on it.
-     header	  i_variable,<(variable)>vl_compiler
+     header	  i_variable,<(variable)>,vl_compiler
      movb	  #op_movab,(r9)+	; `movab'
      movb	  #adm_b_rel,(r9)+	; byte relative
      movb	  #2,(r9)+		; (pc+2)
@@ -2909,7 +2909,7 @@ compiler_begin:
 ;---
 	header	i_plus_loop,<+loop>,vl_compiler
 	movb	#op_acbl,(r9)+		; `acbl'
-	movb	#adm_b+dis_r10		; b^(r10)
+	movb	#adm_b_dis_r10,(r9)+	; b^(r10)
 	movb	#4,(r9)+		; 4 byte displacement for previous adm
 	movb	#adm_ainc_r11,(r9)+	; (r11)+
 	movb	#adm_def_r10,(r9)+	; (r10)
@@ -2917,9 +2917,9 @@ compiler_begin:
 	movw	#0,(r9)+		; save space for branch displacement
 	subl3	r9,(r10)+,r1		; calculate displacement
 	movw	r1,(r0)			; save displacement
-	movw	#op_add12,(r9)+		; `addl2'	pp index&limit from ls
+	movw	#op_addl2,(r9)+		; `addl2'	pop index&limit from ls
 	movb	#^x08,(r9)+		; s^#8
-	movb	#adm_r20,(r9)+		; r10
+	movb	#adm_r10,(r9)+		; r10
 	rsb				; end of +loop
 
 
@@ -2927,7 +2927,7 @@ compiler_begin:
 ;c> ." -- ( -- ) compile text until netx `"' into dictinary to be printed when
 ;	the current word is executed.
 ;---
-	header	i_dot_quote,<.">,v_compiler
+	header	i_dot_quote,<.">,vl_compiler
 	movb	#op_movab,(r9)+		; `movab'
 	movb	#adm_b_rel,(r9)+	; byte relative
 	movb	#5,(r9)+		; (pc+5)	skip length byte too
@@ -2937,9 +2937,9 @@ compiler_begin:
 	movw	#0,(r9)+		; save space for displacement
 	movl	#^a\"\,-(r11)		; set up for `"' delimited tokens
 	jsb	token			; get token
-	movbzbl	(r9),r0			; get length of token
+	movzbl	(r9),r0			; get length of token
 	addl3	#1,r0,r1		; calc displacement (count length too)
-	movw	r1,@(r1))		; fill in displacement
+	movw	r1,@(r1)		; fill in displacement
 	addl2	#4,r10			; pop item off loop stack
 	addl2	r1,r9			; save string in dictionary
 	movb	#op_movl,(r9)+		; `movl'
@@ -2950,14 +2950,14 @@ compiler_begin:
 	movb	#op_jsb,(r9)+		; `jsb'
 	movb	#adm_absolute,(r9)+	; absolute mode
 	moval	write,(r9)+		; address of subroutine to jsb to
-	jsb				; end of ."
+	rsb				; end of ."
 
 
 ;+++
 ;c> ; (semicolon) -- ( -- ) Terminate a definition started by { : }.
 ;	Sets { mode } to false and adds an rsb to the definition.
 ;---
-	header	i_semicolon,<;>,v_compiler
+	header	i_semicolon,<;>,vl_compiler
 	movb	#op_rsb,(r9)+		; put an rsb in to end word
 	movb	#c_false,v_mode		; switch off compiler v_mode
 ;??? might need to unset high bit in count of name (smudge) bit
@@ -2972,7 +2972,7 @@ compiler_begin:
 ;	{ >defer } is used to define words that define words.
 ;---
 ;???  This concept is fuzzy.  Work on it.  May be fuzzy, but it works...
-	header	   i_defer_end,^\>defer\,v_compiler
+	header	   i_defer_end,^\>defer\,vl_compiler
 	subl3	   (r10)+,r9,r0		; calculate length and displacement
 	movw	   r0,@(r10)+		; store displacement
 	movw	   r0,@(r10)+		; store length
@@ -2991,7 +2991,7 @@ compiler_begin:
 	header	again,,vl_compiler
 ; save values for calculating displacement in if.
 	movl  (r10)+,r0			; save address to displace from if
-	movl  (r10)+r1			; save address for displacement
+	movl  (r10)+,r1			; save address for displacement
 ; construct negative branch from { again } to { repeat }
 	movb	#op_brw,(r9)+		; `brw'
 	movl	r9,r2			; save address for negative displacement
@@ -2999,7 +2999,7 @@ compiler_begin:
 	subl3	r9,(r10)+,r3		; calculate negative displacment
 	movw	r3,(r2)			; save negative displacement
 ; construct forward branch from { if } to after { again }
-	subl	r0,r9,r4		; calculate { if }'s displacment
+	subl3	r0,r9,r4		; calculate { if }'s displacment
 	movw	r4,(r1)			; save displacement
 	rsb				; end of again
 
@@ -3028,12 +3028,12 @@ compiler_begin:
 ;---
 ;??? This concept is fuzzy.  Work on it.
 	header	i_defer_begin,^\defer<\,vl_compiler
-	movb	#op_movc,(r9)+	; `movc3'
+	movb	#op_movc3,(r9)+		; `movc3'
 	movb	#adm_immediate,(r9)+	; I^x immediate mode
 	movl	r9,-(r10)		; save address to put length in on
 					;   the loop stack
 	movw	#0,(r9)+		; save space for length
-	movb	#adm_b_relative,(r9)+	; byte relative
+	movb	#adm_b_rel,(r9)+	; byte relative
 	movb	#4,(r9)+		; (pc+4)
 	movb	#adm_def_r9,(r9)+	; (r9)
 	movb	#op_brw,(r9)+		; `brw'
@@ -3055,7 +3055,7 @@ compiler_begin:
 	movb	#op_movl,(r9)+		; `movl'	save index
 	movb	#adm_ainc_r11,(r9)+	; (r11)+
 	movb	#adm_r0,(r9)+		; r0
-	movb	#op_movl		; `movl'	put limit on lstack
+	movb	#op_movl,(r9)+		; `movl'	put limit on lstack
 	movb	#adm_ainc_r11,(r9)+	; (r11)+
 	movb	#adm_adec_r10,(r9)+	; -(r10)
 	movb	#op_movl,(r9)+		; `movl'	put index on lstack
@@ -3323,7 +3323,7 @@ _compiler_end:
         .print ; Control/C Trapping is enabled
 ; If a terminal, set up control/c trap
 	$assign_s chan=v_input_chan,-	; connect to sys$command
-		devname=v_input_name
+		devnam=v_input_name
 	blbs	r0,1$			; exit on error~~~Success, so branch over error exit
 	brw	vtil_exit		; exit vtil
 1$:
@@ -3331,12 +3331,12 @@ _compiler_end:
 		prilen=v_getchn_ret_len,- ; where to put length
 		pribuf=v_getchn_in_buf  ; where to find input buffer
 
-	cpmb	#dc$_term,v_getchnl_buf+4 ; is it a terminal?
+	cmpb	#dc$_term,v_getchn_buf+4 ; is it a terminal?
 	bneq	5$			; not a terminal, so don't enable ctr-c
 ; enable control-c trapping
 	.show	   meb,me
-	$qio_w	chan=v_input_chan,-
-		func=#IO$_SETMODE!IO$CTRLCAST,-
+	$qio_s	chan=v_input_chan,-
+		func=#IO$_SETMODE!IO$M_CTRLCAST,-
 		p1=enable_ctrlc,-
 		p3=#3
 	blbs	r0,6$			; no error, go on, don't deassign channel
@@ -3371,9 +3371,9 @@ vtil_exit:
 ;---
 	.entry	enable_ctrlc,^m<>
 ; reenable ctrlc handler...
-	$qio_s	chan=v_input_input,=
+	$qio_s	chan=v_input_chan,-
 		func=#IO$_SETMODE!IO$M_CTRLCAST,-
-		pi=enable_ctrlc,-
+		p1=enable_ctrlc,-
 		p3=#3
 	pushl	#vtil_ctrlc
 	calls	#1,g^lib$signal		; this should NOT return!
@@ -3386,18 +3386,18 @@ vtil_exit:
 ;---
 	.entry	s_trap,^m<>
 ; output some sort of error message
-	movl  chf$l_sigarglst(ap),r1
-	pushl #1
-	pushl chf$l_sig_name(r1)
+	movl	chf$l_sigarglst(ap),r1
+	pushl	#1
+	pushl	chf$l_sig_name(r1)
 	$putmsg_s msgvec=(r1)
 ; somewhere we need to figure out how to message this as well
-	incl   v_errors			; increment number of errors
-	cmpl   v_errors,#c_max_errs	; the max number of errors exceeded?
-	btgr   10$			; yes, go exit
-	movl   chf$l_mcharglst(ap),r0	; get address of mechanism array
-	movl   chr$l_mch_depth,(r0),0	; get depth, so we will unwind to
+	incl	v_errors		; increment number of errors
+	cmpl	v_errors,#c_max_errs	; the max number of errors exceeded?
+	bgtr	10$			; yes, go exit
+	movl	chf$l_mcharglst(ap),r0	; get address of mechanism array
+	movl	chf$l_mch_depth(r0),-	; get depth, so we will unwind to
 		v_trap_depth		;   the main program
-	unwind_s depadr=v_trap_depth	; unwind stack
+	$unwind_s depadr=v_trap_depth	; unwind stack
 	ret				; return to main progam
 10$:
 	pushl	#0			; number of fao parameters
@@ -3420,7 +3420,7 @@ vtil_exit:
 ;s> cold_start -- do all initial setup
 ;+++
 	.entry	s_cold_start,^m<>
-	movl	sp,_v_returnstack	; save original return stack pointer
+	movl	sp,v_returnstack	; save original return stack pointer
 	movl	#c_dict_begin,r9	; initialize dictionary pointer
 ; vl_compiler and vl_kernel are symbols that contain location of last word in
 ; these vocabularies, which are built-in.
@@ -3459,13 +3459,13 @@ r_warm_start:
 	movb	#c_false,v_mode		; put in execute mode
 	movb	#c_false,v_state	;   just in case
 	movw	#0,v_inlen		; so start with new line
-	movw	#0,v_org_inline		;   just in case
+	movw	#0,v_org_inlen		;   just in case
 	tstb	v_infile		; Are we getting from file?
 	beql	20$			; no
 	$close	fab=v_infab		; yes, close file
 	movb	#c_false,v_infile	; set infile flag false
 	movl	#0,v_filelinenum	; zero file line as well
-	movab	v_infilemesg,-(r11)	; put address of 'In file:' on stack
+	movab	v_infilemess,-(r11)	; put address of 'In file:' on stack
 	jsb 	bcount			; convert from ascic to write format ( address count )
 	jsb	write			; put in output
 	moval	v_fname,-(r11)		; put address of filename on stack
@@ -3526,12 +3526,12 @@ _strip_comment2:
 
 _q_execute:
 	jsb	cfa			; get the code field address of
-					; the word
+					;   the word
 	cmpb	v_mode,v_state		; v_mode = v_state?~~~ what does this tell us???
 	bneq	10$			; no, go compile it
 	movb	#c_false,v_state	; set v_state false~~~ Why???
 	jsb	@(r11)+			; yes, execute it
-	cmpl	r10,$_cs_end		; stack overflow?
+	cmpl	r10,#c_ds_end		; stack overflow?
 	blss	_overflow		; yes, go announce it
 	cmpl	r11,#c_ds_start		; stack underflow?
 	bgtr	_underflow		; yes, go announce it
@@ -3563,7 +3563,7 @@ _unknowntoken:
 	jsb	write			; tell user
 	movl	r9,-(r11)		; get address of token
 	incl	(r11)			; move address over byte-count
-	movzbl	(r9)-(r11)		; get byte count of string on stack
+	movzbl	(r9),-(r11)		; get byte count of string on stack
 	jsb	write			; show user bad token
 	movab	v_unknown2,-(r11)	; Put address of 'In line:' on stack
 	jsb	bcount			; convert it to ( address count )
@@ -3578,7 +3578,7 @@ _unknowntoken:
 	cvtwl	v_org_inlen,-(r11)	; length of original line
 	jsb	write			; show user
 	jsb	cr			; end line
-	brw	r_warm_tart			; go clean up VTIL
+	brw	r_warm_start		; go clean up VTIL
 
 
 	newpage <Exit Routines>
