@@ -340,7 +340,7 @@ Obviously a language is not of much use if you  have  to  type  in
 your  program  each  time  you run it.  So, with VTIL you can type
 your program into a text file and then load the text file whenever
 you  want  to  use  the  program.   To  load  a file you issue the
-following command { load <filename> },  where  <filename>  is  teh
+following command { load <filename> },  where  <filename>  is  the
 name of the file to load, without any spaces.  Note that { load }s
 currently cannot be  nested:   you  cannot  include  the  { load }
 command in a source text file.  However, this may change in future
@@ -465,7 +465,7 @@ are interested, including information that anyone who wants to use
 VTIL's  assembler  will  need.  The header format of VTIL words is
 also explained.
 
-3.1  DAta Types
+3.1  Data Types
 
 The basic data types in VTIL are  byte,  short,  long,  and  text.
 Currently  VTIL  only  handles  integers, but this may change in a
@@ -527,15 +527,1093 @@ Each entry starts with a line containing the name of the  word  on
 the  left  side  and  the stack effect comment for the word on the
 other side, separated by two blank lines.  Following a blank  line
 is the explanation of the word.
-                                                            Page 2
-
 
 3.4  Kernel Vocabulary
 
-                                                            Page 3
 
+
+!                                                       ( n a -- )
+
+Store longword "n" at address "a".  Pronounced "store".
+
+
+#                                                     ( n1 -- n2 )
+
+Generate from number "n1" the next digit, starting from the right,
+place  it  in an output string and return quotient of "n1" divided
+by the system radix.  Used between { <# }.   VTIL  code  for  this
+would look like { /radix @ /mod tochar hold }.
+
+
+#>                                                  ( n1 -- a n2 )
+
+End numeric output by dropping "n1" and  leaving  the  length  and
+address  of  the  string containing the numeric output text on the
+stack in a form suitable for { write }.
+
+
+#s                                                    ( n1 -- n2 )
+
+Put all the digits of "n1" into the numeric output string.  If the
+number  is  initially  zero  a  single zero is added to the output
+string, leaving a zero on the  stack.   Used  between  { <# }  and
+{ #> }.  VTIL code for this would be
+
+     : #s
+        repeat
+           #            \ output last digit
+           dup 0 - =    \ if number is equal to 0, then stop.
+        until           \ else, do it again
+     ;
+
+
+
+(*                                                          ( -- )
+
+Start  count  of  items  on   the   stack.    Use   with   { *) }.
+{ (* ... *) } uses the loop stack, so { (* } and { *) } must occur
+at the same level of nesting.
+
+
+(and)                                              ( n1 n2 -- n3 )
+
+Leave bitwise and of "n1" and "n2" on the stack.
+
+
+(not)                                              ( n1 n2 -- n3 )
+
+Leave the bitwise not of "n1" and "n2" on the stack.
+
+
+(or)                                               ( n1 n2 -- n3 )
+
+Leave the bitwise or of "n1" and "n2" on the stack.
+
+
+(xor)                                              ( n1 n2 -- n3 )
+
+Leave the bitwise xor of "n1" and "n2" on the stack.
+
+
+*                                                  ( n1 n2 -- n3 )
+
+Multiply the top two stack items, leave the result on the stack.
+
+
+*)                                                        ( -- n )
+
+Returns number of items pushed on the stack since the last  { (* }
+was  executed.   { (* ... *) }  uses the loop stack, so { (* } and
+{ *) } must occur at the same level of nesting.
+
+
++                                                  ( n1 n2 -- n3 )
+
+Add the top two stack items, leave result on stack.
+
+
++rot                                      ( n1 n2 n3 -- n3 n1 n2 )
+
+Rotate the top 3 items on the stack up, bringing the second to the
+top.
+
+
+,                                                         ( n -- )
+
+Allocate four bytes in the dictionary and store "n" there.
+
+
+-                                                  ( n1 n2 -- n3 )
+
+Subtract n2 from n1 and leave the difference on the stack.
+
+
+-rot                                      ( n1 n2 n3 -- n2 n3 n1 )
+
+Rotate the top 3 items on the stack down, bringing  the  third  to
+the top.
+
+
+.                                                         ( n -- )
+
+Display the top of the stack at the terminal as a signed number in
+the current radix with one trailing space.
+
+
+.(                                                          ( -- )
+
+Write the text following until the next ")" to the  screen.   This
+word  should only be used *OUTSIDE* a definition (i.e., in execute
+mode).
+
+
+.sb                                                         ( -- )
+
+Output the stack from the bottom up  without  consuming  it.   The
+last  item  printed  is  the top of the stack.  ("print stack from
+bottom")
+
+
+.st                                                         ( -- )
+
+Output stack from the top down without  consuming  it.   The  last
+item printed is the bottom of the stack.  ("print stack from top")
+
+
+/                                                  ( n1 n2 -- n3 )
+
+Divides "n1" by "n2" and leave the result on the stack.
+
+
+/mod                                            ( n1 n2 -- n3 n4 )
+
+Divides "n1" by "n2" and  leaves  ( quotient  remainder )  on  the
+stack (n3 = n1 / n2, n4 = n1 - n3).  The remainder of has the same
+sign as the dividend.
+
+
+                                                            ( 1+ )
+
+n -- n+1 Add one to the top of the stack.
+
+
+1-                                                    ( n -- n-1 )
+
+Subtrack one from the top of the stack.
+
+
+:                                                           ( -- )
+
+Used in the form { :  <name> ...   ; }  it  creates  a  dictionary
+entry defining <name> as equivalent to the sequence of words "..."
+until the next { ; }.
+     Sets { mode } to  true,  { context }  vocabulary  is  set  to
+{ current } vocabulary, and allows execution of compiletime words.
+Pronounced "colon".
+     Note that { ; } is a  compiletime  word  and  so  is  in  the
+{ compiler } vocabulary.
+
+
+<                                                   ( n1 n2 -- f )
+
+Leaves true if "n1" is less than "n2", leaves false otherwise.
+
+
+<#                                                          ( -- )
+
+Start numeric output conversion.  Other numeric output  words  are
+{ <# # #s sign #> }.
+
+
+<=                                                  ( n1 n2 -- f )
+
+Leaves a true if "n1" is less than "n2", leaves false otherwise.
+
+
+=                                                   ( n1 n2 -- f )
+
+Leaves a true if "n1" is equal to "n2", leaves false otherise.
+
+
+=text                                             ( a1 a2 n -- f )
+
+Compare two strings of length "n" at "a1" and "a2", leave true  if
+they are equal, leave false otherwise.
+
+
+>                                                   ( n1 n2 -- f )
+
+Leaves true if "n1" is greater than "n2", leaves false otherwise.
+
+
+>= ( Leaves true if "n1" is greather than "n2", leaves false
+otherwise. )
+
+
+
+?                                                         ( a -- )
+
+Output contents of "a" as a long in the current radix.
+
+
+?cr                                                         ( -- )
+
+Start a new line at the terminal unless already at  the  beginning
+of the line.
+
+
+?dup                                                ( f -- f ? f )
+
+Duplicate top of stack only if it is true (non-zero).   This  word
+is used so one doesn't always have to drop a 0 in else.
+
+
+?n-cr                                                    ( n --  )
+
+Starts new line at the terminal if less than  "n"  characters  are
+left on the current line.
+
+
+?number                                                ( -- n ? f
+)
+
+Try to convert the token at { eodp } to a number.   If  compiling,
+enclose  it  as a literal in the current word.  If executing, push
+it on the stack.  If not a number, leave  false  on  stack,  if  a
+number leave a true on the stack.
+
+
+search                                                ( -- a ? f )
+
+Search the { context } vocabulary for most  recent  token,  return
+false  if a match for the token was not found, or { addr true } if
+it was found.  If compiling, search the { compiler } vocabulary if
+it  was  not  found  in  { context }  and  set  { state } to true.
+Expects a byte-counted string at { eodp } to find.
+
+
+@                                                       ( a -- l )
+
+Fetches the contents of the long at "a".
+
+
+abort                                                       ( -- )
+
+Clear the data and loop stacks and restart VTIL.
+
+
+abs                                                   ( n1 -- n2 )
+
+Takes the absolute value of top of stack.
+
+
+ac:                                                       ( b -- )
+
+Create an assembler constant (used  to  make  opcode  and  operand
+definitions).   { ac: }  creates  a  word  that  compiles into the
+dictionary the byte which was on top of the stack at the defintion
+of the word.
+
+
+and                                                 ( f1 f2 -- f )
+
+Leave the logical and of "f1" and "f2" on the stack.
+
+
+array                                                     ( n -- )
+
+Create a word that pushes the address of "n" bytes  to  the  stack
+and save space for the bytes in the dictinary.
+
+
+ascii                                                     ( -- n )
+
+Put the ascii value of first character of the next token onto  the
+stack.   Note  that this word cannot be used in colon definitions.
+(See { [ascii] } for a word to use inside colon definitions.)
+
+
+b!                                                      ( b a -- )
+
+Store 8 bits of "b" at address "a".
+
+
+b,                                                        ( b -- )
+
+Store the low byte of "b" into the next available dictionary  byte
+and advance the dictionary pointer over it.
+
+
+b@                                                      ( a -- b )
+
+Fetch the value of the byte at address "a" and  leave  it  on  the
+stack.
+
+
+bcount                                               ( a -- a -n )
+
+Given the address of a byte-counted string, leave the  address  of
+the  first  character of the stack and the number of characters in
+the string on the stack.  A byte-counted string has its lenght  in
+its first byte and its text in the following bytes.
+
+
+binary                                                      ( -- )
+
+Set the current system radix to binary.  See { radix }.
+
+
+(bl)                                                      ( -- c )
+
+Pushes the ascii value of a blank on the stack.
+
+
+blank                                                   ( a s -- )
+
+Fill memory starting at "a" with "s" blanks.
+
+
+block                                                   ( l -- a )
+
+Read block "l" into a block buffer and leave the address  of  that
+buffer behind.
+
+
+block-close                                                 ( -- )
+
+Close the block file.
+
+
+block-open                                                  ( -- )
+
+Open the block file.  By default, VTIL looks  for  VTILBLOCKS.DAT,
+but  this  can  be changed to any sequential file containing fixed
+length 1024 byte records with no carriage control by defining  the
+logical name "VTILBLOCKS" to point to the file.
+
+
+block-read                                              ( l a -- )
+
+Read block "l" into the block buffer at address "a".
+
+
+block-write                                             ( l a -- )
+
+Write block l from block buffer at address "a".
+
+
+break                                                       ( -- )
+
+Execution of this word causes a breakpoint fault (it executes  the
+VAX  breakpoint  instruction).   This  word is intended for use in
+debugging the interpreter and the kernel and  compiler  vocabulary
+words,  and  should  only  be  executed  when  running the VAX/VMS
+Debugger, with the condition handlier error trapping turned off.
+
+
+bs@                                                     ( a -- l )
+
+Fetch the value of the byte at address "a" and sign extend it to a
+long on the stack.  That s, it considers the byte to be signed and
+extends it to a signed long.
+
+
+buffer                                                  ( l -- a )
+
+Get a free buffer, assign it to block "l", and leave  its  address
+on the stack ("a").
+
+
+buffer-read                                             ( n -- a )
+
+Read a block into buffer "n".  The block number is already in  the
+buffer.   Leaves  the  address  of  the block buffer on the stack.
+This word assumes that buffer  is  correctly  set  up  with  block
+number, etc.
+
+
+buffer-write                                              ( n -- )
+
+Write the block in buffer number "n" to the block file.  Note that
+the block number is assumed to be in the buffer already.
+
+
+byte                                                      ( n -- )
+
+Used in the form { <n> byte <name> }, it creates a  byte  variable
+called  <name> and initializes it to <n>.  When the word <name> is
+executed the address of the variable is pushed onto the the stack.
+
+
+cfa                                                     ( a -- a )
+
+Given the address of a dictinary header, return the address of the
+code for that word (i.e., the Code Field Address).
+
+
+clist                                                       ( -- )
+
+List the words in the compiler vocabulary, the compile time words.
+
+
+compile-jsb                                               ( a -- )
+
+Compile a jump to subroutine to location "a" into  the  dictionary
+and advance the dictinary over the code.
+
+
+compiletime                                                 ( -- )
+
+Execution of  this  word  makes  the  last  word  defined  in  the
+{ current }  vocabulary  a compile time word.  It unlinks the last
+word in the current  vocabulary  and  links  it  to  the  compiler
+vocabulary.   Compiler  words  are *never* executed during execute
+mode.
+
+
+context                                                   ( -- a )
+
+Leaves address of a pointer to the vocabulary  in  which  searches
+for   words  are  currently  made  (the  "context"  in  which  the
+definition of a word is resolved).
+
+
+count                                               ( a1 -- a2 n )
+
+Given word-counted string at "a", leave the addressof the string's
+text  and  the number of characters in the string on top of stack.
+A word-counted string is one whose first 2 bytes (a short integer)
+contains the length of the text and whose text starts at the third
+byte.
+
+
+cr                                                          ( -- )
+
+Start new outp9ut line at the terminal (carriage return).
+
+
+create                                                      ( -- )
+
+Enclose next space delimited token from the input  stream  in  the
+dictionary.
+
+
+current                                                   ( -- a )
+
+Leave the address of a pointer to the vocabulary  link  new  words
+are linked into on the stack.
+
+
+decimal                                                     ( -- )
+
+Set the system radix to decimal.  See { radix }.
+
+
+definitions                                                 ( -- )
+
+Sets { current } to { context }.  { <name> definitions } makes all
+new  words  link  into  vocabulary  <name> (i.e, new words will be
+linked ot the dictionary currently being searched.
+
+
+drop                                                      ( n -- )
+
+Drop the top stack item.
+
+
+ds>ls                                                     ( n -- )
+
+Move the top of the data stac, "n", to loop stack.
+
+
+dup                                                   ( n -- n n )
+
+Duplicates the top stack entry.
+
+
+empty-buffers                                               ( -- )
+
+Mark all buffers as unmodified  *without*  writing  any  of  them.
+Prevents  any changes to the buffers from being saved in the block
+file.
+
+
+eodp                                                      ( -- a )
+
+Leave the address of the next free byte in the dictionary.   Means
+"end of dictionary pointer".
+
+
+eodp!                                                     ( a -- )
+
+Make "a" the new value of the end of dictionary pointer.
+
+
+eodp+!                                                    ( n -- )
+
+Add "n" to the end of dictionary pointer, advancing  it  over  "n"
+bytes in the dictionary.
+
+
+eve                                                         ( -- )
+
+Call the eve editor to edit a file.  Format:  { eve <filename> }.
+
+
+exit                                                        ( -- )
+
+Exit VTIL.  Never returns.
+
+
+fill                                                  ( a s c -- )
+
+Fil the area of memory starting at address "a" and  extending  "s"
+bytes with the character "c".
+
+
+flush-buffers                                               ( -- )
+
+Write all modified  buffers  to  the  block  file  and  mark  them
+unmodified.
+
+
+forget                                                      ( -- )
+
+Used in the form { forget<name> }.  Resets context vocabulary back
+to  word  before  word  forgotten.  Note that while this makes the
+forgotten word and any words defined after it it  unavailable,  it
+does  not  reclaim  any space, since the other vocabularies can be
+threaded through in the dictinary betwen words of this vocabulary.
+See { forget/erase }.
+
+
+forget/erase                                                ( -- )
+
+Used  in  the  format  { forget/erase  <name> }.   Rests   context
+vocabulary  to  wordbefore word forgotten and moves the dictionary
+pointer back to header address of word forgotten.  In other words,
+the dictionary is truncated BEFORE the word forgotten.
+
+
+halt                                                      ( l -- )
+
+Halt VTIL, use "l" as returned value.  Never returns.
+
+
+hex                                                         ( -- )
+
+Set the system radix to hexadecimal.  See { radix }.
+
+
+hld                                                       ( -- a )
+
+Variable { hld }, return address  of  hld.   Used  during  numeric
+output  string  conversion by the numeric conversion words to hold
+the address of output conversion string.
+
+
+hold                                                      ( c -- )
+
+Insert character "c" in current numeric output string.
+
+
+i>                                                        ( -- n )
+
+Copy the top of the loop stack to the data stack.   This  word  is
+used  inside  a { do ...  loop } to get the index of the innermost
+loop onto the top of the stack.
+
+
+kernel                                                      ( -- )
+
+Set { context } to { kernel } vocabulary.
+
+
+leave                                                       ( -- )
+
+Leave a { do } loop at end of this iteration.
+
+
+load                                                        ( -- )
+
+Take input fro file instead of  from  terminal.   Format:   { load
+<filename> }.
+
+
+long                                                      ( n -- )
+
+Used in the form { <n> long <name> }, it creates a  long  variable
+called <name?  and initializes it to <n>.  When the word <name> is
+executed the address of the variable is pushed onto the stack.   A
+long integer is a VAX "longword", 4 bytes.
+
+
+longconst                                                 ( n -- )
+
+Used in the form { <n> longconst <name> }, it creates a word  that
+pushes an "n" to the stack when it is executed.
+
+
+ls>ds                                                     ( -- n )
+
+Move "n" from loop stack to the data stack.
+
+
+match                                    ( a2 n1 a2 n2 -- a3 ? f )
+
+Search for string of length "n2" at "a2" in string of length  "n1"
+at  "a2".   If  successful,  leave  ( address true ) on the stack,
+otherwise leave false.
+
+
+max                                                ( n1 n2 -- n3 )
+
+Leaves the larget of "n1" and "n2" on the stack.
+
+
+message                                                   ( a -- )
+
+Writes word-counted sring at "a" to terminal.
+
+
+min                                                ( n1 n2 -- n3 )
+
+Leaves the smaller of "n1" and "n2" on the stack.
+
+
+mod                                                ( n1 n2 -- n3 )
+
+Leave remainder of "n1" divided by "n2" on stack.
+
+
+move                                                ( a1 a2 s -- )
+
+Copies "s" bytes from "a1" to "a2".
+
+
+    _movefill                                     ( a1 s1 a2 s2 c -- )
+
+Copies bytes from "a1" to "a2".  If "s2" >  "s1",  the  excess  at
+"a2"  is  filled  with  character  "c".  If "s2" < "s1", only "s2"
+bytes are moved from "a1" (truncate).
+
+
+negate                                                  ( n -- -n
+)
+
+Leave two's complement of top stack item on stack.
+
+
+not                                                   ( f1 -- f2 )
+
+Leaves the logical not of "f1" on the top of the stack.
+
+
+number                                                ( -- n ? f )
+
+Try to turn the token at { eodp } into  a  number.   If  it  is  a
+number,  leave  ( number  true ) on stack.  If it is not a number,
+leave ( false ) on stack.
+
+
+octal                                                       ( -- )
+
+Set the system radix to ocatal.  See { radix }.
+
+
+or                                                  ( f1 f2 -- f )
+
+Leave the logical or of "f1" and "f2" on the stack.
+
+
+over                                         ( n1 n2 -- n2 n2 n1 )
+
+Leave a copy of the second stack item ("n1") on  the  top  of  the
+stack.
+
+
+pad                                                       ( -- a )
+
+Leave address of the  temporary  storage  pad  on  stack  (eodp  +
+cpadmoat).   This  is  a good area to use for temporary storage of
+such  things  as  strings.   Be  aware  that  this  area  can   be
+overwritten  by  definitionof  new words and the value returned by
+the word pad will  change  each  tiem  the  dictinary  pointer  is
+changed.
+
+
+putc                                                      ( c -- )
+
+Output character "c" to the terminal.
+
+
+radix                                                     ( -- a )
+
+Leave the address  of  system  radix  long  on  the  stack.   This
+longword  contains  the  current  and  output radix (number base).
+Changing this variable will cause numeric input and output  to  be
+made in another base.
+
+
+read                                                      ( a -- )
+
+Read a byte-counted string from terminal into  memory  at  address
+"a".
+
+
+readstr                                                 ( a n -- )
+
+Read line from terminal into word-counted string, where "a" is the
+address  of  a  word-counted string and n is the maximum length of
+the string.
+
+
+restat                                                      ( -- )
+
+Restart VTIL, patching it to run again.  Used in cases  of  error.
+Returns to the "VTIL>" prompt.
+
+
+s!                                                      ( n a -- )
+
+Store a short integer (first 16 bits of "n") at "a".
+
+
+s,                                                        ( s -- )
+
+Store short  integer  "s"  in  the  dictionary  and  advanced  the
+dictionary pointer over it.
+
+
+s@                                                      ( a -- n )
+
+Fetch a short from address "a" and zero extend it to a long.  That
+is,  consider  the short to be an unsigned number and extend it to
+an unsigned long on the stack.
+
+
+ss@                                                     ( a -- n )
+
+Fetch a short from address 'a' and sign extend it to a long.  That
+is,  consider  the  short to be a signed number and extend it to a
+signed long on the stack.
+
+
+save-buffers                                                ( -- )
+
+Write all modified buffers and mark them unmodified.
+
+
+search                                            ( a1 -- a2 ? f )
+
+Search vocabulary at "a" for a match with byte-counted  string  at
+{ eodp }.   Return ( false ) if a match is not found, or ( address
+true ) if a match is found.
+
+
+short                                                     ( n -- )
+
+Used in the form { <n> short <name> }, it creates a short variable
+called <name?  and initializes it to <n>.  When the word <name> is
+executed the address of the variable is pushed onto the stack.   A
+short integer is a VAX "word", two bytes.
+
+
+sign                                                      ( n -- )
+
+Output a minus sign in numeric output conversion if top  of  stack
+is neagative.  Used between { <# ...  #> }.
+
+
+sp@                                                       ( -- a )
+
+Returns the address of the top of the data stack before { sp@ } is
+executed.
+
+
+sp0                                                       ( -- a )
+
+Returns the address of the bottom of the data  stack.   Note  that
+the  stack grows downward, so this is actualy the top in memory of
+the data-stack structure's space.
+
+
+space                                                       ( -- )
+
+Output a space to the terminal.
+
+
+spaces                                                    ( n -- )
+
+Output "n" spaces to terminal.
+
+
+sread                                                       ( -- )
+
+Read a line from the terminal or a file  into  the  input  stream,
+depending on the value of { infile }.  If { infile } is true, read
+from file;  otherwise  read  from  terminal.   Used  by  the  text
+interpreter.
+
+
+strcat                                                ( a2 a2 -- )
+
+Concatenate string at "a1" to string at  "a2".   Works  only  with
+strings  defined  by  { string }  or { string"}, since it uses the
+maxlen field of the  string  at  "a2",  and  only  { string }  and
+{ string" } create those maxlen fields.
+
+
+strcmp                                              ( a2 a2 -- n )
+
+Compare word-counted strings, return 0 if string at "a1" =  string
+at  "a2", return >0 if string at "a" > string at "2", or return <0
+if string at "a" < string at "a2".
+
+
+strcpy                                                   ( a1 a2 )
+
+Copy word-counted string at "a2' to word-counted string  at  "a2".
+Both  must  be  word-counted,  and  the string at "a2" must have a
+maxlen field (i.e., defined by { string } or { string "}.
+
+
+string                                                    ( n -- )
+
+Create a string variable with maximum length of "n".  The first  2
+bytes  of  the  string  variable contains its length.  The 2 bytes
+previous to the string contain its maximum length.
+
+
+string"                                                   ( n -- )
+
+Create a string  variable  with  a  maximum  length  of  "n",  and
+initialize  it with the string from the input stream up until next
+`"'.  The first 2 bytes of the string contain its length.   The  2
+bytes previous to the string conatin its maximum length.
+
+
+strmax                                                  ( a -- s )
+
+Return maximum length of string at "a".
+
+
+strpos                                ( a1 n1 a2 n2 -- a3 n3 ? f )
+
+Find position and length of a substring  in  a  string.   Searches
+string  whose  text  is  at "a2" and length is "n2" for subsgtring
+whose text is at "a1" and whose length is "n1".  Returns  true  on
+the  top  of  the  stack  if  found  and under that ( a3 n3 ), the
+address and length of the  located  substring.   Otherwise  rturns
+false.
+
+
+swap                                            ( n1 n2 -- n2 n1 )
+
+Exchange the top two items on the stack.
+
+
+tochar                                                  ( n -- c )
+
+Convert top of stack from  a  number,  0..9,  A..Z,  to  an  ascii
+character  reprenting  a  number,"0".."9","A".."Z" (where "n" is a
+number and "c" is a character).  If not in the correct range leave
+it alone.
+
+
+token                                                     ( c -- )
+
+Get the next token from  the  input  stream  and  put  it  in  the
+dictionary  in  extended  header  form.  Note that this does *NOT*
+incrememt the dictionary pointer!
+
+
+unlink                                                      ( -- )
+
+Unlink the most recent word from the { current } vocabulary.  Uses
+when a defintion is aborted by an unknown token.
+
+
+update                                                      ( -- )
+
+Mark the most recently read block as updated.
+
+
+variable                                                    ( -- )
+
+Create a word that pushes its PFA (Parameter field address) on the
+stack.   Doesn't  reserve  any  space.  Use with { , }, { b, }, or
+{ s, } for making initialized  arrays.   (PFA  =  Parameter  Field
+Address = address of data following end of code body of word.)
+
+
+vlist                                                       ( -- )
+
+List the { context } vocabulary.
+
+
+write                                                   ( a s -- )
+
+Write string of length "s" at address "a" to terminal.
+
+
+xor                                                 ( f1 f2 -- f )
+
+Leaves logical xor of f1 and f2 on stack.
+
+
+]                                                           ( -- )
+
+Enter compile mode.  Used with { [ } in  definitions  to  allow  a
+runtime  word to be executed instead of compiled.  Note that { [ }
+is a compiletime word and is therefore in the compiler vocabulary.
 
 3.5  Compiler Vocabulary
+
+
+
+(variable)                                                  ( -- )
+
+Compiles the code body of a word that pushes the  address  of  its
+parameter  field (PFA) on the stack.  Must be the last word in the
+word to work properly.  Used in defining new variable types.
+
+
++loop                                                     ( n -- )
+
+Where n is an increment.  Ends { do ...   +loop }.   Adds  top  of
+stack  to  loop  index  and branches to { do} if ((index >= 0) and
+(index < limit)), or if ((index < 0) and  (index  >  limit)).   In
+other  words,  { +loop } with a positive arugment is like Pascal's
+{ for index := stat  to  finish  do  ... }  and  with  a  negative
+argument it is like { for index := start downto finish do }.
+
+
+."                                                          ( -- )
+
+Compiles text until next double quote character into dictionary to
+be printed when the current word is executed.
+
+
+;                                                           ( -- )
+
+Terminate a defintion started by { : }.  Sets  { mode }  to  false
+and adds an rsb instruction to the definition.
+
+
+>defer                                                      ( -- )
+
+Ends a section of code that is to  be  copied  to  the  dictionary
+whenever  this  word is executed (i.e., { >defer } ends code to be
+executred by all words defined by the word we are now  compiling).
+{ >defer } is used to define words that define words.
+
+
+again                                                       ( -- )
+
+Terminate  a  { repeat  ...   if  ...   again }  loop.   { again }
+unconditionally branches back to the { repeat }.
+
+
+b                                                          ( -- )
+
+Convert next token to number and enclose low byte in dictionary.
+
+
+defer<                                                      ( -- )
+
+Start a section of code that is to be  copied  to  the  dictionary
+whenever this word is executed (i.e., { defer< } starts code to be
+executed by all words defined by the word we  are  now  compiling.
+Used in defining words that are to define words.  See { >defer}.
+
+
+do                                                    ( n1 n2 -- )
+
+Program control structure; starts  { do  ...   +loop },  { do  ...
+downloop },  and { do ...  loop }.  Note that all do loops execute
+at least once.  "n1" is the limit and "n2" is the number to  start
+the index at.
+
+
+downloop                                                    ( -- )
+
+Ends a { do ...  downloop }.   Adds  -1  to  the  loop  index  and
+branches to { do } if ((index < 0) and (index > limit)).  In other
+words, { downloop } is like Pascal's { for index :=  start  downto
+finish do ... }.
+
+
+else                                                        ( -- )
+
+In the control structure { if ...  else ..   endif }  an  { else }
+ends the true branch and starts the false branch.
+
+
+endwhile                                                    ( -- )
+
+Ends a { while ...  endwhile }.  Unconditionally branches back  to
+{ while }.
+
+
+if                                                        ( f -- )
+
+Used in the forms  { if  ...   endif }  and  { if  ...   else  ...
+endif }.  Used only in colon definitions.  If the flag "f" is true
+the  words  following  the  { if }  are  executed  and  the  words
+following   the  { else }  are  skipped.   The  { else }  part  is
+optional.  If the flag "f" is false, the word between  the  { if }
+and  the  { else }  (or { endif } if no else is used) are skipped.
+See also { else } and { endif }.
+
+
+l                                                          ( -- )
+
+Convert next token to a number and enclose it in dictionary.
+
+
+literal                                                     ( n --
+)
+
+Convert top of stack to a literal in the current word.
+
+
+loop                                                        ( -- )
+
+Ends a { do } loop.  Adds 1 to loop index and branches  to  { do }
+if  ((index  >= 0) and (index < limit)).  In other words, { loop ]
+is like Pascal's { for index := start to finish do  ... },  except
+that a { do ...  loop } always executes at least once.
+
+
+recurse                                                     ( -- )
+
+Compile an invocation of the word that is currently being defined,
+allowing recursion.  For example:
+
+     : factorial
+        dup 0 <=  if  drop  1 else  dup 1 -  recurse  *  endif
+     ;
+
+is the recursive definition of teh factorial function, which is
+commonly denoted n! for the factorial of n.
+
+
+repeat                                                      ( -- )
+
+Start { repeat ...  until }  and  { repeat  ...   if  ..   again }
+loops.
+
+
+w                                                          ( -- )
+
+Convert the next token to a number an enclose low 16 bits (a short
+integer)  in  the  dictionary.   This word is used mainly with the
+assembler, which is why it is { w } instead of { s }.
+
+
+until                                                     ( f -- )
+
+End a { repeat ...  until } loop.   If  top  of  stack  is  false,
+branch back to the { repeat }, otherwise fall out of loop.
+
+
+while                                                     ( f -- )
+
+Start a { while ...  endwhile } loop.  If top of  stack  is  true,
+execute  code  to { endwhile }, which loops back to { while }.  If
+false, skip to after the { endwhile }.
+
+
+[                                                           ( -- )
+
+Leave compilie  mode  without  terminating  definition.   Must  be
+followed eventually by { ] }.
+
+
+[ascii]                                                     ( -- )
+
+Compile ascii value of 1st character of next token into word.
 
 3.6  Assembler
 
@@ -553,11 +1631,23 @@ r0-r5     -- temporary storage
                      Header format for a word
 
 long      -- link to previous word  in  dictionary  (header  field
-             addresss, hfa; link field addrss lfa)
+             addresss, HFA; link field address LFA)
 byte      -- number of bytes in the name of the word,  maximum  80
              (name field address, nfa)
 byte(s)   -- characters of name
 code...   -- executable code for this word  (code  field  address,
-             cfa)
+             CFA)
 data...   -- optional data for this word (parameter field address,
-             pfa)
+             PFA)
+
+ ,- long -- link to previous word in dictionary, (HFA, LFA).
+ |    ,- byte -- number of bytes in the name of the word.
+ |    |  ,- byte(s) -- characters of name
+ |    |  |     ,- byte(s) -- executable code for this word (CFA)
+ |    |  |     |     ,- byte(s) -- optional data for this word 
+ |    |  |     |     |  (PFA)
+ |    |  |     |     |
+ V    V  V     V     V
++----+-+-----+-----+-----+
+|    | | ... | ... | ... |
++----+-+-----+-----+-----+

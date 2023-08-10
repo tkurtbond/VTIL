@@ -342,7 +342,7 @@ Obviously a language is not of much use if you have to type in your
 program each time you run it.  So, with VTIL you can type your program
 into a text file and then load the text file whenever you want to use
 the program.  To load a file you issue the following command
-{#load#<filename>#}, where <filename> is teh name of the file to load,
+{#load#<filename>#}, where <filename> is the name of the file to load,
 without any spaces.  Note that {#load#}s currently cannot be nested:
 you cannot include the {#load#} command in a source text file.
 However, this may change in future versions of VTIL.
@@ -454,7 +454,7 @@ vocabularys, with a short explanation of each.  It also contains some
 comments on the implementation of VTIL for those who are interested,
 including information that anyone who wants to use VTIL's assembler
 will need.  The header format of VTIL words is also explained.
-.HL 2 DAta Types
+.HL 2 Data Types
 The basic data types in VTIL are byte, short, long, and text.
 Currently VTIL only handles integers, but this may change in a future
 version.  A byte occupies 8 bits in memory, a short occupies 2 bytes
@@ -521,11 +521,1266 @@ Each entry starts with a line containing the name of the word on the
 left side and the stack effect comment for the word on the other side,
 separated by two blank lines.  Following a blank line is the
 explanation of the word.
+.IFNOT NOPAGING
 .PAGE
+.ENDIF NOPAGING
 .HL 2 Kernel Vocabulary
+.SKIP 2
+.NF
+_!                                                       ( n a -- )
+.FILL
+.SKIP 1
+Store longword "n" at address "a".  Pronounced "store".
+.SKIP 2
+.NF
+_#                                                     ( n1 -- n2 )
+.FILL
+.SKIP 1
+Generate from number "n1" the next digit, starting from the right,
+place it in an output string and return quotient of "n1" divided 
+by the system radix.  Used between {#<_##}.  VTIL
+code for this would look like {#/radix @ /mod tochar hold#}.
+.SKIP 2
+.NF
+_#>                                                  ( n1 -- a n2 )
+.FILL
+.SKIP 1
+End numeric output by dropping "n1" and leaving the length and
+address of the string containing the numeric output text on the
+stack in a form suitable for {#write#}.
+.SKIP 2
+.NF
+_#s                                                    ( n1 -- n2 )
+.FILL
+.SKIP 1
+Put all the digits of "n1" into the numeric output string.  If the
+number is initially zero a single zero is added to the output
+ string, leaving a zero on the stack.  Used between {#<_##} and {#_#>#}. 
+VTIL code for this would be
+.BL
+.NF
+.LM +5
+.LT
+: #s
+   repeat
+      #            \ output last digit
+      dup 0 - =    \ if number is equal to 0, then stop.
+   until           \ else, do it again
+;
+.EL
+.LM -5
+.BL
+.SKIP 2
+.NF
+_(*                                                          ( -- )
+.FILL
+.SKIP 1
+Start count of items on the stack.  Use with {#*)#}.  {#(*#...#*)#}
+uses the loop stack, so {#(*#} and {#*)#} must occur at the same
+level of nesting.
+.SKIP 2
+.NF
+_(and)                                              ( n1 n2 -- n3 )
+.FILL
+.SKIP 1
+Leave bitwise and of "n1" and "n2" on the stack.
+.SKIP 2
+.NF
+_(not)                                              ( n1 n2 -- n3 )
+.FILL
+.SKIP 1
+Leave the bitwise not of "n1" and "n2" on the stack.
+.SKIP 2
+.NF
+_(or)                                               ( n1 n2 -- n3 )
+.FILL
+.SKIP 1
+Leave the bitwise or of "n1" and "n2" on the stack.
+.SKIP 2
+.NF
+_(xor)                                              ( n1 n2 -- n3 )
+.FILL
+.SKIP 1
+Leave the bitwise xor of "n1" and "n2" on the stack.
+.SKIP 2
+.NF
+_*                                                  ( n1 n2 -- n3 )
+.FILL
+.SKIP 1
+Multiply the top two stack items, leave the result on the stack.
+.SKIP 2
+.NF
+_*)                                                        ( -- n )
+.FILL
+.SKIP 1
+Returns number of items pushed on the stack since the last {#(*#} was
+executed.  {#(*#...#*)#} uses the loop stack, so {#(*#} and {#*)#} 
+must occur at the same level of nesting.
+.SKIP 2
+.NF
+_+                                                  ( n1 n2 -- n3 )
+.FILL
+.SKIP 1
+Add the top two stack items, leave result on stack.
+.SKIP 2
+.NF
+_+rot                                      ( n1 n2 n3 -- n3 n1 n2 )
+.FILL
+.SKIP 1
+Rotate the top 3 items on the stack up, bringing the second to the 
+top.
+.SKIP 2
+.NF
+_,                                                         ( n -- )
+.FILL
+.SKIP 1
+Allocate four bytes in the dictionary and store "n" there.
+.SKIP 2
+.NF
+_-                                                  ( n1 n2 -- n3 )
+.FILL
+.SKIP 1
+Subtract n2 from n1 and leave the difference on the stack.
+.SKIP 2
+.NF
+_-rot                                      ( n1 n2 n3 -- n2 n3 n1 )
+.FILL
+.SKIP 1
+Rotate the top 3 items on the stack down, bringing the third to the
+top.
+.SKIP 2
+.NF
+_.                                                         ( n -- )
+.FILL
+.SKIP 1
+Display the top of the stack at the terminal as a signed number in
+the current radix with one trailing space.
+.SKIP 2
+.NF
+_.(                                                          ( -- )
+.FILL
+.SKIP 1
+Write the text following until the next ")" to the screen.  This
+word should only be used *OUTSIDE* a definition (i.e., in execute 
+mode). 
+.SKIP 2
+.NF
+_.sb                                                         ( -- )
+.FILL
+.SKIP 1
+Output the stack from the bottom up without consuming it.  The
+last item printed is the top of the stack.  ("print stack from 
+bottom") 
+.SKIP 2
+.NF
+_.st                                                         ( -- )
+.FILL
+.SKIP 1
+Output stack from the top down without consuming it.  The last
+item printed is the bottom of the stack.  ("print stack from top")
+.SKIP 2
+.NF
+_/                                                  ( n1 n2 -- n3 )
+.FILL
+.SKIP 1
+Divides "n1" by "n2" and leave the result on the stack.
+.SKIP 2
+.NF
+_/mod                                            ( n1 n2 -- n3 n4 )
+.FILL
+.SKIP 1
+Divides "n1" by "n2" and leaves (#quotient remainder#) on the stack
+(n3 = n1 / n2, n4 = n1 - n3).  The remainder of has the same 
+sign as the dividend.
+.SKIP 2
+.NF
+_                                                            ( 1+ )
+.FILL
+.SKIP 1
+n -- n+1
+Add one to the top of the stack.
+.SKIP 2
+.NF
+_1-                                                    ( n -- n-1 )
+.FILL
+.SKIP 1
+Subtrack one from the top of the stack.
+.SKIP 2
+.NF
+_:                                                           ( -- )
+.FILL
+.SKIP 1
+Used in the form {#: <name> ... ;#} it creates a dictionary entry
+defining <name> as equivalent to the sequence of words "..."
+until the next {#;#}.
+.P
+Sets {#mode#} to true, {#context#} vocabulary is set to {#current#}
+vocabulary, and allows execution of compiletime words.  Pronounced "colon".
+.P
+Note that {#;#} is a compiletime word and so is in the {#compiler#}
+vocabulary.
+.SKIP 2
+.NF
+_<                                                   ( n1 n2 -- f )
+.FILL
+.SKIP 1
+Leaves true if "n1" is less than "n2", leaves false otherwise.
+.SKIP 2
+.NF
+_<_#                                                          ( -- )
+.FILL
+.SKIP 1
+Start numeric output conversion.  Other numeric output words are 
+{#<_# _# _#s sign _#>#}.
+.SKIP 2
+.NF
+_<=                                                  ( n1 n2 -- f )
+.FILL
+.SKIP 1
+Leaves a true if "n1" is less than "n2", leaves false otherwise.
+.SKIP 2
+.NF
+_=                                                   ( n1 n2 -- f )
+.FILL
+.SKIP 1
+Leaves a true if "n1" is equal to "n2", leaves false otherise.
+.SKIP 2
+.NF
+_=text                                             ( a1 a2 n -- f )
+.FILL
+.SKIP 1
+Compare two strings of length "n" at "a1" and "a2", leave true
+if they are equal, leave false otherwise.
+.SKIP 2
+.NF
+_>                                                   ( n1 n2 -- f )
+.FILL
+.SKIP 1
+Leaves true if "n1" is greater than "n2", leaves false otherwise.
+.SKIP 2
+.NF
+_>= ( Leaves true if "n1" is greather than "n2", leaves false otherwise. )
+.FILL
+.SKIP 1
+.SKIP 2
+.NF
+_?                                                         ( a -- )
+.FILL
+.SKIP 1
+Output contents of "a" as a long in the current radix.
+.SKIP 2
+.NF
+_?cr                                                         ( -- )
+.FILL
+.SKIP 1
+Start a new line at the terminal unless already at the beginning of 
+the line.
+.SKIP 2
+.NF
+_?dup                                                ( f -- f ? f )
+.FILL
+.SKIP 1
+Duplicate top of stack only if it is true (non-zero).  This word
+is used so one doesn't always have to drop a 0 in else.
+.SKIP 2
+.NF
+_?n-cr                                                    ( n --  )
+.FILL
+.SKIP 1
+Starts new line at the terminal if less than "n" characters are
+left on the current line.
+.SKIP 2
+.NF
+_?number                                                ( -- n ? f )
+.FILL
+.SKIP 1
+Try to convert the token at {#eodp#} to a number.  If compiling,
+enclose it as a literal in the current word.  If executing, push 
+it on the stack.  If not a number, leave false on stack, if a number
+leave a true on the stack.
+.SKIP 2
+.NF
+_search                                                ( -- a ? f )
+.FILL
+.SKIP 1
+Search the {#context#} vocabulary for most recent token, return false
+if a match for the token was not found, or {#addr true#} if it was
+found.  If compiling, search the {#compiler#} vocabulary if it was 
+not found in {#context#} and set {#state#} to true.  Expects a 
+byte-counted string at {#eodp#} to find.
+.SKIP 2
+.NF
+_@                                                       ( a -- l )
+.FILL
+.SKIP 1
+Fetches the contents of the long at "a".
+.SKIP 2
+.NF
+_abort                                                       ( -- )
+.FILL
+.SKIP 1
+Clear the data and loop stacks and restart VTIL.
+.SKIP 2
+.NF
+_abs                                                   ( n1 -- n2 )
+.FILL
+.SKIP 1
+Takes the absolute value of top of stack.
+.SKIP 2
+.NF
+_ac:                                                       ( b -- )
+.FILL
+.SKIP 1
+Create an assembler constant (used to make opcode and operand definitions).
+{#ac:#} creates a word that compiles into the dictionary the byte which was 
+on top of the stack at the defintion of the word.
+.SKIP 2
+.NF
+_and                                                 ( f1 f2 -- f )
+.FILL
+.SKIP 1
+Leave the logical and of "f1" and "f2" on the stack.
+.SKIP 2
+.NF
+_array                                                     ( n -- )
+.FILL
+.SKIP 1
+Create a word that pushes the address of "n" bytes to the stack and
+save space for the bytes in the dictinary.
+.SKIP 2
+.NF
+_ascii                                                     ( -- n )
+.FILL
+.SKIP 1
+Put the ascii value of first character of the next token onto the
+stack.  Note that this word cannot be used in colon definitions.
+(See {#[ascii]#} for a word to use inside colon definitions.)
+.SKIP 2
+.NF
+_b!                                                      ( b a -- )
+.FILL
+.SKIP 1
+Store 8 bits of "b" at address "a".
+.SKIP 2
+.NF
+_b,                                                        ( b -- )
+.FILL
+.SKIP 1
+Store the low byte of "b" into the next available dictionary byte and
+advance the dictionary pointer over it.
+.SKIP 2
+.NF
+_b@                                                      ( a -- b )
+.FILL
+.SKIP 1
+Fetch the value of the byte at address "a" and leave it on the stack.
+.SKIP 2
+.NF
+_bcount                                               ( a -- a -n )
+.FILL
+.SKIP 1
+Given the address of a byte-counted string, leave the address of the
+first character of the stack and the number of characters in the
+string on the stack.  A byte-counted string has its lenght in its 
+first byte and its text in the following bytes.
+.SKIP 2
+.NF
+_binary                                                      ( -- )
+.FILL
+.SKIP 1
+Set the current system radix to binary.  See {#radix#}.
+.SKIP 2
+.NF
+_(bl)                                                      ( -- c )
+.FILL
+.SKIP 1
+Pushes the ascii value of a blank on the stack.
+.SKIP 2
+.NF
+_blank                                                   ( a s -- )
+.FILL
+.SKIP 1
+Fill memory starting at "a" with "s" blanks.
+.SKIP 2
+.NF
+_block                                                   ( l -- a )
+.FILL
+.SKIP 1
+Read block "l" into a block buffer and leave the address of that 
+buffer behind.
+.SKIP 2
+.NF
+_block-close                                                 ( -- )
+.FILL
+.SKIP 1
+Close the block file.
+.SKIP 2
+.NF
+_block-open                                                  ( -- )
+.FILL
+.SKIP 1
+Open the block file.  By default, VTIL looks for VTILBLOCKS.DAT, 
+but this can be changed to any sequential file containing fixed 
+length 1024 byte records with no carriage control by defining the
+logical name "VTILBLOCKS" to point to the file.
+.SKIP 2
+.NF
+_block-read                                              ( l a -- )
+.FILL
+.SKIP 1
+Read block "l" into the block buffer at address "a".
+.SKIP 2
+.NF
+_block-write                                             ( l a -- )
+.FILL
+.SKIP 1
+Write block l from block buffer at address "a".
+.SKIP 2
+.NF
+_break                                                       ( -- )
+.FILL
+.SKIP 1
+Execution of this word causes a breakpoint fault (it executes the VAX
+breakpoint instruction).  This word is intended for use in debugging
+the interpreter and the kernel and compiler vocabulary words, and
+should only be executed when running the VAX/VMS Debugger, with the
+condition handlier error trapping turned off.
+.SKIP 2
+.NF
+_bs@                                                     ( a -- l )
+.FILL
+.SKIP 1
+Fetch the value of the byte at address "a" and sign extend it to
+a long on the stack.  That s, it considers the byte to be signed
+and extends it to a signed long.
+.SKIP 2
+.NF
+_buffer                                                  ( l -- a )
+.FILL
+.SKIP 1
+Get a free buffer, assign it to block "l", and leave its address 
+on the stack ("a").
+.SKIP 2
+.NF
+_buffer-read                                             ( n -- a )
+.FILL
+.SKIP 1
+Read a block into buffer "n".  The block number is already in the
+buffer.  Leaves the address of the block buffer on the stack.  This word
+assumes that buffer is correctly set up with block number, etc.
+.SKIP 2
+.NF
+_buffer-write                                              ( n -- )
+.FILL
+.SKIP 1
+Write the block in buffer number "n" to the block file.  Note that the
+block number is assumed to be in the buffer already.
+.SKIP 2
+.NF
+_byte                                                      ( n -- )
+.FILL
+.SKIP 1
+Used in the form {#<n> byte <name>#}, it creates a byte variable
+called <name> and initializes it to <n>.  When the word <name> is
+executed the address of the variable is pushed onto the the stack.
+.SKIP 2
+.NF
+_cfa                                                     ( a -- a )
+.FILL
+.SKIP 1
+Given the address of a dictinary header, return the address of the
+code for that word (i.e., the Code Field Address).
+.SKIP 2
+.NF
+_clist                                                       ( -- )
+.FILL
+.SKIP 1
+List the words in the compiler vocabulary, the compile time words.
+.SKIP 2
+.NF
+_compile-jsb                                               ( a -- )
+.FILL
+.SKIP 1
+Compile a jump to subroutine to location "a" into the dictionary and
+advance the dictinary over the code.
+.SKIP 2
+.NF
+_compiletime                                                 ( -- )
+.FILL
+.SKIP 1
+Execution of this word makes the last word defined in the {#current#}
+vocabulary a compile time word.  It unlinks the last word in the current
+vocabulary and links it to the compiler vocabulary.  Compiler words are
+*never* executed during execute mode.
+.SKIP 2
+.NF
+_context                                                   ( -- a )
+.FILL
+.SKIP 1
+Leaves address of a pointer to the vocabulary in which searches for
+words are currently made (the "context" in which the definition of a
+word is resolved).
+.SKIP 2
+.NF
+_count                                               ( a1 -- a2 n )
+.FILL
+.SKIP 1
+Given word-counted string at "a", leave the addressof the string's
+text and the number of characters in the string on top of stack.  A
+word-counted string is one whose first 2 bytes (a short integer)
+contains the length of the text and whose text starts at the third byte.
+.SKIP 2
+.NF
+_cr                                                          ( -- )
+.FILL
+.SKIP 1
+Start new outp9ut line at the terminal (carriage return).
+.SKIP 2
+.NF
+_create                                                      ( -- )
+.FILL
+.SKIP 1
+Enclose next space delimited token from the input stream in the dictionary.
+.!~~~ Is that an accurate description???  NO, it is not.
+.SKIP 2
+.NF
+_current                                                   ( -- a )
+.FILL
+.SKIP 1
+Leave the address of a pointer to the vocabulary link new words are
+linked into on the stack.
+.SKIP 2
+.NF
+_decimal                                                     ( -- )
+.FILL
+.SKIP 1
+Set the system radix to decimal.  See {#radix#}.
+.SKIP 2
+.NF
+_definitions                                                 ( -- )
+.FILL
+.SKIP 1
+Sets {#current#} to {#context#}.  {#<name> definitions#} makes all new
+words link into vocabulary <name> (i.e, new words will be linked ot
+the dictionary currently being searched.
+.SKIP 2
+.NF
+_drop                                                      ( n -- )
+.FILL
+.SKIP 1
+Drop the top stack item.
+.SKIP 2
+.NF
+_ds>ls                                                     ( n -- )
+.FILL
+.SKIP 1
+Move the top of the data stac, "n", to loop stack.
+.SKIP 2
+.NF
+_dup                                                   ( n -- n n )
+.FILL
+.SKIP 1
+Duplicates the top stack entry.
+.SKIP 2
+.NF
+_empty-buffers                                               ( -- )
+.FILL
+.SKIP 1
+Mark all buffers as unmodified *without* writing any of them.
+Prevents any changes to the buffers from being saved in the block file.
+.SKIP 2
+.NF
+_eodp                                                      ( -- a )
+.FILL
+.SKIP 1
+Leave the address of the next free byte in the dictionary.  Means "end
+of dictionary pointer".
+.SKIP 2
+.NF
+_eodp!                                                     ( a -- )
+.FILL
+.SKIP 1
+Make "a" the new value of the end of dictionary pointer.
+.SKIP 2
+.NF
+_eodp+!                                                    ( n -- )
+.FILL
+.SKIP 1
+Add "n" to the end of dictionary pointer, advancing it over "n" bytes
+in the dictionary.
+.SKIP 2
+.NF
+_eve                                                         ( -- )
+.FILL
+.SKIP 1
+Call the eve editor to edit a file.  Format: {#eve <filename>#}.
+.SKIP 2
+.NF
+_exit                                                        ( -- )
+.FILL
+.SKIP 1
+Exit VTIL.  Never returns.
+.SKIP 2
+.NF
+_fill                                                  ( a s c -- )
+.FILL
+.SKIP 1
+Fil the area of memory starting at address "a" and extending "s" bytes
+with the character "c".
+.SKIP 2
+.NF
+_flush-buffers                                               ( -- )
+.FILL
+.SKIP 1
+Write all modified buffers to the block file and mark them
+unmodified.
+.SKIP 2
+.NF
+_forget                                                      ( -- )
+.FILL
+.SKIP 1
+Used in the form {#forget<name>#}.  Resets context vocabulary back to
+word before word forgotten.  Note that while this makes the forgotten
+word and any words defined after it it unavailable, it does not
+reclaim any space, since the other vocabularies can be threaded through 
+in the dictinary betwen words of this vocabulary.  See {#forget/erase#}.
+.SKIP 2
+.NF
+_forget/erase                                                ( -- )
+.FILL
+.SKIP 1
+Used in the format {#forget/erase <name>#}.  Rests context vocabulary
+to wordbefore word forgotten and moves the dictionary pointer back to
+header address of word forgotten.  In other words, the dictionary is
+truncated BEFORE the word forgotten.
+.SKIP 2
+.NF
+_halt                                                      ( l -- )
+.FILL
+.SKIP 1
+Halt VTIL, use "l" as returned value.  Never returns.
+.SKIP 2
+.NF
+_hex                                                         ( -- )
+.FILL
+.SKIP 1
+Set the system radix to hexadecimal.  See {#radix#}.
+.SKIP 2
+.NF
+_hld                                                       ( -- a )
+.FILL
+.SKIP 1
+Variable {#hld#}, return address of hld.  Used during numeric output
+string conversion by the numeric conversion words to hold the address
+of output conversion string.
+.SKIP 2
+.NF
+_hold                                                      ( c -- )
+.FILL
+.SKIP 1
+Insert character "c" in current numeric output string.
+.SKIP 2
+.NF
+_i>                                                        ( -- n )
+.FILL
+.SKIP 1
+Copy the top of the loop stack to the data stack.  This word is used
+inside a {#do ... loop#} to get the index of the innermost loop onto
+the top of the stack.
+.SKIP 2
+.NF
+_kernel                                                      ( -- )
+.FILL
+.SKIP 1
+Set {#context#} to {#kernel#} vocabulary.
+.SKIP 2
+.NF
+_leave                                                       ( -- )
+.FILL
+.SKIP 1
+Leave a {#do#} loop at end of this iteration.
+.SKIP 2
+.NF
+_load                                                        ( -- )
+.FILL
+.SKIP 1
+Take input fro file instead of from terminal.  Format: {#load
+<filename>#}.
+.SKIP 2
+.NF
+_long                                                      ( n -- )
+.FILL
+.SKIP 1
+Used in the form {#<n> long <name>#}, it creates a long variable
+called <name? and initializes it to <n>.  When the word <name> is
+executed the address of the variable is pushed onto the stack.  A long
+integer is a VAX "longword", 4 bytes.
+.SKIP 2
+.NF
+_longconst                                                 ( n -- )
+.FILL
+.SKIP 1
+Used in the form {#<n>#longconst <name>#}, it creates a word that
+pushes an "n" to the stack when it is executed.
+.SKIP 2
+.NF
+_ls>ds                                                     ( -- n )
+.FILL
+.SKIP 1
+Move "n" from loop stack to the data stack.
+.SKIP 2
+.NF
+_match                                    ( a2 n1 a2 n2 -- a3 ? f )
+.FILL
+.SKIP 1
+Search for string of length "n2" at "a2" in string of length "n1" at
+"a2".  If successful, leave (#address true#) on the stack, otherwise
+leave false.
+.SKIP 2
+.NF
+_max                                                ( n1 n2 -- n3 )
+.FILL
+.SKIP 1
+Leaves the larget of "n1" and "n2" on the stack.
+.SKIP 2
+.NF
+_message                                                   ( a -- )
+.FILL
+.SKIP 1
+Writes word-counted sring at "a" to terminal.
+.SKIP 2
+.NF
+_min                                                ( n1 n2 -- n3 )
+.FILL
+.SKIP 1
+Leaves the smaller of "n1" and "n2" on the stack.
+.SKIP 2
+.NF
+_mod                                                ( n1 n2 -- n3 )
+.FILL
+.SKIP 1
+Leave remainder of "n1" divided by "n2" on stack.
+.! ~~~Should there be a {#mode#} word???
+.SKIP 2
+.NF
+_move                                                ( a1 a2 s -- )
+.FILL
+.SKIP 1
+Copies "s" bytes from "a1" to "a2".
+.SKIP 2
+.NF
+_move&fill                                     ( a1 s1 a2 s2 c -- )
+.FILL
+.SKIP 1
+Copies bytes from "a1" to "a2".  If "s2" > "s1", the excess at "a2" is
+filled with character "c".  If "s2" < "s1", only "s2" bytes are moved
+from "a1" (truncate).
+.SKIP 2
+.NF
+_negate                                                  ( n -- -n )
+.FILL
+.SKIP 1
+Leave two's complement of top stack item on stack.
+.SKIP 2
+.NF
+_not                                                   ( f1 -- f2 )
+.FILL
+.SKIP 1
+Leaves the logical not of "f1" on the top of the stack.
+.SKIP 2
+.NF
+_number                                                ( -- n ? f )
+.FILL
+.SKIP 1
+Try to turn the token at {#eodp#} into a number.  If it is a number,
+leave (#number true#) on stack.  If it is not a number, leave
+(#false#) on stack.
+.SKIP 2
+.NF
+_octal                                                       ( -- )
+.FILL
+.SKIP 1
+Set the system radix to ocatal.  See {#radix#}.
+.SKIP 2
+.NF
+_or                                                  ( f1 f2 -- f )
+.FILL
+.SKIP 1
+Leave the logical or of "f1" and "f2" on the stack.
+.SKIP 2
+.NF
+_over                                         ( n1 n2 -- n2 n2 n1 )
+.FILL
+.SKIP 1
+Leave a copy of the second stack item ("n1") on the top of the stack.
+.SKIP 2
+.NF
+_pad                                                       ( -- a )
+.FILL
+.SKIP 1
+Leave address of the temporary storage pad on stack (eodp +
+c_pad_moat).  This is a good area to use for temporary storage of such
+things as strings.  Be aware that this area can be overwritten by
+definitionof new words and the value returned by the word pad will
+change each tiem the dictinary pointer is changed.
+.SKIP 2
+.NF
+_putc                                                      ( c -- )
+.FILL
+.SKIP 1
+Output character "c" to the terminal.
+.SKIP 2
+.NF
+_radix                                                     ( -- a )
+.FILL
+.SKIP 1
+Leave the address of system radix long on the stack.  This longword
+contains the current and output radix (number base).  Changing this
+variable will cause numeric input and output to be made in another
+base.
+.SKIP 2
+.NF
+_read                                                      ( a -- )
+.FILL
+.SKIP 1
+Read a byte-counted string from terminal into memory at address "a".
+.SKIP 2
+.NF
+_readstr                                                 ( a n -- )
+.FILL
+.SKIP 1
+Read line from terminal into word-counted string, where "a" is the
+address of a word-counted string and n is the maximum length of the
+string.
+.SKIP 2
+.NF
+_restat                                                      ( -- )
+.FILL
+.SKIP 1
+Restart VTIL, patching it to run again.  Used in cases of error.
+Returns to the "VTIL>" prompt.
+.SKIP 2
+.NF
+_s!                                                      ( n a -- )
+.FILL
+.SKIP 1
+Store a short integer (first 16 bits of "n") at "a".
+.SKIP 2
+.NF
+_s,                                                        ( s -- )
+.FILL
+.SKIP 1
+Store short integer "s" in the dictionary and advanced the dictionary
+pointer over it.
+.SKIP 2
+.NF
+_s@                                                      ( a -- n )
+.FILL
+.SKIP 1
+Fetch a short from address "a" and zero extend it to a long.  That is,
+consider the short to be an unsigned number and extend it to an
+unsigned long on the stack.
+.SKIP 2
+.NF
+_ss@                                                     ( a -- n )
+.FILL
+.SKIP 1
+Fetch a short from address 'a' and sign extend it to a long.  That is,
+consider the short to be a signed number and extend it to a signed
+long on the stack.
+.SKIP 2
+.NF
+_save-buffers                                                ( -- )
+.FILL
+.SKIP 1
+Write all modified buffers and mark them unmodified.
+.SKIP 2
+.NF
+_search                                            ( a1 -- a2 ? f )
+.FILL
+.SKIP 1
+Search vocabulary at "a" for a match with byte-counted string at
+{#eodp#}.  Return (#false#) if a match is not found, or (#address
+true#) if a match is found.
+.SKIP 2
+.NF
+_short                                                     ( n -- )
+.FILL
+.SKIP 1
+Used in the form {#<n> short <name>#}, it creates  a short
+variable called <name? and initializes it to <n>.  When the word
+<name> is executed the address of the variable is pushed onto the stack.  A short integer is a VAX "word", two bytes.
+.SKIP 2
+.NF
+_sign                                                      ( n -- )
+.FILL
+.SKIP 1
+Output a minus sign in numeric output conversion if top of stack is
+neagative.  Used between {#<_# ... _#>#}.
+.SKIP 2
+.NF
+_sp@                                                       ( -- a )
+.FILL
+.SKIP 1
+Returns the address of the top of the data stack before {#sp@#} is
+executed.
+.SKIP 2
+.NF
+_sp0                                                       ( -- a )
+.FILL
+.SKIP 1
+Returns the address of the bottom of the data stack.  Note that the
+stack grows downward, so this is actualy the top in memory of the
+data-stack structure's space.
+.SKIP 2
+.NF
+_space                                                       ( -- )
+.FILL
+.SKIP 1
+Output a space to the terminal.
+.SKIP 2
+.NF
+_spaces                                                    ( n -- )
+.FILL
+.SKIP 1
+Output "n" spaces to terminal.
+.SKIP 2
+.NF
+_sread                                                       ( -- )
+.FILL
+.SKIP 1
+Read a line from the terminal or a file into the input stream,
+depending on the value of {#infile#}.  If {#infile#} is true, read
+from file; otherwise read from terminal.  Used by the text
+interpreter.
+.SKIP 2
+.NF
+_strcat                                                ( a2 a2 -- )
+.FILL
+.SKIP 1
+Concatenate string at "a1" to string at "a2".  Works only with strings
+defined by {#string#} or {#string"}, since it uses the maxlen field of
+the string at "a2", and only {#string#} and {#string"#} create those
+maxlen fields.
+.SKIP 2
+.NF
+_strcmp                                              ( a2 a2 -- n )
+.FILL
+.SKIP 1
+Compare word-counted strings, return 0 if string at "a1" = string
+at "a2", return >0 if string at "a" > string at "2", or return
+<0 if string at "a" < string at "a2".
+.SKIP 2
+.NF
+_strcpy                                                   ( a1 a2 )
+.FILL
+.SKIP 1
+Copy word-counted string at "a2' to word-counted string at "a2".  Both
+must be word-counted, and the string at "a2" must have a maxlen field
+(i.e., defined by {#string#} or {#string#"}.
+.SKIP 2
+.NF
+_string                                                    ( n -- )
+.FILL
+.SKIP 1
+Create a string variable with maximum length of "n".  The first 2
+bytes of the string variable contains its length.  The 2 bytes
+previous to the string contain its maximum length.
+.SKIP 2
+.NF
+_string"                                                   ( n -- )
+.FILL
+.SKIP 1
+Create a string variable with a maximum length of "n", and initialize
+it with the string from the input stream up until next `"'.  The first
+2 bytes of the string contain its length.  The 2 bytes previous to the
+string conatin its maximum length.
+.SKIP 2
+.NF
+_strmax                                                  ( a -- s )
+.FILL
+.SKIP 1
+Return maximum length of string at "a".
+.SKIP 2
+.NF
+_strpos                                ( a1 n1 a2 n2 -- a3 n3 ? f )
+.FILL
+.SKIP 1
+Find position and length of a substring in a string.  Searches string
+whose text is at "a2" and length is "n2" for subsgtring whose text is
+at "a1" and whose length is "n1".  Returns true on the top of the
+stack if found and under that ( a3 n3 ), the address and length of the
+located substring.  Otherwise rturns false.
+.SKIP 2
+.NF
+_swap                                            ( n1 n2 -- n2 n1 )
+.FILL
+.SKIP 1
+Exchange the top two items on the stack.
+.SKIP 2
+.NF
+_tochar                                                  ( n -- c )
+.FILL
+.SKIP 1
+Convert top of stack from a number, 0..9, A..Z, to an ascii character
+reprenting a number,"0".."9","A".."Z" (where "n" is a number and "c"
+is a character).  If not in the correct range leave it alone.
+.SKIP 2
+.NF
+_token                                                     ( c -- )
+.FILL
+.SKIP 1
+Get the next token from the input stream and put it in the dictionary
+in extended header form.  Note that this does *NOT* incrememt the
+dictionary pointer!
+.SKIP 2
+.NF
+_unlink                                                      ( -- )
+.FILL
+.SKIP 1
+Unlink the most recent word from the {#current#} vocabulary.
+Uses when a defintion is aborted by an unknown token.
+.SKIP 2
+.NF
+_update                                                      ( -- )
+.FILL
+.SKIP 1
+Mark the most recently read block as updated.
+.SKIP 2
+.NF
+_variable                                                    ( -- )
+.FILL
+.SKIP 1
+Create a word that pushes its PFA (Parameter field address) on the
+stack.  Doesn't reserve any space.  Use with {#,#}, {#b,#}, or {#s,#}
+for making initialized arrays.  (PFA = Parameter Field Address =
+address of data following end of code body of word.)
+.SKIP 2
+.NF
+_vlist                                                       ( -- )
+.FILL
+.SKIP 1
+List the {#context#} vocabulary.
+.SKIP 2
+.NF
+_write                                                   ( a s -- )
+.FILL
+.SKIP 1
+Write string of length "s" at address "a" to terminal.
+.SKIP 2
+.NF
+_xor                                                 ( f1 f2 -- f )
+.FILL
+.SKIP 1
+Leaves logical xor of f1 and f2 on stack.
+.SKIP 2
+.NF
+_]                                                           ( -- )
+.FILL
+.SKIP 1
+Enter compile mode.  Used with {#[#} in definitions to allow a runtime
+word to be executed instead of compiled.  Note that {#[#} is a
+compiletime word and is therefore in the compiler vocabulary.
+.IFNOT NOPAGING
 .PAGE
+.ENDIF NOPAGING
 .HL 2 Compiler Vocabulary
+.SKIP 2
+.NF
+_(variable)                                                  ( -- )
+.FILL
+.SKIP 1
+Compiles the code body of a word that pushes the address of its
+parameter field (PFA) on the stack.  Must be the last word in the word
+to work properly.  Used in defining new variable types.
+.SKIP 2
+.NF
+_+loop                                                     ( n -- )
+.FILL
+.SKIP 1
+Where n is an increment. Ends {#do ... +loop#}.  Adds top of stack to
+loop index and branches to {#do} if ((index >= 0) and (index <
+limit)), or if ((index < 0) and (index > limit)).  In other words,
+{#+loop#} with a positive arugment is like Pascal's {#for index :=
+stat to finish do ...#} and with a negative argument it is like {#for
+index := start downto finish do#}.
+.SKIP 2
+.NF
+_."                                                          ( -- )
+.FILL
+.SKIP 1
+Compiles text until next double quote character into dictionary to be 
+printed when the current word is executed.
+.SKIP 2
+.NF
+_;                                                           ( -- )
+.FILL
+.SKIP 1
+Terminate a defintion started by {#:#}.  Sets {#mode#} to false and
+adds an rsb instruction to the definition.
+.SKIP 2
+.NF
+_>defer                                                      ( -- )
+.FILL
+.SKIP 1
+Ends a section of code that is to be copied to the dictionary
+whenever this word is executed (i.e., {#>defer#} ends code to be
+executred by all words defined by the word we are now compiling).
+{#>defer#} is used to define words that define words.
+.SKIP 2
+.NF
+_again                                                       ( -- )
+.FILL
+.SKIP 1
+Terminate a {#repeat ... if ... again#} loop.  {#again#}
+unconditionally branches back to the {#repeat#}.
+.SKIP 2
+.NF
+_b^                                                          ( -- )
+.FILL
+.SKIP 1
+Convert next token to number and enclose low byte in dictionary.
+.SKIP 2
+.NF
+_defer<                                                      ( -- )
+.FILL
+.SKIP 1
+Start a section of code that is to be copied to the dictionary
+whenever this word is executed (i.e., {#defer<#} starts code to be
+executed by all words defined by the word we are now compiling.  Used
+in defining words that are to define words.  See {#>defer}.
+.SKIP 2
+.NF
+_do                                                    ( n1 n2 -- )
+.FILL
+.SKIP 1
+Program control structure; starts {#do ... +loop#}, {#do ...
+downloop#}, and {#do ... loop#}.  Note that all do loops execute at
+least once.  "n1" is the limit and "n2" is the number to start the
+index at.
+.SKIP 2
+.NF
+_downloop                                                    ( -- )
+.FILL
+.SKIP 1
+Ends a {#do ... downloop#}.  Adds -1 to the loop index and branches to
+{#do#} if ((index < 0) and (index > limit)).
+.!~~~ WTF!!!
+In other words, {#downloop#} is like Pascal's {#for index := start
+downto finish do ...#}.
+.SKIP 2
+.NF
+_else                                                        ( -- )
+.FILL
+.SKIP 1
+In the control structure {#if ... else .. endif#} an {#else#} ends the
+true branch and starts the false branch.
+.!~~~ s/branch/part/???
+.SKIP 2
+.NF
+_endwhile                                                    ( -- )
+.FILL
+.SKIP 1
+Ends a {#while ... endwhile#}.  Unconditionally branches back to {#while#}.
+.SKIP 2
+.NF
+_if                                                        ( f -- )
+.FILL
+.SKIP 1
+Used in the forms {#if ... endif#} and {#if ... else ... endif#}.
+Used only in colon definitions.  If the flag "f" is true the words
+following the {#if#} are executed and the words following the {#else#}
+are skipped.  The {#else#} part is optional.  If the flag "f" is
+false, the word between the {#if#} and the {#else#} (or {#endif#} if
+no else is used) are skipped.  See also {#else#} and {#endif#}.
+.SKIP 2
+.NF
+_l^                                                          ( -- )
+.FILL
+.SKIP 1
+Convert next token to a number and enclose it in dictionary.
+.SKIP 2
+.NF
+_literal                                                     ( n -- )
+.FILL
+.SKIP 1
+Convert top of stack to a literal in the current word.
+.SKIP 2
+.NF
+_loop                                                        ( -- )
+.FILL
+.SKIP 1
+Ends a {#do#} loop.  Adds 1 to loop index and branches to {#do#} if
+((index >= 0) and (index < limit)).  In other words, {#loop#] is like
+Pascal's {#for index := start to finish do ...#}, except that a {#do ... loop#} always executes at least once.
+.SKIP 2
+.NF
+_recurse                                                     ( -- )
+.FILL
+.SKIP 1
+Compile an invocation of the word that is currently being defined,
+allowing recursion.  For example:
+.BL
+.NF
+.LM +5
+.LT
+: factorial
+   dup 0 <=  if  drop  1 else  dup 1 -  recurse  *  endif
+;
+.EL
+.LM -5
+.BL
+is the recursive definition of teh factorial function, which is
+commonly denoted n! for the factorial of n.
+.SKIP 2
+.NF
+_repeat                                                      ( -- )
+.FILL
+.SKIP 1
+Start {#repeat ... until#} and {#repeat ... if .. again#} loops.
+.SKIP 2
+.NF
+_w^                                                          ( -- )
+.FILL
+.SKIP 1
+Convert the next token to a number an enclose low 16 bits (a short
+integer) in the dictionary.  This word is used mainly with the
+assembler, which is why it is {#w^#} instead of {#s^#}.
+.SKIP 2
+.NF
+_until                                                     ( f -- )
+.FILL
+.SKIP 1
+End a {#repeat ... until#} loop.  If top of stack is false, branch
+back to the {#repeat#}, otherwise fall out of loop.
+.SKIP 2
+.NF
+_while                                                     ( f -- )
+.FILL
+.SKIP 1
+Start a {#while ... endwhile#} loop.  If top of stack is true, execute
+code to {#endwhile#}, which loops back to {#while#}.  If false, skip
+to after the {#endwhile#}.
+.SKIP 2
+.NF
+_[                                                           ( -- )
+.FILL
+.SKIP 1
+Leave compilie mode without terminating definition.  Must be followed
+eventually by {#]#}.
+.SKIP 2
+.NF
+_[ascii]                                                     ( -- )
+.FILL
+.SKIP 1
+Compile ascii value of 1st character of next token into word.
+.IFNOT NOPAGING
+.PAGE
+.ENDIF NOPAGING
 .HL 2 Assembler
+.IFNOT NOPAGING
+.PAGE
+.ENDIF NOPAGING
 .HL 2 Miscellaneous Internals And Implementation Notes
 .BL
 .CENTER;Register Usage
@@ -548,18 +1803,33 @@ r0-r5#####-- temporary storage
 .LM +13
 .INDENT -13
 long######-- link to previous word in dictionary (header field
-addresss, hfa; link field addrss lfa)
+addresss, HFA; link field address LFA)
 .INDENT -13
 byte######-- number of bytes in the name of the word, maximum 80 (name
 field address, nfa)
 .INDENT -13
 byte(s)###-- characters of name
 .INDENT -13
-code...###-- executable code for this word (code field address, cfa)
+code...###-- executable code for this word (code field address, CFA)
 .INDENT -13
-data...###-- optional data for this word (parameter field address, pfa)
-.LM -10
+data...###-- optional data for this word (parameter field address, PFA)
+.LM -13
+.BL
+.NF
+ ,- long -- link to previous word in dictionary, (HFA, LFA).
+ |    ,- byte -- number of bytes in the name of the word.
+ |    |  ,- byte(s) -- characters of name
+ |    |  |     ,- byte(s) -- executable code for this word (CFA)
+ |    |  |     |     ,- byte(s) -- optional data for this word 
+ |    |  |     |     |  (PFA)
+ |    |  |     |     |
+ V    V  V     V     V
++----+-+-----+-----+-----+
+|    | | ... | ... | ... |
++----+-+-----+-----+-----+
+.FILL
 .! Local Variables:
 .! paragraph-separate: "^\\."
 .! paragraph-start: "^\\."
+.! tkb-right-justify-end: 67
 .! End:
