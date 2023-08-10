@@ -3174,7 +3174,7 @@ compiler_begin:
 
 
 ;+++
-;c> literal -- ( -- ) convert top of stack to a literal in current word.
+;c> literal -- ( n -- ) convert top of stack to a literal in current word.
 ;---
 	header	literal,,vl_compiler
 	movb	#op_movl,(r9)+		; `movl'
@@ -3290,7 +3290,7 @@ compiler_begin:
 
 
 ;+++
-;c> [ascii] -- ( -- n ) compile ascii value of 1st char of next token into word.
+;c> [ascii] -- ( -- ) compile ascii value of 1st char of next token into word.
 ;---
 	header	i_compile_ascii,<[ascii]>,vl_compiler
 	movl	#c_blank,-(r11)		; set up for blank separated token
