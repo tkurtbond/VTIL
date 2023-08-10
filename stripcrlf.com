@@ -15,16 +15,15 @@ $           open/write outfile 'outfilename'
 $       else
 $           define outfile sys$output
 $       endif
-$       show log outfile
 $!
-$       open/read infile vtil.mem
+$       open/read infile 'p1'
 $       i = 0
 $ 10$:  read/end=19$ infile s
 $       i = i + 1
 $       pos = f$locate (crlf, s)
 $       t = f$extract (0, pos, s)
 $       write outfile t
-$       if i .gt. 10 then goto 19$
+$       !if i .gt. 10 then goto 19$
 $       goto 10$
 $ 19$:
 $       close infile
