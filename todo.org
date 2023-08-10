@@ -30,3 +30,6 @@
 * TODO Make sure LFA, PFA, CFA are explained in early comment.
 * TODO Make sure '...' is used everywhere inside { }, not '..'.
   Inside { } we're (almost?) always using an ellipsis, not a range.
+* TODO Add a constant word pad-moat?
+  The definition of pad in VTIL.RNO refers to "(eodp + c_pad_moat)", which 
+  would be better as { eodp pad-moat + }.
