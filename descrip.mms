@@ -17,13 +17,16 @@ vtil-nopaging.doc : vtil-nopaging.mem
 clean : 
         del/log *.exe.*,*.obj.*,*.lis.*,*.map.*,*.mem.*,*.doc.*
 
+! Include the *.lis *.map files, because I can't generate them except
+! on vms.
+
 zipsrc : 
         today = f$cvtime (,, "DATE")
         set def [-]
         zipfile = "[.project_backups]vtil_" + today + ".zip"
 	! It's not really accurate unless we start from scratch.
 	if f$search (zipfile) .nes. "" then delete 'zipfile';*/log
-	zip -r 'zipfile' vtil.dir -x *.obj *.exe *.hlb *.lis *.map 
+	zip -r 'zipfile' vtil.dir -x *.obj *.exe *.hlb
 
         
 
