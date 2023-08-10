@@ -1,4 +1,12 @@
-all : vtil.mem vtil-nopaging.doc
+MFLAGS=/LIST/CROSS/OBJECT=$(MMS$TARGET_NAME)$(OBJ)/show=expansion
+LINKFLAGS=/EXEC=$(MMS$TARGET)/MAP
+
+all : vtil.exe vtil.mem vtil-nopaging.doc
+
+vtil.exe : vtil.obj, vtil_msg.obj
+        LINK$(LINKFLAGS)/EXE=$(MMS$TARGET) $(MMS$SOURCE_LIST)
+
+vtil.obj : vtil.mar
 
 vtil-nopaging.mem : vtil.rno
         runoff/variant=nopaging/output=$(MMS$TARGET) $(MMS$SOURCE)
@@ -16,3 +24,10 @@ zipsrc :
 	! It's not really accurate unless we start from scratch.
 	if f$search (zipfile) .nes. "" then delete 'zipfile';*/log
 	zip -r 'zipfile' vtil.dir -x *.obj *.exe *.hlb *.lis *.map 
+
+        
+
+
+
+
+
