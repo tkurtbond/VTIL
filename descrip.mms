@@ -1,5 +1,6 @@
+MSGFLAGS=/LIST/OBJECT=$(MMS$TARGET_NAME)$(OBJ)
 MFLAGS=/LIST/CROSS/OBJECT=$(MMS$TARGET_NAME)$(OBJ)/show=expansion
-LINKFLAGS=/EXEC=$(MMS$TARGET)/MAP
+LINKFLAGS=/MAP/FULL
 
 all : vtil.exe vtil.mem vtil-nopaging.doc
 
@@ -17,16 +18,18 @@ vtil-nopaging.doc : vtil-nopaging.mem
 clean : 
         del/log *.exe.*,*.obj.*,*.lis.*,*.map.*,*.mem.*,*.doc.*
 
-! Include the *.lis *.map files, because I can't generate them except
+! Include the *.LIS *.MAP files, because I can't generate them except
 ! on vms.
-
+! But exclude the *.EXE and *.PDF files.  The later can't be built
+! on my VMS system, and this target is for zipping up the source
+! so I can put in in github using a Unix box.
 zipsrc : 
         today = f$cvtime (,, "DATE")
         set def [-]
         zipfile = "[.project_backups]vtil_" + today + ".zip"
 	! It's not really accurate unless we start from scratch.
 	if f$search (zipfile) .nes. "" then delete 'zipfile';*/log
-	zip -r 'zipfile' vtil.dir -x *.obj *.exe *.hlb
+	zip -r 'zipfile' vtil.dir -x *.obj *.exe *.hlb *.pdf
 
         
 
