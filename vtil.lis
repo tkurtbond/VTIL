@@ -1,4 +1,4 @@
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page   0
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page   0
 Table of contents
 
     (1)       58        External Symbols
@@ -14,7 +14,7 @@ Table of contents
     (1)     3487        Interpreter
     (1)     3584        Exit Routines
     (1)     3615        Dictionary Space
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page   1
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page   1
 V1.01                                                                    10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                                      0000     1 ;
@@ -74,11 +74,11 @@ V1.01                                                                    10-AUG-
                                      0000    55 			; Note that this uses the trapping so it is useless
                                      0000    56 			; if `ca_trapping' is not defined.
                                      0000    57 
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page   2
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page   2
 V1.01                                                                    10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                                      0000    58 	newpage <External Symbols>
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page   3
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page   3
 V1.01                           External Symbols                         10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                                      0000       	.sbttl	External Symbols
@@ -138,7 +138,7 @@ V1.01                           External Symbols                         10-AUG-
                                      0000       	.IF	NB,SYM
                                      0000       	MOD'SEP'V_'SYM=BIT...
                                      0000       	.IIF	NB,SIZ,	MOD'SEP'S_'SYM=SIZ
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page   4
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page   4
 V1.01                           External Symbols                         10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                                      0000       	.IIF	NB,MSK,	MOD'SEP'M_'SYM=<<<1@SIZ...>-1>@BIT...>
@@ -198,7 +198,7 @@ V1.01                           External Symbols                         10-AUG-
                            00000008  0000       	CHF$IS_MCH_DEPTH=8
                                      0000       	
                                      0000       $EQU	CHF$L_MCH_DEPTH	8
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page   5
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page   5
 V1.01                           External Symbols                         10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                            00000008  0000       	CHF$L_MCH_DEPTH=8
@@ -226,7 +226,7 @@ V1.01                           External Symbols                         10-AUG-
                                      0000    75 
                                      0000    76 
                                      0000    77 newpage <General Notes>
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page   6
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page   6
 V1.01                           General Notes                            10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                                      0000       	.sbttl	General Notes
@@ -286,7 +286,7 @@ V1.01                           General Notes                            10-AUG-
                                      0000   130 ;	decrements.
                                      0000   131 ;
                                      0000   132 ; Starting Vocabularies -- At the moment, there are only two starting
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page   7
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page   7
 V1.01                           General Notes                            10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                                      0000   133 ; vocabularies `compiler' and `kernel', which are independent of each other.
@@ -294,7 +294,7 @@ V1.01                           General Notes                            10-AUG-
                                      0000   135 ;
                                      0000   136 ;******************************************************************************
                                      0000   137 	newpage <Implementation Notes>
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page   8
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page   8
 V1.01                           Implementation Notes                     10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                                      0000       	.sbttl	Implementation Notes
@@ -354,7 +354,7 @@ V1.01                           Implementation Notes                     10-AUG-
                                      0000   190 ; like this:
                                      0000   191 ;	;+++
                                      0000   192 ;	;s> name -- explanation
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page   9
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page   9
 V1.01                           Implementation Notes                     10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                                      0000   193 ;	;---
@@ -367,7 +367,7 @@ V1.01                           Implementation Notes                     10-AUG-
                                      0000   200 ;
                                      0000   201 ;******************************************************************************
                                      0000   202 	newpage <Constants>
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page  10
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page  10
 V1.01                           Constants                                10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                                      0000       	.sbttl	Constants
@@ -427,7 +427,7 @@ V1.01                           Constants                                10-AUG-
                            00000050  0000   255 adm_r0		= ^x50			; r0
                            00000059  0000   256 adm_r9		= ^x59			; r9
                            00000069  0000   257 adm_def_r9	= ^x69			; (r9)
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page  11
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page  11
 V1.01                           Constants                                10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                            00000089  0000   258 adm_ainc_r9	= ^x89			; (r9)+
@@ -457,7 +457,7 @@ V1.01                           Constants                                10-AUG-
                            00000000  0000   282 vl_kernel = 0		   ; Links the kernel vocabulary together
                                      0000   283 ;******************************************************************************
                                      0000   284 	newpage <Macros>
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page  12
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page  12
 V1.01                           Macros                                   10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                                      0000       	.sbttl	Macros
@@ -512,7 +512,7 @@ V1.01                           Macros                                   10-AUG-
                                      0000   332 	.endm	isstrerr
                                      0000   333 
                                      0000   334 	newpage <Data Section>
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page  13
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page  13
 V1.01                           Data Section                             10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                                      0000       	.sbttl	Data Section
@@ -572,7 +572,7 @@ V1.01                           Data Section                             10-AUG-
                                      189A   377 v_filenotfound:
 6E 20 65 6C 69 46 000018A2'010E0000' 189A   378 	.ascid	/File not found!/
          21 64 6E 75 6F 66 20 74 6F  18A8       
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page  14
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page  14
 V1.01                           Data Section                             10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                                      18B1   379 v_unkn_blk_mess:
@@ -632,7 +632,7 @@ V1.01                           Data Section                             10-AUG-
                                      0000       	.MACRO	$EQU	SYM,VAL
                                      0000       	SYM==VAL
                                      0000       	.ENDM	$EQU
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page  15
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page  15
 V1.01                           Data Section                             10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                                      0000       	.MACRO	$VIELD1	MOD,SEP,SYM,SIZ,MSK
@@ -692,7 +692,7 @@ V1.01                           Data Section                             10-AUG-
                                      0000       $EQU	FAB$M_TMP	8
                            00000008  0000       	FAB$M_TMP=8
                                      0000       	
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page  16
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page  16
 V1.01                           Data Section                             10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                                      0000       $EQU	FAB$M_TMD	16
@@ -752,7 +752,7 @@ V1.01                           Data Section                             10-AUG-
                                      0000       $EQU	FAB$M_SYNCSTS	4194304
                            00400000  0000       	FAB$M_SYNCSTS=4194304
                                      0000       	
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page  17
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page  17
 V1.01                           Data Section                             10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                                      0000       $EQU	FAB$M_RCK	8388608
@@ -812,7 +812,7 @@ V1.01                           Data Section                             10-AUG-
                                      0000       $EQU	FAB$M_SHRUPD	8
                            00000008  0000       	FAB$M_SHRUPD=8
                                      0000       	
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page  18
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page  18
 V1.01                           Data Section                             10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                                      0000       $EQU	FAB$M_MSE	16
@@ -872,7 +872,7 @@ V1.01                           Data Section                             10-AUG-
                                      0000       $EQU	FAB$C_STMLF	5
                            00000005  0000       	FAB$C_STMLF=5
                                      0000       	
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page  19
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page  19
 V1.01                           Data Section                             10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                                      0000       $EQU	FAB$C_STMCR	6
@@ -932,7 +932,7 @@ V1.01                           Data Section                             10-AUG-
                                      0000       $EQU	FAB$W_IFI	2
                            00000002  0000       	FAB$W_IFI=2
                                      0000       	
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page  20
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page  20
 V1.01                           Data Section                             10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                                      0000       $EQU	FAB$R_IFI_BITS	2
@@ -992,7 +992,7 @@ V1.01                           Data Section                             10-AUG-
                                      0000       $EQU	FAB$V_NEF	10
                            0000000A  0000       	FAB$V_NEF=10
                                      0000       	
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page  21
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page  21
 V1.01                           Data Section                             10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                                      0000       $EQU	FAB$V_RWC	11
@@ -1052,7 +1052,7 @@ V1.01                           Data Section                             10-AUG-
                                      0000       $EQU	FAB$V_KFO	30
                            0000001E  0000       	FAB$V_KFO=30
                                      0000       	
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page  22
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page  22
 V1.01                           Data Section                             10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                                      0000       $EQU	FAB$L_STS	8
@@ -1112,7 +1112,7 @@ V1.01                           Data Section                             10-AUG-
                                      0000       $EQU	FAB$V_SHRPUT	0
                            00000000  0000       	FAB$V_SHRPUT=0
                                      0000       	
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page  23
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page  23
 V1.01                           Data Section                             10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                                      0000       $EQU	FAB$V_SHRGET	1
@@ -1172,7 +1172,7 @@ V1.01                           Data Section                             10-AUG-
                                      0000       $EQU	FAB$V_PRN	2
                            00000002  0000       	FAB$V_PRN=2
                                      0000       	
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page  24
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page  24
 V1.01                           Data Section                             10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                                      0000       $EQU	FAB$V_BLK	3
@@ -1232,7 +1232,7 @@ V1.01                           Data Section                             10-AUG-
                                      0000       $EQU	FAB$B_DNS	53
                            00000035  0000       	FAB$B_DNS=53
                                      0000       	
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page  25
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page  25
 V1.01                           Data Section                             10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                                      0000       $EQU	FAB$W_MRS	54
@@ -1292,7 +1292,7 @@ V1.01                           Data Section                             10-AUG-
                                      0000       $EQU	FAB$V_CALLERS_MODE	6       ;  ACMODE for user structure probing
                            00000006  0000       	FAB$V_CALLERS_MODE=6
                                      0000       	
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page  26
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page  26
 V1.01                           Data Section                             10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                                      0000       $EQU	FAB$R_RCF_OVERLAY	75
@@ -1352,7 +1352,7 @@ V1.01                           Data Section                             10-AUG-
                                      19BE       	.IFF
                                      19BE       		.ERROR		; UNDEFINED BIT VALUE CODE: X;
                                      19BE       	.ENDC
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page  27
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page  27
 V1.01                           Data Section                             10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                                      19BE       	.ENDR
@@ -1412,7 +1412,7 @@ V1.01                           Data Section                             10-AUG-
                            00000000' 19D4       	.ADDRESS	0
                            00000000' 19D8       	.ADDRESS	0
                                  00  19DC       	.BYTE	0
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page  28
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page  28
 V1.01                           Data Section                             10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                                  00  19DD       	.BYTE	0
@@ -1472,7 +1472,7 @@ V1.01                           Data Section                             10-AUG-
                                      0000       	.IIF	NB,ALLOC,	ALLOC	SIZ
                                      0000       	.ENDM	$DEF
                                      0000       	.MACRO	$EQU	SYM,VAL
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page  29
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page  29
 V1.01                           Data Section                             10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                                      0000       	SYM==VAL
@@ -1532,7 +1532,7 @@ V1.01                           Data Section                             10-AUG-
                            00000004  0000       	RAB$M_REA=4
                                      0000       	
                                      0000       $EQU	RAB$M_RRL	8
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page  30
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page  30
 V1.01                           Data Section                             10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                            00000008  0000       	RAB$M_RRL=8
@@ -1592,7 +1592,7 @@ V1.01                           Data Section                             10-AUG-
                            00200000  0000       	RAB$M_KGE=2097152
                                      0000       	
                                      0000       $EQU	RAB$M_KGT	4194304
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page  31
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page  31
 V1.01                           Data Section                             10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                            00400000  0000       	RAB$M_KGT=4194304
@@ -1652,7 +1652,7 @@ V1.01                           Data Section                             10-AUG-
                            00000044  0000       	RAB$C_BLN=68
                                      0000       	
                                      0000       $EQU	RAB$S_RABDEF	68
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page  32
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page  32
 V1.01                           Data Section                             10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                            00000044  0000       	RAB$S_RABDEF=68
@@ -1712,7 +1712,7 @@ V1.01                           Data Section                             10-AUG-
                            00000005  0000       	RAB$V_MAS=5
                                      0000       	
                                      0000       $EQU	RAB$V_FDL	6
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page  33
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page  33
 V1.01                           Data Section                             10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                            00000006  0000       	RAB$V_FDL=6
@@ -1772,7 +1772,7 @@ V1.01                           Data Section                             10-AUG-
                            00000018  0000       	RAB$V_RNE=24
                                      0000       	
                                      0000       $EQU	RAB$V_TMO	25
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page  34
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page  34
 V1.01                           Data Section                             10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                            00000019  0000       	RAB$V_TMO=25
@@ -1832,7 +1832,7 @@ V1.01                           Data Section                             10-AUG-
                            0000000C  0000       	RAB$W_STV0=12
                                      0000       	
                                      0000       $EQU	RAB$W_STV2	14
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page  35
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page  35
 V1.01                           Data Section                             10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                            0000000E  0000       	RAB$W_STV2=14
@@ -1892,7 +1892,7 @@ V1.01                           Data Section                             10-AUG-
                            00000034  0000       	RAB$R_KSZ_OVERLAY=52
                                      0000       	
                                      0000       $EQU	RAB$B_KSZ	52
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page  36
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page  36
 V1.01                           Data Section                             10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                            00000034  0000       	RAB$B_KSZ=52
@@ -1952,7 +1952,7 @@ V1.01                           Data Section                             10-AUG-
                                      1A3C       	.IF DF RAB$V_rah
                            00000200  1A3C       		$$.TMP=$$.TMP!<1@RAB$V_rah>
                                      1A3C       	.IFF
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page  37
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page  37
 V1.01                           Data Section                             10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                                      1A3C       		.ERROR		; UNDEFINED BIT VALUE CODE: rah;
@@ -2012,7 +2012,7 @@ V1.01                           Data Section                             10-AUG-
                                      1AE0   435 		rfm=<fix>		; fixed length records
                                      1AE0       	$FABDEF
                                      1AE0       	
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page  38
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page  38
 V1.01                           Data Section                             10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                                      1AE0       	$$R_TABINIT	FAB$C_BID, FAB$C_BLN
@@ -2072,7 +2072,7 @@ V1.01                           Data Section                             10-AUG-
                                      1AF7       	.ENDR
                                      1AF7       	
                                  00  1AF7       	.BYTE	$$.TMP
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page  39
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page  39
 V1.01                           Data Section                             10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                            00000000' 1AF8       	.ADDRESS	0
@@ -2132,7 +2132,7 @@ V1.01                           Data Section                             10-AUG-
                                      1B2B       	.IF NB <vtilblocks>
                                      1B2B       	.SAVE
                                  00000000       	.PSECT $RMSNAM
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page  40
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page  40
 V1.01                           Data Section                             10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                            00000000  0000       	$$.TMPX=.
@@ -2192,7 +2192,7 @@ V1.01                           Data Section                             10-AUG-
                            00000000' 1B48       	.ADDRESS	0
                            00001B4E  1B4C       	.=$$.TAB+RAB$B_RAC
                                      1B4E       	.IF DF RAB$C_key
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page  41
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page  41
 V1.01                           Data Section                             10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                                  01  1B4E       	.BYTE	RAB$C_key
@@ -2252,7 +2252,7 @@ V1.01                           Data Section                             10-AUG-
                                      1B8E   468 v_readdsc:
                                00A0  1B8E   469 	.word	c_max_len	; maximum length
                                  00' 1B90   470 	.byte	dsc$k_dtype_t	; data type text
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page  42
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page  42
 V1.01                           Data Section                             10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                                  00' 1B91   471 	.byte	dsc$k_class_s	; descriptor class
@@ -2312,7 +2312,7 @@ V1.01                           Data Section                             10-AUG-
                            00000001  1D27   522 	.long	1	; unwind to establisher, i.e, main body, 1 deep
                                      1D2B   523 v_ctrlc_depth:		; depth to unwind stack in control/c handler
                            00000002  1D2B   524 	.long	2	; unwind to main program, 2 deep (ctrlc and a_start)
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page  43
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page  43
 V1.01                           Data Section                             10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                                      1D2F   525 v_errors:
@@ -2342,7 +2342,7 @@ V1.01                           Data Section                             10-AUG-
                            00000000  1D52   549 	.long	0	; pointer to number output conversion buffer
                                      1D56   550 
                                      1D56   551 	newpage <Kernel Built-ins>
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page  44
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page  44
 V1.01                           Kernel Built-ins                         10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                                      1D56       	.sbttl	Kernel Built-ins
@@ -2402,7 +2402,7 @@ V1.01                           Kernel Built-ins                         10-AUG-
                                      002F   582 
                                      002F   583 
                                      002F   584 ;+++
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page  45
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page  45
 V1.01                           Kernel Built-ins                         10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                                      002F   585 ;k> #> -- ( n1 -- a n2 ) End numeric output.  Leaves length and address of
@@ -2462,7 +2462,7 @@ V1.01                           Kernel Built-ins                         10-AUG-
                            00000002  0061       	.if    le, nchr		; nchr <= 0
                                      0061       	   .ascic \i_count_begin\	; no auxillary (#, use principle one
                                      0061       	.if_false		; else
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page  46
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page  46
 V1.01                           Kernel Built-ins                         10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                            23 28 00' 0061       	  .ascic \(#\		; use auxillary (#
@@ -2522,7 +2522,7 @@ V1.01                           Kernel Built-ins                         10-AUG-
                            FFFFFFFC  008B       	v1_kernel = -4		; where to link the next word to in this v1_kernel
                            00000004  008B       	.nchr  nchr, ^\(or)\	; nchr = length( (or) )
                            00000004  008B       	.if    le, nchr		; nchr <= 0
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page  47
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page  47
 V1.01                           Kernel Built-ins                         10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                                      008B       	   .ascic \i_bit_or\	; no auxillary (or), use principle one
@@ -2582,7 +2582,7 @@ V1.01                           Kernel Built-ins                         10-AUG-
                            FFFFFFFC  00AC       	.long	v1_kernel		; back link to the previous word in this v1_kernel
                            FFFFFFFC  00B0       	v1_kernel = -4		; where to link the next word to in this v1_kernel
                            00000002  00B0       	.nchr  nchr, ^\#)\	; nchr = length( #) )
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page  48
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page  48
 V1.01                           Kernel Built-ins                         10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                            00000002  00B0       	.if    le, nchr		; nchr <= 0
@@ -2642,7 +2642,7 @@ V1.01                           Kernel Built-ins                         10-AUG-
                                      00D5   689 
                                      00D5   690 ;+++
                                      00D5   691 ;k> +rot - (n1 n2 n3 -- n3 n1 n2 ) rotate top 3 items on the stack up,
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page  49
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page  49
 V1.01                           Kernel Built-ins                         10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                                      00D5   692 ;	bringing the second to the top.
@@ -2702,7 +2702,7 @@ V1.01                           Kernel Built-ins                         10-AUG-
                                      00FF       	
                        6B   8B   C2  00FF   714 	subl2	(r11)+,(r11)		; subract and leave result on stack.
                                  05  0102   715 	rsb				; end of -
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page  50
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page  50
 V1.01                           Kernel Built-ins                         10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                                      0103   716 
@@ -2762,7 +2762,7 @@ V1.01                           Kernel Built-ins                         10-AUG-
                                      0153   748 ;k> .( -- ( -- ) write the text following until the next `)' to the screen.
                                      0153   749 ;	This word should only be used *OUTSIDE* a definition (i.e.,
                                      0153   750 ;	in execute mode).
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page  51
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page  51
 V1.01                           Kernel Built-ins                         10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                                      0153   751 ;---
@@ -2822,7 +2822,7 @@ V1.01                           Kernel Built-ins                         10-AUG-
                                      0195   783 	header	i_dot_st,<.st>
                            FFFFFFFC  0195       	.long	v1_kernel		; back link to the previous word in this v1_kernel
                            FFFFFFFC  0199       	v1_kernel = -4		; where to link the next word to in this v1_kernel
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page  52
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page  52
 V1.01                           Kernel Built-ins                         10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                            00000003  0199       	.nchr  nchr, ^\.st\	; nchr = length( .st )
@@ -2882,7 +2882,7 @@ V1.01                           Kernel Built-ins                         10-AUG-
                                  04  01C8       
                                      01CD       	.endc			; end if
                                      01CD       i_div_mod:			; use /mod of word as v1_kernel label
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page  53
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page  53
 V1.01                           Kernel Built-ins                         10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                                      01CD       	
@@ -2942,7 +2942,7 @@ V1.01                           Kernel Built-ins                         10-AUG-
                            FFFFFFFC  01F9       	v1_kernel = -4		; where to link the next word to in this v1_kernel
                            00000001  01F9       	.nchr  nchr, ^\:\	; nchr = length( : )
                            00000001  01F9       	.if    le, nchr		; nchr <= 0
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page  54
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page  54
 V1.01                           Kernel Built-ins                         10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                                      01F9       	   .ascic \i_colon\	; no auxillary :, use principle one
@@ -3002,7 +3002,7 @@ V1.01                           Kernel Built-ins                         10-AUG-
                                      0239       	
 00001D52'EF   00000109'EF   59   C1  0239   867 	addl3	r9,c_pad_moat,v_hld	; pad hld !
                                  05  0245   868 	rsb				; end of <#
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page  55
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page  55
 V1.01                           Kernel Built-ins                         10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                                      0246   869 
@@ -3062,7 +3062,7 @@ V1.01                           Kernel Built-ins                         10-AUG-
                                      0275   901 	header	i_equal_text,<=text>
                            FFFFFFFC  0275       	.long	v1_kernel		; back link to the previous word in this v1_kernel
                            FFFFFFFC  0279       	v1_kernel = -4		; where to link the next word to in this v1_kernel
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page  56
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page  56
 V1.01                           Kernel Built-ins                         10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                            00000005  0279       	.nchr  nchr, ^\=text\	; nchr = length( =text )
@@ -3122,7 +3122,7 @@ V1.01                           Kernel Built-ins                         10-AUG-
                            3D 3E 00' 02B0       	  .ascic \>=\		; use auxillary >=
                                  02  02B0       
                                      02B3       	.endc			; end if
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page  57
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page  57
 V1.01                           Kernel Built-ins                         10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                                      02B3       i_greater_equal:			; use >= of word as v1_kernel label
@@ -3182,7 +3182,7 @@ V1.01                           Kernel Built-ins                         10-AUG-
                                      02EA   960 
                                      02EA   961 ;+++
                                      02EA   962 ;k> ?dup -- ( f -- f ? f ) Duplicate top of stack only if it is true (non-zero).
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page  58
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page  58
 V1.01                           Kernel Built-ins                         10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                                      02EA   963 ;	Used so don't always have to drop 0 in else.
@@ -3242,7 +3242,7 @@ V1.01                           Kernel Built-ins                         10-AUG-
                            FFFFFFFC  0324       	v1_kernel = -4		; where to link the next word to in this v1_kernel
                            00000007  0324       	.nchr  nchr, ^\?number\	; nchr = length( ?number )
                            00000007  0324       	.if    le, nchr		; nchr <= 0
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page  59
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page  59
 V1.01                           Kernel Built-ins                         10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                                      0324       	   .ascic \q_number\	; no auxillary ?number, use principle one
@@ -3302,7 +3302,7 @@ V1.01                           Kernel Built-ins                         10-AUG-
                                      035B  1030 ; Horrors!).
                                      035B  1031 ; get pointer to pointer to start of vocab
               7B   00001D37'FF   D0  035B  1032 	movl @v_context,-(r11)		; get address of current word
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page  60
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page  60
 V1.01                           Kernel Built-ins                         10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                                      0362  1033 ;??? took out to test smudge bit
@@ -3362,7 +3362,7 @@ V1.01                           Kernel Built-ins                         10-AUG-
                            00000000  039D       	.if    le, nchr		; nchr <= 0
                   74 72 6F 62 61 00' 039D       	   .ascic \abort\	; no auxillary , use principle one
                                  05  039D       
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page  61
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page  61
 V1.01                           Kernel Built-ins                         10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                                      03A3       	.if_false		; else
@@ -3422,7 +3422,7 @@ V1.01                           Kernel Built-ins                         10-AUG-
                        5B   04   C0  03D9  1100 	addl	#4,r11			; pop argument
                                      03DC  1101 ; Make it an compiletime word so it will compile the machine language into the
                                      03DC  1102 ; dictionary when defining a new word and will not be found otherwise.
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page  62
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page  62
 V1.01                           Kernel Built-ins                         10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                    0000035A'EF   16  03DC  1103 	jsb	compiletime
@@ -3482,7 +3482,7 @@ V1.01                           Kernel Built-ins                         10-AUG-
                        89   05   90  0421  1135 	movb	#op_rsb,(r9)+		; `rsb'
                        59   8B   C0  0424  1136 	addl2	(r11)+,r9		; save `n' bytes in dictionary
                                  05  0427  1137 	rsb				; end of array
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page  63
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page  63
 V1.01                           Kernel Built-ins                         10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                                      0428  1138 
@@ -3542,7 +3542,7 @@ V1.01                           Kernel Built-ins                         10-AUG-
                                      0454       	.if_false		; else
                            2C 62 00' 0454       	  .ascic \b,\		; use auxillary b,
                                  02  0454       
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page  64
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page  64
 V1.01                           Kernel Built-ins                         10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                                      0457       	.endc			; end if
@@ -3602,7 +3602,7 @@ V1.01                           Kernel Built-ins                         10-AUG-
                            FFFFFFFC  0019       	.long	v1_kernel		; back link to the previous word in this v1_kernel
                            FFFFFFFC  001D       	v1_kernel = -4		; where to link the next word to in this v1_kernel
                            00000000  001D       	.nchr  nchr, ^\\	; nchr = length(  )
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page  65
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page  65
 V1.01                           Kernel Built-ins                         10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                            00000000  001D       	.if    le, nchr		; nchr <= 0
@@ -3662,7 +3662,7 @@ V1.01                           Kernel Built-ins                         10-AUG-
                                      004E  1218 ;k> block -- ( l -- a ) Get block `l' into buffer at address `a'.
                                      004E  1219 ;---
                                      004E  1220 	header	block
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page  66
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page  66
 V1.01                           Kernel Built-ins                         10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                            FFFFFFFC  004E       	.long	v1_kernel		; back link to the previous word in this v1_kernel
@@ -3722,7 +3722,7 @@ V1.01                           Kernel Built-ins                         10-AUG-
          6B   00000400 8F   50   C5  00B2  1264 	mull3	r0,#c_block_size,(r11)	; offset to `r0'th buffer in buffer array
               6B   00004000'8F   C0  00BA  1265 	addl2	#v_blkbuff,(r11)	; calcualte addressof `r0'th buffer
               00001B79'EF   50   D0  00C1  1266 	movl	r0,v_current_buff	; mark this as most current block
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page  67
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page  67
 V1.01                           Kernel Built-ins                         10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                                  05  00C8  1267 	rsb				; end of block
@@ -3782,7 +3782,7 @@ V1.01                           Kernel Built-ins                         10-AUG-
                            00000070  00E1       	.IF	EQ <<$$.TMP2&^XF0>-^X50>
                                      00E1       	PUSHL	v_blkfab
                                      00E1       	.IFF
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page  68
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page  68
 V1.01                           Kernel Built-ins                         10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                            000000B0  00E1       	.IF	EQ <<$$.TMP2&^XF0>-^X10>
@@ -3842,7 +3842,7 @@ V1.01                           Kernel Built-ins                         10-AUG-
                                      0113       	.IF	NB <>
                                      0113       	PUSHAL	
                                      0113       	$$.TMP1=3
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page  69
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page  69
 V1.01                           Kernel Built-ins                         10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                                      0113       	.ENDC
@@ -3902,7 +3902,7 @@ V1.01                           Kernel Built-ins                         10-AUG-
                                      0126       	.ENDC
                                      0126       	.IFF
                            FFFFFFFE  0126       	.IF	EQ <$$.TMP1-3>
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page  70
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page  70
 V1.01                           Kernel Built-ins                         10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                                      0126       	PUSHL	#0
@@ -3962,7 +3962,7 @@ V1.01                           Kernel Built-ins                         10-AUG-
                                      015F       	$$.TMP=1
                                      015F       	.ENDC
                                      015F       	.IF	NE $$.TMP
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page  71
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page  71
 V1.01                           Kernel Built-ins                         10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                                      015F       	.ERROR				; v_blkrab= parameter missing;
@@ -4022,7 +4022,7 @@ V1.01                           Kernel Built-ins                         10-AUG-
                             8B   D0  0183  1325 	movl	(r11)+,-		; get buffer address
                    00001B58'EF       0185  1326 		v_blkrab+rab$l_rbf	;   into rab
                             8B   D0  018A  1327 	movl	(r11)+,-		; get VTIL block (rms record) number
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page  72
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page  72
 V1.01                           Kernel Built-ins                         10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                    00001B74'EF       018C  1328 		v_blkkey		;   into key buffer
@@ -4082,7 +4082,7 @@ V1.01                           Kernel Built-ins                         10-AUG-
                                      01A7       	$$.TMP=0
                                      01A7       	.IF	NB <>
                                      01A7       	$$.TMP=1
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page  73
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page  73
 V1.01                           Kernel Built-ins                         10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                                      01A7       	.ENDC
@@ -4142,7 +4142,7 @@ V1.01                           Kernel Built-ins                         10-AUG-
                                  05  01BF       
                                      01C5       	.if_false		; else
                                      01C5       	  .ascic \\		; use auxillary 
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page  74
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page  74
 V1.01                           Kernel Built-ins                         10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                                      01C5       	.endc			; end if
@@ -4202,7 +4202,7 @@ V1.01                           Kernel Built-ins                         10-AUG-
                  00001B7D'EF40   95  01F1  1373 	tstb	v_buf_inuse[r0]		; Is it in use?
                             25   13  01F8  1374 	beql	90$			; no, read block into it
                     F3 50   03   F2  01FA  1375 	aoblss	#c_max_blocks,r0,20$	; move to the next buffer, if any
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page  75
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page  75
 V1.01                           Kernel Built-ins                         10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                                      01FE  1376 ; Are there any unmodified buffers?
@@ -4262,7 +4262,7 @@ V1.01                           Kernel Built-ins                         10-AUG-
             7B   00001B80'EF40   D0  0270  1419 	movl	v_buf_blk_nums[r0],-	; number of block
                                      0278  1420 		-(r11)			;   to read
                     7B   04 AB   D0  0278  1421 	movl	4(r11),-(r11)		; get another copy of the buffer address
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page  76
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page  76
 V1.01                           Kernel Built-ins                         10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                        FED1 CF   16  027C  1422 	jsb	i_block_read		; read the block
@@ -4322,7 +4322,7 @@ V1.01                           Kernel Built-ins                         10-AUG-
                                  05  02D9  1453 	rsb				; end of byte
                                      02DA  1454 
                                      02DA  1455 
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page  77
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page  77
 V1.01                           Kernel Built-ins                         10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                                      02DA  1456 ;+++t
@@ -4382,7 +4382,7 @@ V1.01                           Kernel Built-ins                         10-AUG-
                                      032B  1488 100$:
                        5B   04   C0  032B  1489 	addl2	#4,r11			; pop pointer off stack
                                  05  032E  1490 	rsb				; end of clist
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page  78
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page  78
 V1.01                           Kernel Built-ins                         10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                                      032F  1491 
@@ -4442,7 +4442,7 @@ V1.01                           Kernel Built-ins                         10-AUG-
                                      0377  1523 ;??? Much beter idea.  Have a compile buffer like STOIC and have only
                                      0377  1524 ; compiletime and runtime words, both of which are in the same vocabulary.
                                      0377  1525 ; If not inside a { : ... ; }, do a jsb at the end of the line? if in colon
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page  79
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page  79
 V1.01                           Kernel Built-ins                         10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                                      0377  1526 ; definition, copy it to the dictionary and update dictionary links.
@@ -4502,7 +4502,7 @@ V1.01                           Kernel Built-ins                         10-AUG-
                            00000000  03A4       	.nchr  nchr, ^\\	; nchr = length(  )
                            00000000  03A4       	.if    le, nchr		; nchr <= 0
                            72 63 00' 03A4       	   .ascic \cr\	; no auxillary , use principle one
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page  80
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page  80
 V1.01                           Kernel Built-ins                         10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                                  02  03A4       
@@ -4562,7 +4562,7 @@ V1.01                           Kernel Built-ins                         10-AUG-
                        50   89   9A  0444  1593 	movzbl	(r9)+,r0		; get byte length and move over it
                        59   50   C0  0447  1594 	addl2	r0,r9			; move over string
                        69   05   90  044A  1595 	movb	#op_rsb,(r9)		; stick a `rsb' in just in case
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page  81
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page  81
 V1.01                           Kernel Built-ins                         10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                                  05  044D  1596 	rsb				; end of create
@@ -4622,7 +4622,7 @@ V1.01                           Kernel Built-ins                         10-AUG-
 73 6E 6F 69 74 69 6E 69 66 65 64 00' 047A       	   .ascic \definitions\	; no auxillary , use principle one
                                  0B  047A       
                                      0486       	.if_false		; else
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page  82
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page  82
 V1.01                           Kernel Built-ins                         10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                                      0486       	  .ascic \\		; use auxillary 
@@ -4682,7 +4682,7 @@ V1.01                           Kernel Built-ins                         10-AUG-
                         70 75 64 00' 04B1       	   .ascic \dup\	; no auxillary , use principle one
                                  03  04B1       
                                      04B5       	.if_false		; else
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page  83
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page  83
 V1.01                           Kernel Built-ins                         10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                                      04B5       	  .ascic \\		; use auxillary 
@@ -4742,7 +4742,7 @@ V1.01                           Kernel Built-ins                         10-AUG-
                                      04ED       	.endc			; end if
                                      04ED       eodp:			; use  of word as v1_kernel label
                                      04ED       	
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page  84
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page  84
 V1.01                           Kernel Built-ins                         10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                        7B   59   D0  04ED  1678 	movl	r9,-(r11)		; get
@@ -4802,7 +4802,7 @@ V1.01                           Kernel Built-ins                         10-AUG-
                                      0516       	.endc			; end if
                                      0516       eve:			; use  of word as v1_kernel label
                                      0516       	
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page  85
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page  85
 V1.01                           Kernel Built-ins                         10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                        7B   20   D0  0516  1702 	movl	#c_blank,-(r11)		; set up for blank delimited token
@@ -4862,7 +4862,7 @@ V1.01                           Kernel Built-ins                         10-AUG-
                        5B   0C   C0  0570  1734 	addl2	#12,r11			; pop arguments
                                  05  0573  1735 	rsb				; end of fill
                                      0574  1736 
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page  86
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page  86
 V1.01                           Kernel Built-ins                         10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                                      0574  1737 
@@ -4922,7 +4922,7 @@ V1.01                           Kernel Built-ins                         10-AUG-
                                      05B9       	
                        7B   20   D0  05B9  1769 	movl	#c_blank,-(r11)		; set up for blank delimited token
                    00000E7B'EF   16  05BC  1770 	jsb	token			; get token
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page  87
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page  87
 V1.01                           Kernel Built-ins                         10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
               7B   00001D37'FF   D0  05C2  1771 	movl	@v_context,-(r11)	; start search at context
@@ -4982,7 +4982,7 @@ V1.01                           Kernel Built-ins                         10-AUG-
                           0F89   31  0658  1813 	brw	r_warm_start		; end of forget/erase
                                      065B  1814 
                                      065B  1815 
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page  88
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page  88
 V1.01                           Kernel Built-ins                         10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                                      065B  1816 ;+++
@@ -5042,7 +5042,7 @@ V1.01                           Kernel Built-ins                         10-AUG-
                                      068B       	
               00001D4E'EF   10   D0  068B  1838 	movl	#16,v_radix		; switch to base 16 (hexadecimal)
                                  05  0692  1839 	rsb				; end of hex
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page  89
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page  89
 V1.01                           Kernel Built-ins                         10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                                      0693  1840 
@@ -5102,7 +5102,7 @@ V1.01                           Kernel Built-ins                         10-AUG-
                            3E 69 00' 06C1       	  .ascic \i>\		; use auxillary i>
                                  02  06C1       
                                      06C4       	.endc			; end if
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page  90
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page  90
 V1.01                           Kernel Built-ins                         10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                                      06C4       i_i_to:			; use i> of word as v1_kernel label
@@ -5162,7 +5162,7 @@ V1.01                           Kernel Built-ins                         10-AUG-
                                  04  06F2       
                                      06F7       	.if_false		; else
                                      06F7       	  .ascic \\		; use auxillary 
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page  91
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page  91
 V1.01                           Kernel Built-ins                         10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                                      06F7       	.endc			; end if
@@ -5222,7 +5222,7 @@ V1.01                           Kernel Built-ins                         10-AUG-
               00000000'GF   01   FB  072F       	CALLS	#$$.TMP1,G^SYS$OPEN
                                      0736       	.ENDC
                                      0736       	
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page  92
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page  92
 V1.01                           Kernel Built-ins                         10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                                      0736       	
@@ -5282,7 +5282,7 @@ V1.01                           Kernel Built-ins                         10-AUG-
               00000000'GF   01   FB  075A  1909 	calls	#1,g^lib$put_output	; Tell user file not found
                                  05  0761  1910 	rsb				; return
                                      0762  1911 15$:
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page  93
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page  93
 V1.01                           Kernel Built-ins                         10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
               56   000019A8'EF   DE  0762  1912 	moval	v_infab,r6		; error: keep fab address
@@ -5342,7 +5342,7 @@ V1.01                           Kernel Built-ins                         10-AUG-
                        89   05   90  07C1  1944 	movb	#op_rsb,(r9)+		; stick `rsb' into dictionary to
                                      07C4  1945 					;   end constant word
                                  05  07C4  1946 	rsb				; end of longconst
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page  94
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page  94
 V1.01                           Kernel Built-ins                         10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                                      07C5  1947 
@@ -5402,7 +5402,7 @@ V1.01                           Kernel Built-ins                         10-AUG-
                                      0800  1979 
                                      0800  1980 ;+++
                                      0800  1981 ;k> max -- ( n1 n2 -- n2 ) Leave larger of n1 and n2 on stack.
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page  95
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page  95
 V1.01                           Kernel Built-ins                         10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                                      0800  1982 ;---
@@ -5462,7 +5462,7 @@ V1.01                           Kernel Built-ins                         10-AUG-
                                      0835       	  .ascic \\		; use auxillary 
                                      0835       	.endc			; end if
                                      0835       min:			; use  of word as v1_kernel label
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page  96
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page  96
 V1.01                           Kernel Built-ins                         10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                                      0835       	
@@ -5522,7 +5522,7 @@ V1.01                           Kernel Built-ins                         10-AUG-
                                      086B  2038 ;---
                                      086B  2039 	header	i_move_fill,<move&fill>
                            FFFFFFFC  086B       	.long	v1_kernel		; back link to the previous word in this v1_kernel
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page  97
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page  97
 V1.01                           Kernel Built-ins                         10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                            FFFFFFFC  086F       	v1_kernel = -4		; where to link the next word to in this v1_kernel
@@ -5582,7 +5582,7 @@ V1.01                           Kernel Built-ins                         10-AUG-
                                  05  08A5  2062 	rsb				; return
                                      08A6  2063 10$:
               7B   FFFFFFFF 8F   D0  08A6  2064 	movl	#c_true,-(r11)		; it is false, leave with true on stack
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page  98
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page  98
 V1.01                           Kernel Built-ins                         10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                                  05  08AD  2065 	rsb				; end of not
@@ -5642,7 +5642,7 @@ V1.01                           Kernel Built-ins                         10-AUG-
                             57   D7  0911  2108 	decl	r7			; count = count - 1
                             56   D6  0913  2109 	incl	r6			; move to next byte in number
                             57   D5  0915  2110 	tstl	r7			; count = 0?
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page  99
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page  99
 V1.01                           Kernel Built-ins                         10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                             B6   14  0917  2111 	bgtr	_number_top		; no, do it again
@@ -5702,7 +5702,7 @@ V1.01                           Kernel Built-ins                         10-AUG-
                        5B   04   C0  0954  2143 	addl2	#4,r11			; pop second item off, don't need
                                      0957  2144 					;   to check
                                      0957  2145 20$:
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page 100
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page 100
 V1.01                           Kernel Built-ins                         10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
               7B   FFFFFFFF 8F   D0  0957  2146 	movl	#c_true,-(r11)		; Yes, one or both true.  Leave with
@@ -5762,7 +5762,7 @@ V1.01                           Kernel Built-ins                         10-AUG-
                                  04  0982       
                                      0987       	.if_false		; else
                                      0987       	  .ascic \\		; use auxillary 
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page 101
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page 101
 V1.01                           Kernel Built-ins                         10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                                      0987       	.endc			; end if
@@ -5822,7 +5822,7 @@ V1.01                           Kernel Built-ins                         10-AUG-
                    00001B98'EF   B5  09E2  2202 	tstw   v_outlen			;
                             04   12  09E8  2203 	bneq   10$			; yes~~~, branch to output prompt
                             00   DD  09EA  2204 	pushl  #0			; omit prompt since no output
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page 102
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page 102
 V1.01                           Kernel Built-ins                         10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                             1B   11  09EC  2205 	brb    20$			; skip over prompting
@@ -5882,7 +5882,7 @@ V1.01                           Kernel Built-ins                         10-AUG-
                                      0A7A  2242 					;   outstanding will be saved.
                             5B   DD  0A7A  2243 	pushl	r11			; put addrss of descriptor on rstack
                        5B   08   C0  0A7C  2244 	addl2	#8,r11			; move stack ptr back over descriptor
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page 103
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page 103
 V1.01                           Kernel Built-ins                         10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                                      0A7F  2245 20$:
@@ -5942,7 +5942,7 @@ V1.01                           Kernel Built-ins                         10-AUG-
                                      0ABA  2271 ;+++
                                      0ABA  2272 ;k> s, -- ( s -- ) Store low word of `s' in dictinary.
                                      0ABA  2273 ;---
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page 104
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page 104
 V1.01                           Kernel Built-ins                         10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                                      0ABA  2274 	header	i_w_comma,<s,>
@@ -6002,7 +6002,7 @@ V1.01                           Kernel Built-ins                         10-AUG-
                                      0AE1  2295 
                                      0AE1  2296 ;+++
                                      0AE1  2297 ;k> save-buffers -- ( -- ) Write all modified buffers and mark them unmodified.
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page 105
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page 105
 V1.01                           Kernel Built-ins                         10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                                      0AE1  2298 ;---
@@ -6062,7 +6062,7 @@ V1.01                           Kernel Built-ins                         10-AUG-
                   57   6B   05   C1  0B2F  2329 	addl3	#5,(r11),r7		; get address of word name
                   58   59   01   C1  0B33  2330 	addl3	#1,r9,r8		; get address of token
                   68   67   56   29  0B37  2331 	cmpc3	r6,(r7),(r8)		; compare strings
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page 106
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page 106
 V1.01                           Kernel Built-ins                         10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                             09   12  0B3B  2332 	bneq	20$			; strings don't match
@@ -6122,7 +6122,7 @@ V1.01                           Kernel Built-ins                         10-AUG-
                             8B   D5  0B7C  2364 	tstl	(r11)+			; tos < 0?
                             07   18  0B7E  2365 	bgeq	10$			; no, exit
                        7B   2D   D0  0B80  2366 	movl	#^a\-\,-(r11)		; put ascii for minus sign on stack
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page 107
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page 107
 V1.01                           Kernel Built-ins                         10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                        FB25 CF   16  0B83  2367 	jsb	hold			; put it in output string
@@ -6182,7 +6182,7 @@ V1.01                           Kernel Built-ins                         10-AUG-
                            FFFFFFFC  0BB2       	v1_kernel = -4		; where to link the next word to in this v1_kernel
                            00000003  0BB2       	.nchr  nchr, ^\sp0\	; nchr = length( sp0 )
                            00000003  0BB2       	.if    le, nchr		; nchr <= 0
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page 108
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page 108
 V1.01                           Kernel Built-ins                         10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                                      0BB2       	   .ascic \i_sp_0\	; no auxillary sp0, use principle one
@@ -6242,7 +6242,7 @@ V1.01                           Kernel Built-ins                         10-AUG-
                             0E   15  0C03  2423 	bleq	100$			; yes, exit
                        7B   01   D0  0C05  2424 	movl	#1,-(r11)		; no, save space on stack for index
                                      0C08  2425 10$:
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page 109
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page 109
 V1.01                           Kernel Built-ins                         10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                          BD AF   16  0C08  2426 	jsb	space			; output one space
@@ -6302,7 +6302,7 @@ V1.01                           Kernel Built-ins                         10-AUG-
                                      0C77       	$$.TMP=1
                                      0C77       	.ENDC
                                      0C77       	.IF	NB <>
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page 110
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page 110
 V1.01                           Kernel Built-ins                         10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                                      0C77       	$$.TMP=1
@@ -6362,7 +6362,7 @@ V1.01                           Kernel Built-ins                         10-AUG-
                                      0CB7       	CALLG	(AP),G^SYS$CLOSE
                                      0CB7       	$$.TMP=0
                                      0CB7       	.IF	NB <>
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page 111
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page 111
 V1.01                           Kernel Built-ins                         10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                                      0CB7       	$$.TMP=1
@@ -6422,7 +6422,7 @@ V1.01                           Kernel Built-ins                         10-AUG-
                74 61 63 72 74 73 00' 0CD7       	   .ascic \strcat\	; no auxillary , use principle one
                                  06  0CD7       
                                      0CDE       	.if_false		; else
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page 112
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page 112
 V1.01                           Kernel Built-ins                         10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                                      0CDE       	  .ascic \\		; use auxillary 
@@ -6482,7 +6482,7 @@ V1.01                           Kernel Built-ins                         10-AUG-
                                      0D49  2528 20$:
                        7B   01   D0  0D49  2529 	movl	#1,-(r11)		; str1 > str2
                                  05  0D4C  2530 	rsb				; end of strcmp
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page 113
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page 113
 V1.01                           Kernel Built-ins                         10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                                      0D4D  2531 
@@ -6542,7 +6542,7 @@ V1.01                           Kernel Built-ins                         10-AUG-
                        89   04   90  0D95  2563 	movb	#4,(r9)+		; (pc+4)
                     89   7B 8F   90  0D98  2564 	movb	#adm_adec_r11,(r9)+	; -(r11)
                        89   05   90  0D9C  2565 	movb	#op_rsb,(r9)+		; rsb
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page 114
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page 114
 V1.01                           Kernel Built-ins                         10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                        89   6B   B0  0D9F  2566 	movw	(r11),(r9)+		; maximum length
@@ -6602,7 +6602,7 @@ V1.01                           Kernel Built-ins                         10-AUG-
                            FFFFFFFC  0DF6       	v1_kernel = -4		; where to link the next word to in this v1_kernel
                            00000000  0DF6       	.nchr  nchr, ^\\	; nchr = length(  )
                            00000000  0DF6       	.if    le, nchr		; nchr <= 0
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page 115
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page 115
 V1.01                           Kernel Built-ins                         10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                78 61 6D 72 74 73 00' 0DF6       	   .ascic \strmax\	; no auxillary , use principle one
@@ -6662,7 +6662,7 @@ V1.01                           Kernel Built-ins                         10-AUG-
                            FFFFFFFC  0E3E       	v1_kernel = -4		; where to link the next word to in this v1_kernel
                            00000000  0E3E       	.nchr  nchr, ^\\	; nchr = length(  )
                            00000000  0E3E       	.if    le, nchr		; nchr <= 0
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page 116
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page 116
 V1.01                           Kernel Built-ins                         10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                      70 61 77 73 00' 0E3E       	   .ascic \swap\	; no auxillary , use principle one
@@ -6722,7 +6722,7 @@ V1.01                           Kernel Built-ins                         10-AUG-
                            00000000  0E75       	.if    le, nchr		; nchr <= 0
                   6E 65 6B 6F 74 00' 0E75       	   .ascic \token\	; no auxillary , use principle one
                                  05  0E75       
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page 117
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page 117
 V1.01                           Kernel Built-ins                         10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                                      0E7B       	.if_false		; else
@@ -6782,7 +6782,7 @@ V1.01                           Kernel Built-ins                         10-AUG-
                                      0EFF       unlink:			; use  of word as v1_kernel label
                                      0EFF       	
               58   00001D3B'FF   D0  0EFF  2716 	movl	@v_current,r8		; reclaim directory space
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page 118
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page 118
 V1.01                           Kernel Built-ins                         10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
               00001D3B'FF   69   D0  0F06  2717 	movl	(r9),@v_current		; get pointer to last word in current
@@ -6842,7 +6842,7 @@ V1.01                           Kernel Built-ins                         10-AUG-
                                      0F42  2749 ;---
                                      0F42  2750 ;??? This concept is fuzzy.  Work on it.
                                      0F42  2751 	header	  variable
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page 119
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page 119
 V1.01                           Kernel Built-ins                         10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                            FFFFFFFC  0F42       	.long	v1_kernel		; back link to the previous word in this v1_kernel
@@ -6902,7 +6902,7 @@ V1.01                           Kernel Built-ins                         10-AUG-
                                      0FA4  2784 ;+++
                                      0FA4  2785 ;k> vocabulary -- ( -- ) Defining word.  Creates a new vocabulary. When the word
                                      0FA4  2786 ;	defined by this is executed, context is set to the new vocabulary.
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page 120
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page 120
 V1.01                           Kernel Built-ins                         10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                                      0FA4  2787 ;---
@@ -6962,7 +6962,7 @@ V1.01                           Kernel Built-ins                         10-AUG-
                        50   56   C0  1032  2819 	addl2	r6,r0			; next available byte
                        57   6B   D1  1035  2820 	cmpl	(r11),r7		; chars to output <= available
                             10   14  1038  2821 	bgtr	20$			; no, do a part
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page 121
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page 121
 V1.01                           Kernel Built-ins                         10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                60   04 BB   6B   28  103A  2822 	movc3	(r11),@4(r11),(r0)	; move the string into the output buffer
@@ -7022,7 +7022,7 @@ V1.01                           Kernel Built-ins                         10-AUG-
                                      10AF  2865 ;k> ] -- ( -- ) enter compile mode.  Used with { [ } in definitions.
                                      10AF  2866 ;---
                                      10AF  2867 	header i_right_back,<]>
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page 122
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page 122
 V1.01                           Kernel Built-ins                         10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                            FFFFFFFC  10AF       	.long	v1_kernel		; back link to the previous word in this v1_kernel
@@ -7042,7 +7042,7 @@ V1.01                           Kernel Built-ins                         10-AUG-
                                      10BE  2871 
                                      10BE  2872 _kernel_end:
                                      10BE  2873 	newpage <cCompiler Built-ins>
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page 123
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page 123
 V1.01                           cCompiler Built-ins                      10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                                      10BE       	.sbttl	cCompiler Built-ins
@@ -7102,7 +7102,7 @@ V1.01                           cCompiler Built-ins                      10-AUG-
                                      10E4       	   .ascic \i_plus_loop\	; no auxillary +loop, use principle one
                                      10E4       	.if_false		; else
                   70 6F 6F 6C 2B 00' 10E4       	  .ascic \+loop\		; use auxillary +loop
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page 124
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page 124
 V1.01                           cCompiler Built-ins                      10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                                  05  10E4       
@@ -7162,7 +7162,7 @@ V1.01                           cCompiler Built-ins                      10-AUG-
                        89   16   90  115D  2950 	movb	#op_jsb,(r9)+		; `jsb'
                     89   9F 8F   90  1160  2951 	movb	#adm_absolute,(r9)+	; absolute mode
                   89   FE81 CF   DE  1164  2952 	moval	write,(r9)+		; address of subroutine to jsb to
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page 125
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page 125
 V1.01                           cCompiler Built-ins                      10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                                  05  1169  2953 	rsb				; end of ."
@@ -7222,7 +7222,7 @@ V1.01                           cCompiler Built-ins                      10-AUG-
                                      11A4  2985 
                                      11A4  2986 
                                      11A4  2987 ;+++
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page 126
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page 126
 V1.01                           cCompiler Built-ins                      10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                                      11A4  2988 ;c> again -- ( -- ) Terminate a { repeat ... if ... again } loop.  { agin }
@@ -7282,7 +7282,7 @@ V1.01                           cCompiler Built-ins                      10-AUG-
                                  05  11E9  3020 	rsb				; end of b^
                                      11EA  3021 
                                      11EA  3022 
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page 127
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page 127
 V1.01                           cCompiler Built-ins                      10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                                      11EA  3023 ;+++
@@ -7342,7 +7342,7 @@ V1.01                           cCompiler Built-ins                      10-AUG-
                     89   D0 8F   90  1225  3055 	movb	#op_movl,(r9)+		; `movl'	save index
                     89   8B 8F   90  1229  3056 	movb	#adm_ainc_r11,(r9)+	; (r11)+
                     89   50 8F   90  122D  3057 	movb	#adm_r0,(r9)+		; r0
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page 128
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page 128
 V1.01                           cCompiler Built-ins                      10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                     89   D0 8F   90  1231  3058 	movb	#op_movl,(r9)+		; `movl'	put limit on lstack
@@ -7402,7 +7402,7 @@ V1.01                           cCompiler Built-ins                      10-AUG-
                                  04  1291       
                                      1296       	.if_false		; else
                                      1296       	  .ascic \\		; use auxillary 
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page 129
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page 129
 V1.01                           cCompiler Built-ins                      10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                                      1296       	.endc			; end if
@@ -7462,7 +7462,7 @@ V1.01                           cCompiler Built-ins                      10-AUG-
                                      12D7       	
                        89   31   90  12D7  3126 	movb	#op_brw,(r9)+		; brw back to test
                        50   59   D0  12DA  3127 	movl	r9,r0			; address to put displacement in
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page 130
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page 130
 V1.01                           cCompiler Built-ins                      10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                        89   00   B0  12DD  3128 	movw	#0,(r9)+		; save space for displacement
@@ -7522,7 +7522,7 @@ V1.01                           cCompiler Built-ins                      10-AUG-
                            5E 6C 00' 1319       	  .ascic \l^\		; use auxillary l^
                                  02  1319       
                                      131C       	.endc			; end if
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page 131
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page 131
 V1.01                           cCompiler Built-ins                      10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                                      131C       i_l_up:			; use l^ of word as vl_compiler label
@@ -7582,7 +7582,7 @@ V1.01                           cCompiler Built-ins                      10-AUG-
                        89   04   90  135D  3195 	movb	#4,(r9)+		  ; 4 byte displacement for previous adm
                        89   01   90  1360  3196 	movb	#^x01,(r9)+		  ; s^#1
                     89   6A 8F   90  1363  3197 	movb	#adm_def_r10,(r9)+	  ; (r10)
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page 132
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page 132
 V1.01                           cCompiler Built-ins                      10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                        50   59   D0  1367  3198 	movl	r9,r0			  ; save address of branch word
@@ -7642,7 +7642,7 @@ V1.01                           cCompiler Built-ins                      10-AUG-
                                      13AB  3230 ;	This is used with the assembler, mainly, which is why it is w^ instead
                                      13AB  3231 ;	of  s^.
                                      13AB  3232 ;---
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page 133
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page 133
 V1.01                           cCompiler Built-ins                      10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                                      13AB  3233 	header	i_s_up,<w^>,vl_compiler
@@ -7702,7 +7702,7 @@ V1.01                           cCompiler Built-ins                      10-AUG-
                                      13F2  3265 ;	is true, execute code to { endwhile }, which loops back to { while }.
                                      13F2  3266 ;	If false, skip to after the { endwhile }.
                                      13F2  3267 ;---
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page 134
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page 134
 V1.01                           cCompiler Built-ins                      10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                                      13F2  3268 	header	while,,vl_compiler
@@ -7762,7 +7762,7 @@ V1.01                           cCompiler Built-ins                      10-AUG-
                                      142C       	   .ascic \i_compile_ascii\	; no auxillary [ascii], use principle one
                                      142C       	.if_false		; else
             5D 69 69 63 73 61 5B 00' 142C       	  .ascic \[ascii]\		; use auxillary [ascii]
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page 135
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page 135
 V1.01                           cCompiler Built-ins                      10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                                  07  142C       
@@ -7778,7 +7778,7 @@ V1.01                           cCompiler Built-ins                      10-AUG-
                                      1444  3302 
                                      1444  3303 _compiler_end:
                                      1444  3304 	newpage <Enter VTIL>
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page 136
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page 136
 V1.01                           Enter VTIL                               10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                                      1444       	.sbttl	Enter VTIL
@@ -7838,7 +7838,7 @@ V1.01                           Enter VTIL                               10-AUG-
                            FFFFFFC1  1451       		.IF GT	$$$ADR - ^XFF
                                      1451       		PUSHAW	v_input_chan
                                      1451       		.MEXIT
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page 137
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page 137
 V1.01                           Enter VTIL                               10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                                      1451       		.ENDC
@@ -7898,7 +7898,7 @@ V1.01                           Enter VTIL                               10-AUG-
                                      146C       		PUSHAQ	0
                                      146C       		.MEXIT
                                      146C       		.ENDC
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page 138
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page 138
 V1.01                           Enter VTIL                               10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                                      146C       		.ENDC
@@ -7958,7 +7958,7 @@ V1.01                           Enter VTIL                               10-AUG-
                                      146E       		.ENDC
                            000000CF  146E       		.NTYPE	$$$ADR, v_getchn_in_buf
                            000000C0  146E       $$$ADR	=	$$$ADR & ^XFFF0
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page 139
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page 139
 V1.01                           Enter VTIL                               10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                            FFFFFFC1  146E       		.IF GT	$$$ADR - ^XFF
@@ -8018,7 +8018,7 @@ V1.01                           Enter VTIL                               10-AUG-
                                      1492       		.GLOBL	SYS$QIO
                                      1492       		$PUSHTWO #0,#0
                            00000000  1492       		$$T1 = 0
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page 140
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page 140
 V1.01                           Enter VTIL                               10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                                      1492       		.IF	IDN,<#0>,<#0>
@@ -8078,7 +8078,7 @@ V1.01                           Enter VTIL                               10-AUG-
                                      14A0       		$QIOPUSH #0,0
                            00000000  14A0       		$$T1 = 0
                                      14A0       		.IF	IDN,<#0>,<#0>
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page 141
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page 141
 V1.01                           Enter VTIL                               10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                                      14A0       		.IF	IDN,<0>,<0>
@@ -8138,7 +8138,7 @@ V1.01                           Enter VTIL                               10-AUG-
                                      14C6  3353 ; trap subroutine and we want to a warm start.
                                      14C6  3354 10$:
               000015BF'EF   00   FB  14C6  3355 	calls	#0,s_warm_start		; call subroutine to do warm start.
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page 142
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page 142
 V1.01                           Enter VTIL                               10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                                      14CD  3356 ; If we have returned from warm start there was an error caught by the
@@ -8198,7 +8198,7 @@ V1.01                           Enter VTIL                               10-AUG-
                                      14E3       		PUSHL	#0
                                      14E3       		.IFF
                            00000000  14E3       		.IF EQ	12-12
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page 143
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page 143
 V1.01                           Enter VTIL                               10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                            00000000  14E3       		.IF NE	12-12
@@ -8258,7 +8258,7 @@ V1.01                           Enter VTIL                               10-AUG-
                                      14EA       		.MEXIT
                                      14EA       		.ENDC
                                      14EA       		.IF EQ	$$$ADR - ^X70
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page 144
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page 144
 V1.01                           Enter VTIL                               10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                                      14EA       		PUSHAQ	0
@@ -8318,7 +8318,7 @@ V1.01                           Enter VTIL                               10-AUG-
                                      151C       	
                                      151C       		$PUSHADR 0
                                      151C       		.IF	IDN,0,0
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page 145
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page 145
 V1.01                           Enter VTIL                               10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                             00   DD  151C       		PUSHL	#0
@@ -8378,7 +8378,7 @@ V1.01                           Enter VTIL                               10-AUG-
                                      1527  3393 ; somewhere we need to figure out how to message this as well
                    00001D2F'EF   D6  1527  3394 	incl	v_errors		; increment number of errors
               14   00001D2F'EF   D1  152D  3395 	cmpl	v_errors,#c_max_errs	; the max number of errors exceeded?
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page 146
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page 146
 V1.01                           Enter VTIL                               10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                             1C   14  1534  3396 	bgtr	10$			; yes, go exit
@@ -8438,7 +8438,7 @@ V1.01                           Enter VTIL                               10-AUG-
                                      1544       		PUSHAL	v_trap_depth
                                      1544       		.MEXIT
                                      1544       		.ENDC
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page 147
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page 147
 V1.01                           Enter VTIL                               10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                    00001D27'EF   9F  1544       		PUSHAB	v_trap_depth
@@ -8498,7 +8498,7 @@ V1.01                           Enter VTIL                               10-AUG-
                                      1565       		.IF GT	$$$ADR - ^XFF
                                      1565       		PUSHAL	0
                                      1565       		.MEXIT
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page 148
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page 148
 V1.01                           Enter VTIL                               10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                                      1565       		.ENDC
@@ -8550,7 +8550,7 @@ V1.01                           Enter VTIL                               10-AUG-
                                      1577  3410 					; end of trap
                                      1577  3411 
                                      1577  3412 	newpage <Initialization>
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page 149
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page 149
 V1.01                           Initialization                           10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                                      1577       	.sbttl	Initialization
@@ -8610,7 +8610,7 @@ V1.01                           Initialization                           10-AUG-
                                      1614  3465 	$close	fab=v_infab		; yes, close file
                                      1614       		$RMSCALL	CLOSE,v_infab,,
                                      1614       	.GLOBL	SYS$CLOSE
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page 150
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page 150
 V1.01                           Initialization                           10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                                      1614       	.IF	B <v_infab>
@@ -8670,7 +8670,7 @@ V1.01                           Initialization                           10-AUG-
                                      165B  3477 
                                      165B  3478 ;
                                      165B  3479 ; The following is also done during a cold start.
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page 151
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page 151
 V1.01                           Initialization                           10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                                      165B  3480 ;
@@ -8681,7 +8681,7 @@ V1.01                           Initialization                           10-AUG-
                                      1669  3485 
                                      1669  3486 
                                      1669  3487 	newpage <Interpreter>
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page 152
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page 152
 V1.01                           Interpreter                              10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                                      1669       	.sbttl	Interpreter
@@ -8741,7 +8741,7 @@ V1.01                           Interpreter                              10-AUG-
               00001D4C'EF   00   90  16DA  3540 	movb	#c_false,v_state	; set v_state false~~~ what does this tell us???
                        EC5A CF   16  16E1  3541 	jsb	i_compile_jsb		; compile a jump to the word whose
                                      16E5  3542 					;   cfa addressis at the top of stack
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page 153
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page 153
 V1.01                           Interpreter                              10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                           FF81   31  16E5  3543 	brw	_interpreter		; everthing ok, do it again
@@ -8786,7 +8786,7 @@ V1.01                           Interpreter                              10-AUG-
                                      176A  3582 
                                      176A  3583 
                                      176A  3584 	newpage <Exit Routines>
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page 154
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page 154
 V1.01                           Exit Routines                            10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                                      176A       	.sbttl	Exit Routines
@@ -8846,7 +8846,7 @@ V1.01                           Exit Routines                            10-AUG-
                                      1790       	.ENDC
                                      1790       	.ENDC
                            000000CF  1790       	.NTYPE	$$.TMP2,v_infile
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page 155
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page 155
 V1.01                           Exit Routines                            10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                            00000070  1790       	.IF	EQ <<$$.TMP2&^XF0>-^X50>
@@ -8874,7 +8874,7 @@ V1.01                           Exit Routines                            10-AUG-
                                      17A9  3613 
                                      17A9  3614 
                                      17A9  3615 	newpage <Dictionary Space>
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page 156
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page 156
 V1.01                           Dictionary Space                         10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                                      17A9       	.sbttl	Dictionary Space
@@ -8903,7 +8903,7 @@ V1.01                           Dictionary Space                         10-AUG-
                                      4C00  3637 ;
                                      4C00  3638 ;*******************************************************************************
                                      4C00  3639 	.end	vtil
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page 157
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page 157
 Symbol table                                                             10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
 $$$ADR                         = 00000060                 C_COM2_END                     = 00000029                 
@@ -8963,7 +8963,7 @@ C_BLOCK_SIZE                   = 00000400                 FAB$V_UPD             
 C_COM1_BEGIN                   = 0000005C                 FAB$W_GBC                      = 00000048                 
 C_COM1_END                     = 00000000                 FILL                             00000568 R     04        
 C_COM2_BEGIN                   = 00000028                 FORGET                           000005B9 R     04        
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page 158
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page 158
 Symbol table                                                             10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
 FREEMEM                          00000667 R     04        I_LESS_EQUAL                     0000024D R     04        
@@ -9023,7 +9023,7 @@ I_HALT                           0000067D R     04        OP_ACBL               
 I_I_TO                           000006C4 R     04        OP_ADDL2                       = 000000C0                 
 I_LEFT_BRACK                     00001420 R     04        OP_BNEQ                        = 00000012                 
 I_LESS                           00000221 R     04        OP_BRW                         = 00000031                 
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page 159
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page 159
 Symbol table                                                             10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
 OP_JSB                         = 00000016                 SYS$EXIT                         ********  G    04        
@@ -9083,7 +9083,7 @@ SWAP                             00000E43 R     04        V_INBUF               
 SYS$ASSIGN                       ********  G    04        V_INFAB                          000019A8 R     02        
 SYS$CLOSE                        ********  G    04        V_INFILE                         00001D47 R     02        
 SYS$CONNECT                      ********  G    04        V_INFILEMESS                     00001890 R     02        
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page 160
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page 160
 Symbol table                                                             10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
 V_INLEN                          00001999 R     02        _UNKNOWNTOKEN                    00001710 R     04        
@@ -9143,7 +9143,7 @@ _STARTFOUND                      00000E94 R     04
 _STRIP_COMMENT                   00001697 R     04        
 _STRIP_COMMENT2                  000016A1 R     04        
 _UNDERFLOW                       000016E8 R     04        
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page 161
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page 161
 Psect synopsis                                                           10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
 
@@ -9159,7 +9159,7 @@ VTILDATA                        00001D56  ( 7510.)  02 (  2.)  NOPIC   USR   CON
 $RMSNAM                         00000018  (   24.)  03 (  3.)  NOPIC   USR   CON   REL   LCL NOSHR   EXE   RD    WRT NOVEC BYTE  
 VTILCODE                        FFFFFFFF  (    0.)  04 (  4.)  NOPIC   USR   CON   REL   LCL NOSHR   EXE   RD  NOWRT NOVEC BYTE  
 VTILDICT                        00004C00  (19456.)  05 (  5.)  NOPIC   USR   CON   REL   LCL NOSHR   EXE   RD    WRT NOVEC BYTE  
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page 162
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page 162
 Cross reference                                                          10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
 
@@ -9219,7 +9219,7 @@ BLOCK                           00000058-R   1220   (1)
 BREAK                           000001C5-R   1343   (1)    
 BUFFER                          000001DF-R   1359   (1)    
 BYTE                            000002BB-R   1444   (1)    
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page 163
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page 163
 Cross reference                                                          10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
 CA_CONTROLC                    =00000000     53     (1)    
@@ -9279,7 +9279,7 @@ C_MAX_BLOCKS                   =00000003     224    (1)    #-1227   (1)    #-123
 C_MAX_ERRS                     =00000014     214    (1)    #-3395   (1)    
 C_MAX_LEN                      =000000A0     228    (1)    #-2173   (1)    #-2406   (1)    #-2805   (1)    #-2817   (1)    
                                                              393    (1)      401    (1)      419    (1)      423    (1)    
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page 164
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page 164
 Cross reference                                                          10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                                                              469    (1)      482    (1)      492    (1)    
@@ -9339,7 +9339,7 @@ IF                              000012FA-R   3148   (1)
 IO$M_CTRLCAST                   00000000-XR                #-3341   (1)    #-3377   (1)      67     (1)    
 IO$_SETMODE                     00000000-XR                #-3341   (1)    #-3377   (1)      67     (1)    
 I_AC_COLON                      000003BE-R   1092   (1)    
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page 165
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page 165
 Cross reference                                                          10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
 I_ADD                           000000C1-R   675    (1)    
@@ -9399,7 +9399,7 @@ I_LOOP                          00001355-R   3192   (1)
 I_LS_TO_DS                      000007CF-R   1952   (1)    
 I_L_UP                          0000131C-R   3164   (1)    
 I_MATCH                         000007DD-R   1961   (1)    
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page 166
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page 166
 Cross reference                                                          10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
 I_MINUS_ROT                     0000010C-R   722    (1)    
@@ -9459,7 +9459,7 @@ NCHR                           =00000007     3295   (1)      1014   (1)      106
                                                              1655   (1)      1677   (1)      1685   (1)      1693   (1)    
                                                              1701   (1)      1723   (1)      1730   (1)      1741   (1)    
                                                              1768   (1)      1794   (1)      1819   (1)      1828   (1)    
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page 167
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page 167
 Cross reference                                                          10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                                                              1837   (1)      1845   (1)      1853   (1)      1865   (1)    
@@ -9519,7 +9519,7 @@ OR                              00000948-R   2135   (1)
 OTS$CVT_L_TI                    00000000-XR                  70     (1)    
 OVER                            00000968-R   2154   (1)    
 PAD                             00000975-R   2164   (1)    
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page 168
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page 168
 Cross reference                                                          10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
 PUTC                            00000987-R   2172   (1)      1485   (1)      2776   (1)      743    (1)    
@@ -9579,7 +9579,7 @@ SYS$UNWIND                      00000000-XR                  3400   (1)
 SYS$UPDATE                      00000000-XR                  1332   (1)    
 S_COLD_START                    00001577-R   3422   (1)      3351   (1)    
 S_TRAP                          0000150D-R   3387   (1)      3318   (1)    
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page 169
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page 169
 Cross reference                                                          10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
 S_WARM_START                    000015BF-R   3441   (1)      3355   (1)    
@@ -9639,7 +9639,7 @@ VL_COMPILER                    =FFFFFFFC     3295   (1)      2893   (1)      291
                                                              3054   (1)      3074   (1)      3095   (1)      3114   (1)    
                                                              3125   (1)      3148   (1)      3164   (1)      3179   (1)    
                                                              3192   (1)      3212   (1)      3223   (1)      3233   (1)    
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page 170
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page 170
 Cross reference                                                          10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                                                              3268   (1)      3287   (1)      3295   (1)    #-3427   (1)    
@@ -9699,7 +9699,7 @@ V_INLEN                         00001999-R   396    (1)      2448   (1)    #-245
 V_INPTR                         0000199B-R   398    (1)    #-2444   (1)      2679   (1)    #-2685   (1)      2690   (1)    
                                                              2698   (1)    #-2699   (1)    #-2705   (1)    
 V_INPUT_CHAN                    00001D11-R   503    (1)      3326   (1)    #-3332   (1)    #-3341   (1)    #-3377   (1)    
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page 171
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page 171
 Cross reference                                                          10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
 V_INPUT_NAME                    00001CFE-R   501    (1)      3326   (1)    
@@ -9759,7 +9759,7 @@ _DONE                           00001790-R   3607   (1)
 _ERROR_EXIT                     0000176A-R   3590   (1)    #-1279   (1)    #-1295   (1)    #-1299   (1)    #-1316   (1)    
                                                            #-1334   (1)    #-1830   (1)    #-2215   (1)    #-2248   (1)    
                                                            #-2457   (1)    
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page 172
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page 172
 Cross reference                                                          10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
 _EXIT                           0000179D-R   3610   (1)    #-1724   (1)    #-2455   (1)    #-3599   (1)    
@@ -9782,7 +9782,7 @@ _STRIP_COMMENT                  00001697-R   3515   (1)    #-3500   (1)
 _STRIP_COMMENT2                 000016A1-R   3521   (1)    #-3502   (1)    
 _UNDERFLOW                      000016E8-R   3546   (1)    #-3537   (1)    
 _UNKNOWNTOKEN                   00001710-R   3560   (1)    #-3512   (1)    
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page 173
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page 173
 Cross reference                                                          10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
 
@@ -9842,7 +9842,7 @@ HEADER            1             298    (1)       1014   (1)       1064   (1)    
                                                  2488   (1)       2514   (1)       2538   (1)       2559   (1)       2578   (1)    
                                                  2607   (1)       2620   (1)       2642   (1)       2654   (1)       2675   (1)    
                                                  2715   (1)       2727   (1)       2737   (1)       2751   (1)       2764   (1)    
-VTIL                            VAX Threaded Interpretive Language       10-AUG-2023 18:19:42  VAX MACRO V5.4-3            Page 174
+VTIL                            VAX Threaded Interpretive Language       12-AUG-2023 14:00:12  VAX MACRO V5.4-3            Page 174
 Cross reference                                                          10-AUG-2023 17:59:31  [MPL.TKB.VTIL]VTIL.MAR;107        (1)
 
                                                  2788   (1)       2804   (1)       2847   (1)       2867   (1)       2893   (1)    
@@ -9871,17 +9871,17 @@ NEWPAGE           1             39     (1)       137    (1)       202    (1)    
 
 Phase                    Page faults    CPU Time       Elapsed Time   
 -----                    -----------    --------       ------------   
-Initialization                   34     00:00:00.02    00:00:00.02
+Initialization                   34     00:00:00.02    00:00:00.04
 Command processing              885     00:00:00.02    00:00:00.02
-Pass 1                          854     00:00:00.54    00:00:00.64
+Pass 1                          827     00:00:00.56    00:00:00.66
 Symbol table sort                 0     00:00:00.04    00:00:00.04
-Pass 2                           84     00:00:00.28    00:00:00.30
+Pass 2                           79     00:00:00.28    00:00:00.30
 Symbol table output               0     00:00:00.00    00:00:00.00
 Psect synopsis output             0     00:00:00.00    00:00:00.00
-Cross-reference output           10     00:00:00.08    00:00:00.08
-Assembler run totals           1871     00:00:00.98    00:00:01.10
+Cross-reference output           10     00:00:00.07    00:00:00.08
+Assembler run totals           1839     00:00:00.99    00:00:01.14
 
-The working set limit was 3350 pages.
+The working set limit was 3200 pages.
 232137 bytes (454 pages) of virtual memory were used to buffer the intermediate code.
 There were 50 pages of symbol table space allocated to hold 720 non-local and 109 local symbols.
 3639 source lines were read in Pass 1, producing 59 object records in Pass 2.

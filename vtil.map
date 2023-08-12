@@ -1,5 +1,5 @@
 
-VTIL.EXE                                                        10-AUG-2023 18:36        VAX-11 Linker V05-13             Page    1
+VTIL.EXE                                                        12-AUG-2023 14:00        VAX-11 Linker V05-13             Page    1
 
                                              +------------------------+
                                              ! Object Module Synopsis !
@@ -7,11 +7,204 @@ VTIL.EXE                                                        10-AUG-2023 18:3
 
 Module Name     Ident              Bytes      File                                Creation Date      Creator
 -----------     -----              -----      -----                               -------------      -------
-VTIL            V1.01               26986 MPL$DATA3:[MPL.TKB.VTIL]VTIL.OBJ;1   10-AUG-2023 18:19  VAX MACRO V5.4-3
+VTIL            V1.01               26986 MPL$DATA3:[MPL.TKB.VTIL]VTIL.OBJ;1   12-AUG-2023 14:00  VAX MACRO V5.4-3
 %LINK-E-OUTSIMG, attempted store location %X00001FFC is outside image binary (%X00002000 to %X02001E00)
 	in psect VTILCODE module VTIL file MPL$DATA3:[MPL.TKB.VTIL]VTIL.OBJ;1
 -LINK-E-NOIMGFIL, image file not created
-VTIL            VERSION 1.0           203 [MPL.TKB.VTIL]VTIL_MSG.OBJ;1         10-AUG-2023 18:19  VAX-11 Message V04-00
+VTIL            VERSION 1.0           203 [MPL.TKB.VTIL]VTIL_MSG.OBJ;1         12-AUG-2023 14:00  VAX-11 Message V04-00
+SYS$IODEF       V04-000                 0 SYS$COMMON:[SYSLIB]STARLET.OLB;6      7-JUL-1992 21:00  VAX MACRO V5.4-3
+SYS$MISCDEF     V04-000                 0 SYS$COMMON:[SYSLIB]STARLET.OLB;6     12-OCT-1991 01:33  VAX MACRO V5.4-3
+LIB$MSGDEF      X-8                     0 SYS$COMMON:[SYSLIB]STARLET.OLB;6      7-JUL-1992 20:45  VAX-11 Message V04-00
+RMS$GLOBALS     X-1                     0 SYS$COMMON:[SYSLIB]STARLET.OLB;6     12-OCT-1991 00:42  VAX MACRO V5.4-3
+SYS$P1_VECTOR   X-4                     0 SYS$COMMON:[SYSLIB]STARLET.OLB;6      7-JUL-1992 22:35  VAX MACRO V5.4-3
+LIBRTL          V05-001                 0 SYS$COMMON:[SYSLIB]LIBRTL.EXE;6       8-JUL-1992 00:46  VAX-11 Linker V05-13
+TPUSHR          V02-006                 0 SYS$COMMON:[SYSLIB]TPUSHR.EXE;2       8-JUL-1992 01:05  VAX-11 Linker V05-13
+UVMTHRTL        V05-005                 0 SYS$COMMON:[SYSLIB]UVMTHRTL.EXE;5     8-JUL-1992 00:49  VAX-11 Linker V05-13
+
+VTIL.EXE                                                        12-AUG-2023 14:00        VAX-11 Linker V05-13             Page    2
+
+                                             +------------------------+
+                                             ! Image Section Synopsis !
+                                             +------------------------+
+
+   Cluster      Type Pages   Base Addr  Disk VBN PFC Protection and Paging      Global Sec. Name   Match     Majorid   Minorid
+   -------      ---- -----   ---------  -------- --- ---------------------      ----------------   -----     -------   -------
+
+DEFAULT_CLUSTER    0    15    00000200          0   0 READ WRITE   COPY ON REF
+                   0 65535    00002000          0   0 READ ONLY    
+                   0 65535    02001E00          0   0 READ ONLY    
+                   0 65535    04001C00          0   0 READ ONLY    
+                   0 65535    06001A00          0   0 READ ONLY    
+                   0 65535    08001800          0   0 READ ONLY    
+                   0 65535    0A001600          0   0 READ ONLY    
+                   0 65535    0C001400          0   0 READ ONLY    
+                   0 65535    0E001200          0   0 READ ONLY    
+                   0 65535    10001000          0   0 READ ONLY    
+                   0 65535    12000E00          0   0 READ ONLY    
+                   0 65535    14000C00          0   0 READ ONLY    
+                   0 65535    16000A00          0   0 READ ONLY    
+                   0 65535    18000800          0   0 READ ONLY    
+                   0 65535    1A000600          0   0 READ ONLY    
+                   0 65535    1C000400          0   0 READ ONLY    
+                   0 65535    1E000200          0   0 READ ONLY    
+                   0 65535    20000000          0   0 READ ONLY    
+                   0 65535    21FFFE00          0   0 READ ONLY    
+                   0 65535    23FFFC00          0   0 READ ONLY    
+                   0 65535    25FFFA00          0   0 READ ONLY    
+                   0 65535    27FFF800          0   0 READ ONLY    
+                   0 65535    29FFF600          0   0 READ ONLY    
+                   0 65535    2BFFF400          0   0 READ ONLY    
+                   0 65535    2DFFF200          0   0 READ ONLY    
+                   0 65535    2FFFF000          0   0 READ ONLY    
+                   0 65535    31FFEE00          0   0 READ ONLY    
+                   0 65535    33FFEC00          0   0 READ ONLY    
+                   0 65535    35FFEA00          0   0 READ ONLY    
+                   0 65535    37FFE800          0   0 READ ONLY    
+                   0 65535    39FFE600          0   0 READ ONLY    
+                   0 65535    3BFFE400          0   0 READ ONLY    
+                   0 65535    3DFFE200          0   0 READ ONLY    
+                   0 65535    3FFFE000          0   0 READ ONLY    
+                   0 65535    41FFDC00          0   0 READ ONLY    
+                   0 65535    43FFDA00          0   0 READ ONLY    
+                   0 65535    45FFD800          0   0 READ ONLY    
+                   0 65535    47FFD600          0   0 READ ONLY    
+                   0 65535    49FFD400          0   0 READ ONLY    
+                   0 65535    4BFFD200          0   0 READ ONLY    
+                   0 65535    4DFFD000          0   0 READ ONLY    
+                   0 65535    4FFFCE00          0   0 READ ONLY    
+                   0 65535    51FFCC00          0   0 READ ONLY    
+                   0 65535    53FFCA00          0   0 READ ONLY    
+                   0 65535    55FFC800          0   0 READ ONLY    
+                   0 65535    57FFC600          0   0 READ ONLY    
+                   0 65535    59FFC400          0   0 READ ONLY    
+                   0 65535    5BFFC200          0   0 READ ONLY    
+
+VTIL.EXE                                                        12-AUG-2023 14:00        VAX-11 Linker V05-13             Page    3
+
+
+   Cluster      Type Pages   Base Addr  Disk VBN PFC Protection and Paging      Global Sec. Name   Match     Majorid   Minorid
+   -------      ---- -----   ---------  -------- --- ---------------------      ----------------   -----     -------   -------
+                   0 65535    5DFFC000          0   0 READ ONLY    
+                   0 65535    5FFFBE00          0   0 READ ONLY    
+                   0 65535    61FFBC00          0   0 READ ONLY    
+                   0 65535    63FFBA00          0   0 READ ONLY    
+                   0 65535    65FFB800          0   0 READ ONLY    
+                   0 65535    67FFB600          0   0 READ ONLY    
+                   0 65535    69FFB400          0   0 READ ONLY    
+                   0 65535    6BFFB200          0   0 READ ONLY    
+                   0 65535    6DFFB000          0   0 READ ONLY    
+                   0 65535    6FFFAE00          0   0 READ ONLY    
+                   0 65535    71FFAC00          0   0 READ ONLY    
+                   0 65535    73FFAA00          0   0 READ ONLY    
+                   0 65535    75FFA800          0   0 READ ONLY    
+                   0 65535    77FFA600          0   0 READ ONLY    
+                   0 65535    79FFA400          0   0 READ ONLY    
+                   0 65535    7BFFA200          0   0 READ ONLY    
+                   0 65535    7DFFA000          0   0 READ ONLY    
+                   0 65535    7FFF9E00          0   0 READ ONLY    
+                   0 65535    81FF9E00          0   0 READ ONLY    
+                   0 65535    83FF9C00          0   0 READ ONLY    
+                   0 65535    85FF9A00          0   0 READ ONLY    
+                   0 65535    87FF9800          0   0 READ ONLY    
+                   0 65535    89FF9600          0   0 READ ONLY    
+                   0 65535    8BFF9400          0   0 READ ONLY    
+                   0 65535    8DFF9200          0   0 READ ONLY    
+                   0 65535    8FFF9000          0   0 READ ONLY    
+                   0 65535    91FF8E00          0   0 READ ONLY    
+                   0 65535    93FF8C00          0   0 READ ONLY    
+                   0 65535    95FF8A00          0   0 READ ONLY    
+                   0 65535    97FF8800          0   0 READ ONLY    
+                   0 65535    99FF8600          0   0 READ ONLY    
+                   0 65535    9BFF8400          0   0 READ ONLY    
+                   0 65535    9DFF8200          0   0 READ ONLY    
+                   0 65535    9FFF8000          0   0 READ ONLY    
+                   0 65535    A1FF7E00          0   0 READ ONLY    
+                   0 65535    A3FF7C00          0   0 READ ONLY    
+                   0 65535    A5FF7A00          0   0 READ ONLY    
+                   0 65535    A7FF7800          0   0 READ ONLY    
+                   0 65535    A9FF7600          0   0 READ ONLY    
+                   0 65535    ABFF7400          0   0 READ ONLY    
+                   0 65535    ADFF7200          0   0 READ ONLY    
+                   0 65535    AFFF7000          0   0 READ ONLY    
+                   0 65535    B1FF6E00          0   0 READ ONLY    
+                   0 65535    B3FF6C00          0   0 READ ONLY    
+                   0 65535    B5FF6A00          0   0 READ ONLY    
+                   0 65535    B7FF6800          0   0 READ ONLY    
+                   0 65535    B9FF6600          0   0 READ ONLY    
+                   0 65535    BBFF6400          0   0 READ ONLY    
+                   0 65535    BDFF6200          0   0 READ ONLY    
+                   0 65535    BFFF6000          0   0 READ ONLY    
+                   0 65535    C1FF5C00          0   0 READ ONLY    
+                   0 65535    C3FF5A00          0   0 READ ONLY    
+
+VTIL.EXE                                                        12-AUG-2023 14:00        VAX-11 Linker V05-13             Page    4
+
+
+   Cluster      Type Pages   Base Addr  Disk VBN PFC Protection and Paging      Global Sec. Name   Match     Majorid   Minorid
+   -------      ---- -----   ---------  -------- --- ---------------------      ----------------   -----     -------   -------
+                   0 65535    C5FF5800          0   0 READ ONLY    
+                   0 65535    C7FF5600          0   0 READ ONLY    
+                   0 65535    C9FF5400          0   0 READ ONLY    
+                   0 65535    CBFF5200          0   0 READ ONLY    
+                   0 65535    CDFF5000          0   0 READ ONLY    
+                   0 65535    CFFF4E00          0   0 READ ONLY    
+                   0 65535    D1FF4C00          0   0 READ ONLY    
+                   0 65535    D3FF4A00          0   0 READ ONLY    
+                   0 65535    D5FF4800          0   0 READ ONLY    
+                   0 65535    D7FF4600          0   0 READ ONLY    
+                   0 65535    D9FF4400          0   0 READ ONLY    
+                   0 65535    DBFF4200          0   0 READ ONLY    
+                   0 65535    DDFF4000          0   0 READ ONLY    
+                   0 65535    DFFF3E00          0   0 READ ONLY    
+                   0 65535    E1FF3C00          0   0 READ ONLY    
+                   0 65535    E3FF3A00          0   0 READ ONLY    
+                   0 65535    E5FF3800          0   0 READ ONLY    
+                   0 65535    E7FF3600          0   0 READ ONLY    
+                   0 65535    E9FF3400          0   0 READ ONLY    
+                   0 65535    EBFF3200          0   0 READ ONLY    
+                   0 65535    EDFF3000          0   0 READ ONLY    
+                   0 65535    EFFF2E00          0   0 READ ONLY    
+                   0 65535    F1FF2C00          0   0 READ ONLY    
+                   0 65535    F3FF2A00          0   0 READ ONLY    
+                   0 65535    F5FF2800          0   0 READ ONLY    
+                   0 65535    F7FF2600          0   0 READ ONLY    
+                   0 65535    F9FF2400          0   0 READ ONLY    
+                   0 65535    FBFF2200          0   0 READ ONLY    
+                   0 65535    FDFF2000          0   0 READ ONLY    
+                   0   128    FFFF1E00          0   0 READ ONLY    
+                   0    39    00002000          0   0 READ WRITE   COPY ON REF
+                   0     1    00006E00          0   0 READ ONLY    
+                   0     1    00007000          0   0 READ WRITE   FIXUP VECTORS
+                 253    20    7FFFD800          0   0 READ WRITE DEMAND ZERO  
+
+LIBRTL             3   195    00000000-R        2   0 READ ONLY                  LIBRTL_001       LESS/EQUAL        1        14
+                   4     8    00018600-R        0   0 READ WRITE DEMAND ZERO     LIBRTL_002       LESS/EQUAL        1        14
+
+TPUSHR             3   488    00000000-R        2   0 READ ONLY                  TPUSHR_001       LESS/EQUAL        2         6
+                   4     3    0003D000-R      490   0 READ WRITE   COPY ON REF   TPUSHR_002       LESS/EQUAL        2         6
+                   4    24    0003D600-R        0   0 READ WRITE DEMAND ZERO     TPUSHR_003       LESS/EQUAL        2         6
+                   4     1  P-00040600-R      493   0 READ WRITE   COPY ON REF   TPUSHR_004       LESS/EQUAL        2         6
+                   2     1    00040800-R      494   0 READ WRITE   FIXUP VECTORS TPUSHR_005       LESS/EQUAL        2         6
+
+MTHRTL             3   335    00000000-R        2   0 READ ONLY                  MTHRTL_001       LESS/EQUAL      129     32780
+                   2     1    00029E00-R      337   0 READ WRITE   FIXUP VECTORS MTHRTL_002       LESS/EQUAL      129     32780
+
+VTIL.EXE                                                        12-AUG-2023 14:00        VAX-11 Linker V05-13             Page    5
+
+
+   Cluster      Type Pages   Base Addr  Disk VBN PFC Protection and Paging      Global Sec. Name   Match     Majorid   Minorid
+   -------      ---- -----   ---------  -------- --- ---------------------      ----------------   -----     -------   -------
+
+
+
+
+	  Key for special characters above:
+		+------------------+
+		! R  - Relocatable !
+		! P  - Protected   !
+		+------------------+
+
+VTIL.EXE                                                        12-AUG-2023 14:00        VAX-11 Linker V05-13             Page    6
 
                                             +--------------------------+
                                             ! Program Section Synopsis !
@@ -19,22 +212,32 @@ VTIL            VERSION 1.0           203 [MPL.TKB.VTIL]VTIL_MSG.OBJ;1         1
 
 Psect Name      Module Name       Base     End           Length            Align                 Attributes
 ----------      -----------       ----     ---           ------            -----                 ----------
+
 VTILDATA                        00000200 00001F55 00001D56 (       7510.) LONG 2 NOPIC,USR,CON,REL,LCL,NOSHR,NOEXE,  RD,  WRT,NOVEC
                 VTIL            00000200 00001F55 00001D56 (       7510.) LONG 2
+
 $RMSNAM                         00002000 00002017 00000018 (         24.) BYTE 0 NOPIC,USR,CON,REL,LCL,NOSHR,  EXE,  RD,  WRT,NOVEC
                 VTIL            00002000 00002017 00000018 (         24.) BYTE 0
+
 VTILCODE                        00002000 00001FFB FFFFFFFC ( 4294967292.) BYTE 0 NOPIC,USR,CON,REL,LCL,NOSHR,  EXE,  RD,NOWRT,NOVEC
                 VTIL            00002000 00001FFB FFFFFFFC ( 4294967292.) BYTE 0
+
 VTILDICT                        00002018 00006C17 00004C00 (      19456.) BYTE 0 NOPIC,USR,CON,REL,LCL,NOSHR,  EXE,  RD,  WRT,NOVEC
                 VTIL            00002018 00006C17 00004C00 (      19456.) BYTE 0
+
 MSG$AAAAAAAAAAA                 00006E00 00006E0F 00000010 (         16.) LONG 2   PIC,USR,OVR,REL,LCL,NOSHR,NOEXE,  RD,NOWRT,  VEC
                 VTIL            00006E00 00006E0F 00000010 (         16.) LONG 2
+
 MSG$AAAAAAAAAAB                 00006E10 00006E13 00000004 (          4.) LONG 2   PIC,USR,CON,REL,LCL,NOSHR,NOEXE,  RD,NOWRT,  VEC
                 VTIL            00006E10 00006E13 00000004 (          4.) LONG 2
+
 MSG$AAAAAAAAAAC                 00006E14 00006E17 00000004 (          4.) LONG 2   PIC,USR,OVR,REL,LCL,NOSHR,NOEXE,  RD,NOWRT,  VEC
                 VTIL            00006E14 00006E17 00000004 (          4.) LONG 2
+
 MSG$SECTION                     00006E18 00006ECA 000000B3 (        179.) BYTE 0   PIC,USR,CON,REL,LCL,NOSHR,NOEXE,  RD,NOWRT,  VEC
                 VTIL            00006E18 00006ECA 000000B3 (        179.) BYTE 0
+
+VTIL.EXE                                                        12-AUG-2023 14:00        VAX-11 Linker V05-13             Page    7
 
                                                 +-----------------+
                                                 ! Symbols By Name !
@@ -42,21 +245,83 @@ MSG$SECTION                     00006E18 00006ECA 000000B3 (        179.) BYTE 0
 
 Symbol          Value              Symbol          Value              Symbol          Value              Symbol          Value
 ------          -----              ------          -----              ------          -----              ------          -----
+DC$_TERM        00000042           
+DSC$K_CLASS_S   00000001           
+DSC$K_DTYPE_T   0000000E           
 ENABLE_CTRLC    000034D9-R         
+IO$M_CTRLCAST   00000100           
+IO$_SETMODE     00000023           
+LIB$GET_INPUT   0000704C-RX        
+LIB$PUT_OUTPUT  00007050-RX        
+LIB$SIGNAL      00007054-RX        
+LIB$_INPSTRTRU  0015821C           
+OTS$CVT_L_TI    00007048-RX        
+RMS$_EOF        0001827A           
+RMS$_FNF        00018292           
+SYS$ASSIGN      7FFEDE50           
+SYS$CLOSE       7FFEE1B8           
+SYS$CONNECT     7FFEE1C0           
+SYS$EXIT        7FFEDF40           
+SYS$FIND        7FFEE170           
+SYS$GET         7FFEE180           
+SYS$GETCHN      7FFEE0C8           
+SYS$IMGSTA      7FFEDF68           
+SYS$OPEN        7FFEE208           
+SYS$PUTMSG      7FFEE0E0           
+SYS$QIO         7FFEDFC8           
+SYS$UNWIND      7FFEE070           
+SYS$UPDATE      7FFEE1A0           
 S_COLD_START    00003577-R         
 S_TRAP          0000350D-R         
 S_WARM_START    000035BF-R         
+TPU$TPU         00007060-RX        
 VTIL            00003444-R         
 VTIL$_FACILITY  00000801           
 VTIL_CTRLC      0801800A           
 VTIL_MAXERRORS  08018012           
 
-VTIL.EXE                                                        10-AUG-2023 18:36        VAX-11 Linker V05-13             Page    2
+VTIL.EXE                                                        12-AUG-2023 14:00        VAX-11 Linker V05-13             Page    8
 
+                                                +------------------+
+                                                ! Symbols By Value !
+                                                +------------------+
 
-Symbol          Value              Symbol          Value              Symbol          Value              Symbol          Value
-------          -----              ------          -----              ------          -----              ------          -----
-
+Value                                   Symbols...
+-----                                   ----------
+00000001       DSC$K_CLASS_S 
+0000000E       DSC$K_DTYPE_T 
+00000023       IO$_SETMODE   
+00000042       DC$_TERM      
+00000100       IO$M_CTRLCAST 
+00000801       VTIL$_FACILITY
+00003444     R-VTIL          
+000034D9     R-ENABLE_CTRLC  
+0000350D     R-S_TRAP        
+00003577     R-S_COLD_START  
+000035BF     R-S_WARM_START  
+00007048    RX-OTS$CVT_L_TI  
+0000704C    RX-LIB$GET_INPUT 
+00007050    RX-LIB$PUT_OUTPUT
+00007054    RX-LIB$SIGNAL    
+00007060    RX-TPU$TPU       
+0001827A       RMS$_EOF      
+00018292       RMS$_FNF      
+0015821C       LIB$_INPSTRTRU
+0801800A       VTIL_CTRLC    
+08018012       VTIL_MAXERRORS
+7FFEDE50       SYS$ASSIGN    
+7FFEDF40       SYS$EXIT      
+7FFEDF68       SYS$IMGSTA    
+7FFEDFC8       SYS$QIO       
+7FFEE070       SYS$UNWIND    
+7FFEE0C8       SYS$GETCHN    
+7FFEE0E0       SYS$PUTMSG    
+7FFEE170       SYS$FIND      
+7FFEE180       SYS$GET       
+7FFEE1A0       SYS$UPDATE    
+7FFEE1B8       SYS$CLOSE     
+7FFEE1C0       SYS$CONNECT   
+7FFEE208       SYS$OPEN      
 
 
 
@@ -69,7 +334,7 @@ Symbol          Value              Symbol          Value              Symbol    
 		! WK - Weak        !
 		+------------------+
 
-VTIL.EXE                                                        10-AUG-2023 18:36        VAX-11 Linker V05-13             Page    3
+VTIL.EXE                                                        12-AUG-2023 14:00        VAX-11 Linker V05-13             Page    9
 
                                                  +----------------+
                                                  ! Image Synopsis !
@@ -88,23 +353,23 @@ User transfer address:                            00003444
 Debugger transfer address:                        7FFEDF68
 Number of code references to shareable images:           5.
 Image type:                                       EXECUTABLE.
-Map format:                                       DEFAULT in file MPL$DATA3:[MPL.TKB.VTIL]VTIL.MAP;2
-Estimated map length:                             98. blocks
+Map format:                                       FULL in file MPL$DATA3:[MPL.TKB.VTIL]VTIL.MAP;1
+Estimated map length:                             187. blocks
                                               +---------------------+
                                               ! Link Run Statistics !
                                               +---------------------+
 
 Performance Indicators                            Page Faults	CPU Time	Elapsed Time
 ----------------------                            -----------	--------	------------
-    Command processing:                                   108	00:00:00.00	00:00:00.00
-    Pass 1:                                               294	00:00:00.07	00:00:00.24
-    Allocation/Relocation:                                 58	00:00:00.01	00:00:00.02
-    Pass 2:                                               565	00:00:00.02	00:00:00.02
-    Map data after object module synopsis:                 10	00:00:00.00	00:00:00.00
-    Symbol table output:                                    0	00:00:00.00	00:00:00.00
-Total run values:                                        1035	00:00:00.10	00:00:00.28
+    Command processing:                                    66	00:00:00.00	00:00:00.00
+    Pass 1:                                               314	00:00:00.10	00:00:00.48
+    Allocation/Relocation:                                 64	00:00:00.00	00:00:00.00
+    Pass 2:                                               588	00:00:00.02	00:00:00.04
+    Map data after object module synopsis:                 11	00:00:00.00	00:00:00.00
+    Symbol table output:                                    0	00:00:00.00	00:00:00.02
+Total run values:                                        1043	00:00:00.12	00:00:00.54
 
-Using a working set limited to 2000 pages and 940 pages of data storage (excluding image)
+Using a working set limited to 2000 pages and 990 pages of data storage (excluding image)
 
 Total number object records read (both passes):   565
     of which 206 were in libraries and 3 were DEBUG data records containing 209 bytes
@@ -117,4 +382,4 @@ Number of modules extracted explicitly             = 0
 
 A total of 0 global symbol table records was written
 
-LINK/EXEC=VTIL.EXE/MAP/EXE=VTIL.EXE VTIL.OBJ,VTIL_MSG.OBJ
+LINK/MAP/FULL/EXE=VTIL.EXE VTIL.OBJ,VTIL_MSG.OBJ

@@ -1,0 +1,16 @@
+VTIL_MSG                        Message definitions          12-AUG-2023 14:00:13  VAX-11 Message V04-00                   Page   1
+                                                             10-AUG-2023 18:16:31  MPL$DATA3:[MPL.TKB.VTIL]VTIL_MSG.MSG;2      
+ 
+                                      1 .TITLE VTIL Messages
+                                      2 .IDENT 'VERSION 1.0'
+                         00000801     3 .FACILITY VTIL,1 /PREFIX=VTIL_
+                                      4 
+                                      5 .SEVERITY ERROR
+                         0801800A     6     CTRLC     <The user pressed Ctrl/C>
+                         08018012     7     MAXERRORS <The maximum number of errors has been exceeded>
+                                      8 
+                                      9 
+                                     10 .END
+
+There were 0 errors, 0 warnings, and 0 informational messages issued.
+MESSAGE/LIST/OBJECT=VTIL_MSG.OBJ VTIL_MSG.MSG

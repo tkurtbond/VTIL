@@ -26,3 +26,8 @@ repository for reference:
 
     https://github.com/tkurtbond/VTIL-pictures
 
+
+Discussions of the difficulty I had compiling this once I'd gotten it
+all typed in:
+
+    https://groups.google.com/g/comp.os.vms/c/we6prnOvzRs/m/uaYgYoYZAwAJ
