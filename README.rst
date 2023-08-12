@@ -15,3 +15,14 @@ and the source code (on 132 character wide green bar paper; such
 nostalgia!) came to light, so now I'm going to type it all in again,
 for posterity.
 
+I had to take pictures of the source code to VTIL.MAR because my eyes
+are no longer able to read from the top of a bifold of the wide green
+bar paper to the bottom at any sensible distance.  So instead of
+looking at two sheets of the wide green bar paper at a time on a desk,
+I looked at a picture of one sheet in an image viewer, and was able to
+enlarge the picture if necessary to figure out details when the ink on
+the paper had faded.  Those pictures are available in a companion
+repository for reference:
+
+    https://github.com/tkurtbond/VTIL-pictures
+
