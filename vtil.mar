@@ -269,7 +269,7 @@ adm_absolute	= ^x9f			; absolute mode
 adm_b_rel	= ^xaf			; byte relative
 
 ;
-; Assembly-tie vocabulary links -- symbols used during assembly to link
+; Assembly-time vocabulary links -- symbols used during assembly to link
 ;	the starting vocabularies together.   These start out at 0 so that
 ;	all vocabularies will end with a null pointer.	During assembly,
 ;	each link holds the address of the link fields of the most recently
@@ -297,7 +297,7 @@ vl_kernel = 0		   ; Links the kernel vocabulary together
 ;!---
 	.macro	header	macname,name=<>,branch=v1_kernel
 	.long	branch		; back link to the previous word in this branch
-	branch = -4		; where to link the next word to in this branch
+	branch = . - 4		; where to link the next word to in this branch
 	.nchr  nchr, ^\name\	; nchr = length( name )
 	.if    le, nchr		; nchr <= 0
 	   .ascic \macname\	; no auxillary name, use principle one
