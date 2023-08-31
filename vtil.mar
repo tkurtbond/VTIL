@@ -46,11 +46,11 @@
 ; Conditional Assembly Control Symbols
 ;
 ;******************************************************************************
-ca_trapping = 0		; If this is defined, code for a condition handler
+;ca_trapping = 0		; If this is defined, code for a condition handler
 			; is assembled.	 We don't always want the condition
 			; handler because it also catched breakpoints in the
 			; debugger.
-ca_controlc = 0		; If this is defined, code to trap control/c and
+;ca_controlc = 0		; If this is defined, code to trap control/c and
 			; return to the VTIL interpreter is assembled.
 			; Note that this uses the trapping so it is useless
 			; if `ca_trapping' is not defined.
@@ -295,7 +295,7 @@ vl_kernel = 0		   ; Links the kernel vocabulary together
 ;	the macro source code should have backslashes in their names.
 ;
 ;!---
-	.macro	header	macname,name=<>,branch=v1_kernel
+	.macro	header	macname,name=<>,branch=vl_kernel
 	.long	branch		; back link to the previous word in this branch
 	branch = . - 4		; where to link the next word to in this branch
 	.nchr  nchr, ^\name\	; nchr = length( name )
@@ -670,7 +670,7 @@ _kernel_begin:
 
 
 ;+++t
-;k> + -- ( n1 n2 -- n3 ) add the top two stack items, leave result on stack.
+;k> + -- ( n1 n2 -- n3 ) add the top two stack items, leave result on stack.~~~ Why i_add and not i_plus???
 ;---
 	header	i_add,<+>
 	addl2	(r11)+,(r11)		; add them and leave the result on stack
@@ -864,7 +864,7 @@ _kernel_begin:
 ;k> <# -- ( -- ) start numeric output conversion.
 ;---
 	header	i_less_sharp,^\<#\
-	addl3	r9,c_pad_moat,v_hld	; pad hld !
+	addl3	r9,#c_pad_moat,v_hld	; pad hld !
 	rsb				; end of <#
 
 
@@ -1024,7 +1024,7 @@ _kernel_begin:
 ; of word `x'.	However, as it stands it allows easy recursion.
 ;??? changed to eliminate recusion by default, as that is probably more
 ; useful, since RECURSE is a simple way to get recusion.
-;??? The problem with this is that if you switch ocabularies while defining
+;??? The problem with this is that if you switch vocabularies while defining
 ; a word, the new vocab (which you want to search from the first) also is
 ; searched from the second word.  Perhaps I should set the smudge bit (gasp!
 ; Horrors!).
@@ -1170,7 +1170,7 @@ _kernel_begin:
 ;+++
 ;k> b@ -- ( a -- b ) Fetch byte from address `a'.
 ;---
-	header	i_b_fetch,<b@>.
+	header	i_b_fetch,<b@>
 	movzbl	@(r11),(r11)
 	rsb				; end of b@
 
@@ -1554,10 +1554,10 @@ _kernel_begin:
 ;---
 	header	cr
 	movab	v_outbuf,-(r11)		; move address of output buffer on stack
-	movzwl	v_outbuf,-(r11)		; put count on stack
+	movzwl	v_outlen,-(r11)		; put count on stack
 	movw	v_static_dsc,2(r11)	; put middle of descriptor on ~~~ Is this correct?
 	pushl	r11			; push address of output descriptor
-	calls	#1,g^lib$put_output	; output it
+	calls	#1,g^lib$put_output	; output it~~~ Really should check the return value!!!
 	addl2	#8,r11			; pop descriptor off stack
 	clrw	v_outlen		; clear output length
 	rsb				; end of cr
@@ -1848,7 +1848,7 @@ _kernel_begin:
 
 
 ;+++
-;k> hold -- ( -- ) Insert `c' in current numeric output string.
+;k> hold -- ( c -- ) Insert `c' in current numeric output string.
 ;---
 	header	hold
 	decl	v_hld			; move pointer down one char
@@ -2110,7 +2110,7 @@ _check_base:
 	tstl	r7			; count = 0?
 	bgtr	_number_top		; no, do it again
 	tstl	r1			; negative?
-	bgtr	20$			; no
+	beql	20$			; no
 	mnegl	r0,r0			; yes, negate it.
 20$:
 	movl	r0,-(r11)		; put result on stack
@@ -3040,7 +3040,7 @@ compiler_begin:
 	movl	r9,-(r10)		; save address to put branch
 					;   displacement at on loop stack
 	movw	#0,(r9)+		; save space for the displacement
-	movl	49,-(r10)		; save address of data start on loop
+	movl	r9,-(r10)		; save address of data start on loop
 					;   stack to calculate data length
 	rsb				; end of defer<
 
@@ -3345,7 +3345,7 @@ _compiler_end:
 ;	$dassign_s chan=v_input_chan    ; channel not a terminal, deassign it.
 6$:
     .if_false
-        print ; Control/c trapping not enabled
+        .print ; Control/c trapping not enabled
     .endc
 
 	calls	#0,s_cold_start		; call subroutine to start from scratch
@@ -3441,10 +3441,10 @@ vtil_exit:
 	.entry	s_warm_start,^m<>
 ; only greet user if entered from main program.  Otherwise we are recovering
 ; from an internal error and are only patching, not recovering from a trap.
-	pushaq	   v_greeting
-	calls	   #1,g^lib$put_output	; greet user
-	moval	   v_kernel,v_context	; Initialize context
-	moval	   v_kernel,v_current	; Initialize current
+	pushaq	v_greeting
+	calls	#1,g^lib$put_output	; greet user
+	moval	v_kernel,v_context	; Initialize context
+	moval	v_kernel,v_current	; Initialize current
 ;+++
 ;r> warm_start -- so we can brw to it as well as call it
 ;---
@@ -3620,7 +3620,7 @@ _exit:
 ;*******************************************************************************
 	.psect	vtildict
 c_dict_begin:
-	. = .+<16 * 1024>		; reserve space for dictinary~~~ why not a constant
+	. = .+<16 * 1024>		; reserve space for dictinary~~~ why not a constant???
 c_dict_end:
 
 
@@ -3628,7 +3628,7 @@ c_dict_end:
 ; Block i/o buffers -- Here because that is the safest place for them.
 ;
 v_blkbuff:
-	.blkb	c_max_blocks * c_block_size ; buffer for block i/o
+	.blkb	c_max_blocks * c_block_size ; buffers for block i/o
 
 
 ;*******************************************************************************
