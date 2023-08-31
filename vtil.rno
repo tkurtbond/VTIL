@@ -238,7 +238,7 @@ calculation is done on the stack, eliminating the need for temporary
 variables.  Only the initial value and the final result need
 variables, and then only at the beginning or end of the calculation.
 Indeed, variables are often not needed even then, since most words
-receive their initial data laready on the data stack.  However, VTIL
+receive their initial data already on the data stack.  However, VTIL
 is flexible, so in those cases that you must work with a variable,
 incrementing a counter or some such, there are other, more convieniet
 ways to deal directly with the value of a variable.  For instance, the
@@ -1034,7 +1034,7 @@ contains the length of the text and whose text starts at the third byte.
 _cr                                                          ( -- )
 .FILL
 .SKIP 1
-Start new outp9ut line at the terminal (carriage return).
+Start new output line at the terminal (carriage return).
 .SKIP 2
 .NF
 _create                                                      ( -- )
@@ -1074,7 +1074,7 @@ Drop the top stack item.
 _ds>ls                                                     ( n -- )
 .FILL
 .SKIP 1
-Move the top of the data stac, "n", to loop stack.
+Move the top of the data stack, "n", to loop stack.
 .SKIP 2
 .NF
 _dup                                                   ( n -- n n )
