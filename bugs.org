@@ -1,0 +1,4 @@
+* TODO i_dot "movl (r11),-(r10)" seems to put @r11 in @r10+1 instead of @r10?
+  But it puts it back correctly later, so I'm moving on.
+* TODO { 2147483648 . } => -����������
+* TODO { : x   1 2 + . ; x } => Unknown token { x } in line:...
