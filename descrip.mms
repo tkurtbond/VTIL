@@ -1,6 +1,6 @@
 MSGFLAGS=/LIST/OBJECT=$(MMS$TARGET_NAME)$(OBJ)
-MFLAGS=/LIST/CROSS/OBJECT=$(MMS$TARGET_NAME)$(OBJ)/show=expansion
-LINKFLAGS=/MAP/FULL
+MFLAGS=/DEBUG/LIST/CROSS/OBJECT=$(MMS$TARGET_NAME)$(OBJ)/show=expansion
+LINKFLAGS=/DEBUG/MAP/FULL
 
 all : vtil.exe vtil.mem vtil-nopaging.doc
 
@@ -15,8 +15,13 @@ vtil-nopaging.mem : vtil.rno
 vtil-nopaging.doc : vtil-nopaging.mem
         @stripcrlf $(MMS$SOURCE) $(MMS$TARGET)
 
-clean : 
-        del/log *.exe.*,*.obj.*,*.lis.*,*.map.*,*.mem.*,*.doc.*
+clean : codeclean docclean
+
+codeclean : 
+        del/log *.exe.*,*.obj.*,*.lis.*,*.map.*
+
+docclean : 
+        del/log *.mem.*,*.doc.*
 
 ! Include the *.LIS *.MAP files, because I can't generate them except
 ! on vms.
