@@ -1,6 +1,11 @@
 # This makefile doesn't run on VAX/VMS.  It is only used for tasks done on 
 # Unix machines where working with the git repository is done.
 
+all: vtil-paper.pdf
+
+vtil-paper.pdf: vtil-paper.ltx
+	latexmk -pdf $<
+
 zipsrc:
 	cd .. && \
 		zip vtil-unix-$$(date -Idate).zip VTIL \
