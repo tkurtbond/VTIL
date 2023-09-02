@@ -1,3 +1,3 @@
 #! /usr/bin/env bash
 
-enscript -o - -C --font=Courier9 ~/Repos/VTIL/vtil.mar | ps2pdf - ~/tmp/vtil-mar.pdf
+enscript -o - -C --font=Courier8 --margins=72 vtil.mar | ps2pdf - ~/tmp/vtil-mar.pdf
