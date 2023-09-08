@@ -1,5 +1,5 @@
 ;
-.title	VTIL VAX Threaded Interpretive Language
+	.title	VTIL -- VAX Threaded Interpretive Language
 	.ident	/v1.01/			; version number
 ;******************************************************************************
 ;
@@ -420,7 +420,7 @@ v_inrab:
 v_fnamelen:
 	.byte	0		; length of file name for { load }
 v_fname:
-	.blkb	c_max_len	; buffer for fil ename for {load}
+	.blkb	c_max_len	; buffer for file name for { load }
 
 
 ;
@@ -486,7 +486,7 @@ v_outbuf:
 ; Variables for calling the EVE editor using its callable interface.
 ;
 v_tpu_com:			; buffer for constant section of command
-	.ascii	\tpu/section=eve$dir:eve_edt \ ; use my version of eve
+	.ascii	\tpu \          ; Don't specify a specific section file, instead of \tpu/section=eve$dir:eve_edt \ ; use my version of eve
 c_tpu_com_len = . - v_tpu_com	; length of command is a constant
 v_tpu_com2:			; buffer for user section of command
 	.blkb	c_max_len
@@ -842,7 +842,7 @@ _kernel_begin:
 	jsb	create			; create header for new word
 ;??? Should I now set the high bit in the length byte (To prevent word from
 ; being found during its own definition)?
-	jsb	smudge			; set smudge bit so word isn't found
+	jsb	smudge			; set smudge bit in name length so word isn't found
 	movb	#c_true,v_mode		; set compiler v_mode
 	rsb				; end of :
 
@@ -919,7 +919,7 @@ _kernel_begin:
 	movl	#c_false,-(r11)		; no, leave with false
 	rsb				; return
 10$:
-	movl	#c_false,-(r11)		; yes, leave with false
+	movl	#c_true,-(r11)		; yes, leave with true
 	rsb				; end of >
 
 
@@ -1085,8 +1085,8 @@ _kernel_begin:
 
 
 ;+++t
-;k> ac: -- ( b -- ) assembler constant (makes opcode & operand defintions)
-;	ac creates a word that compiles the byte on the top of the stack at
+;k> ac: -- ( b -- ) assembler constant (makes opcode & operand defintions).
+;	ac: creates a word that compiles the byte on the top of the stack at
 ;	definition into the dictionary.
 ;---
 	header	i_ac_colon,<ac:>
@@ -1250,7 +1250,7 @@ _kernel_begin:
 ; read block into buffer
 90$:
 	movl	(r11),-			; Save the new block number in
-		-v_buf_blk_nums[r0]	;   buffer
+		v_buf_blk_nums[r0]	;   buffer
 	movb	#c_inuse,-		; flag that buffer is in use
 		v_buf_inuse[r0]
 	movl	r0,(r11)		; set up for buffer-read
@@ -1284,7 +1284,7 @@ _kernel_begin:
 
 
 ;+++
-;k> blocok-open -- ( -- ) Open the block file.
+;k> block-open -- ( -- ) Open the block file.
 ;---
 	header	i_block_open,<block-open>
 	tstb	v_blockio		; Is block file open?
@@ -1439,7 +1439,7 @@ _kernel_begin:
 
 
 ;+++
-;k> byte -- ( n -- ) Creates word that pushes address of byte on stack.
+;k> byte -- ( n -- ) Creates word that pushes address of byte on stack and initializes the byte to `n'.
 ;---
 	header	byte,<byte>
 	jsb	create			; enclose next token in dictionary
@@ -1454,14 +1454,14 @@ _kernel_begin:
 
 
 ;+++t
-;k> cfa -- ( a -- a ) given addrss of header of word, return the address of
+;k> cfa -- ( a -- a ) given the address of the header of a word, return the address of
 ;	the code for that word (i.e., the Code Field Address).
 ;---
 ;??? the smudge bit makes this one a little harder.
 	header	cfa
 	addl2	#4,(r11)		; skip over link field
-	movzbl	@(r11),r0		; get unsigned byte-count of name
-	bicb2	#^b10000000,r0		; clear smudge bit of count
+	movzbl	@(r11),r0		; get unsigned length of name
+	bicb2	#^b10000000,r0		; clear smudge bit of length of name
 	incl	(r11)			; skip over count byte
 	addl2	r0,(r11)		; skip over name field
 	rsb				; end of cfa
@@ -1498,7 +1498,7 @@ _kernel_begin:
 ; use a brw (which I'm not sure would work in { defer< ... >defer }.
 	header	   i_compile_jsb,<compile-jsb>
 	movb	   #op_jsb,(r9)+	; `jsb'
-	movb	   #adm_absolute,(r9)	; absolute mode
+	movb	   #adm_absolute,(r9)+	; absolute mode
 	movl	   (r11)+,(r9)+		; save place to jump to in dictionary
 	rsb				; end of compile-jsb
 
@@ -2376,7 +2376,7 @@ _invalid_number:
 	header	smudge
 	movl	@v_current,r0		; address of word being defined
 	addl2	#4,r0			; move over link field
-	bisb2	#^b1000000,(r0)		; set smudge bit
+	bisb2	#^b10000000,(r0)	; set smudge bit in length of name
 	rsb				; end of smudge
 
 
@@ -2727,7 +2727,7 @@ _gettoken:
 	header	unsmudge
 	movl	@v_current,r0		; address of word being defined
 	addl2	#4,r0			; move over link field
-	bicb2	#^b10000000,(r0)	; clear smudge bit
+	bicb2	#^b10000000,(r0)	; clear smudge bit of length of name
 	rsb				; end of unsmudge
 
 
@@ -2750,7 +2750,7 @@ _gettoken:
 ;??? This concept is fuzzy.  Work on it.
 	header	  variable
 	jsb	  create		; enclose next token in dictionary
-	movb	  #op_movb,(r9)+	; `movb'
+	movb	  #op_movab,(r9)+	; `movb'
 	movb	  #adm_b_rel,(r9)+	; byte relative
 	movb	  #2,(r9)+		; (pc+2)
 	movb	  #adm_adec_r11,(r9)+	; -(r11)
@@ -2870,7 +2870,7 @@ _gettoken:
 
 
 _kernel_end:
-	newpage <cCompiler Built-ins>
+	newpage <Compiler Built-ins>
 ;*******************************************************************************
 ;
 ; Compiler Built-ins -- a new word is unlinked from the current vocabulary
@@ -2924,7 +2924,7 @@ compiler_begin:
 
 
 ;+++
-;c> ." -- ( -- ) compile text until netx `"' into dictinary to be printed when
+;c> ." -- ( -- ) compile text until next `"' into dictinary to be printed when
 ;	the current word is executed.
 ;---
 	header	i_dot_quote,<.">,vl_compiler
@@ -2939,7 +2939,7 @@ compiler_begin:
 	jsb	token			; get token
 	movzbl	(r9),r0			; get length of token
 	addl3	#1,r0,r1		; calc displacement (count length too)
-	movw	r1,@(r1)		; fill in displacement
+	movw	r1,@(r10)		; fill in displacement
 	addl2	#4,r10			; pop item off loop stack
 	addl2	r1,r9			; save string in dictionary
 	movb	#op_movl,(r9)+		; `movl'
@@ -3637,10 +3637,3 @@ v_blkbuff:
 ;
 ;*******************************************************************************
 	.end	vtil
-
-; Local Variables:
-; mode: indented-text
-; comment-start: ";"
-; comment-column: 40
-; indent-tabs-mode: t
-; End:
