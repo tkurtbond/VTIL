@@ -428,7 +428,7 @@ Here is an example:
    \ compile this into word when *this* word executes
    defer<
       \ move value of variable onto stack
-      MOVEAB b^r b^ 2 -(ds)
+      MOVAB b^r b^ 2 -(ds)
       RSB    \ return from word
    >defer
    \ save space for variable 4 bytes long
@@ -1787,32 +1787,32 @@ Compile ascii value of 1st character of next token into word.
 .BL
 .LM +13
 .INDENT -13
-r11#######-- data stack pointer
+r11#######--#data stack pointer, grows down in memory
 .INDENT -13
-r10#######-- loop stack pointer
+r10#######--#loop stack pointer, grows down in memory
 .INDENT -13
-r9########-- end of dictionary pointer
+r9########--#end of dictionary pointer, grows up in psect VTILDICT.
 .INDENT -13
-r8-r6#####-- temporary storage when using character instructions
+r8-r6#####--#temporary storage when using character instructions
 .INDENT -13
-r0-r5#####-- temporary storage
+r0-r5#####--#temporary storage
 .LM -13
 .BL
 .CENTER;Header format for a word
 .BL
 .LM +13
 .INDENT -13
-long######-- link to previous word in dictionary (header field
+long######--#link to previous word in dictionary (header field
 addresss, HFA; link field address LFA)
 .INDENT -13
-byte######-- number of bytes in the name of the word, maximum 80 (name
+byte######--#number of bytes in the name of the word, maximum 80 (name
 field address, nfa)
 .INDENT -13
-byte(s)###-- characters of name
+byte(s)###--#characters of name
 .INDENT -13
-code...###-- executable code for this word (code field address, CFA)
+code...###--#executable code for this word (code field address, CFA)
 .INDENT -13
-data...###-- optional data for this word (parameter field address, PFA)
+data...###--#optional data for this word (parameter field address, PFA)
 .LM -13
 .BL
 .NF

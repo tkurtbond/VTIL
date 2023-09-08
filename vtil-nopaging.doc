@@ -436,7 +436,7 @@ which  is at *that* point being defined, and will be executed when
         \ compile this into word when *this* word executes
         defer<
            \ move value of variable onto stack
-           MOVEAB b^r b^ 2 -(ds)
+           MOVAB b^r b^ 2 -(ds)
            RSB    \ return from word
         >defer
         \ save space for variable 4 bytes long
@@ -1623,9 +1623,10 @@ Compile ascii value of 1st character of next token into word.
 
                           Register Usage
 
-r11       -- data stack pointer
-r10       -- loop stack pointer
-r9        -- end of dictionary pointer (eodp)
+r11       -- data stack pointer, grows down in memory
+r10       -- loop stack pointer, grows down in memory
+r9        -- end  of  dictionary  pointer,  grows  up   in   psect
+             VTILDICT.
 r8-r6     -- temporary storage when using character instructions
 r0-r5     -- temporary storage
 
