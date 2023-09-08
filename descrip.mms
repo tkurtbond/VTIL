@@ -1,5 +1,6 @@
 MSGFLAGS=/LIST/OBJECT=$(MMS$TARGET_NAME)$(OBJ)
-MFLAGS=/DEBUG/LIST/CROSS/OBJECT=$(MMS$TARGET_NAME)$(OBJ)/show=expansion
+! /SHOW=EXPANSION can be useful in MFLAGS
+MFLAGS=/DEBUG/LIST/CROSS/OBJECT=$(MMS$TARGET_NAME)$(OBJ)
 LINKFLAGS=/DEBUG/MAP/FULL
 
 all : vtil.exe vtil.mem vtil-nopaging.doc
@@ -26,7 +27,7 @@ docclean :
 ! Include the *.LIS *.MAP files, because I can't generate them except
 ! on vms.
 ! But exclude the *.EXE and *.PDF files.  The later can't be built
-! on my VMS system, and this target is for zipping up the source
+! on my VMS system, and the this target is for zipping up the source
 ! so I can put in in github using a Unix box.
 zipsrc : 
         today = f$cvtime (,, "DATE")
