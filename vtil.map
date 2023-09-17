@@ -1,5 +1,5 @@
 
-VTIL.EXE                                                         7-SEP-2023 16:08        VAX-11 Linker V05-13             Page    1
+VTIL.EXE                                                        17-SEP-2023 10:35        VAX-11 Linker V05-13             Page    1
 
                                              +------------------------+
                                              ! Object Module Synopsis !
@@ -7,7 +7,7 @@ VTIL.EXE                                                         7-SEP-2023 16:0
 
 Module Name     Ident              Bytes      File                                Creation Date      Creator
 -----------     -----              -----      -----                               -------------      -------
-VTIL            V1.01               34033 MPL$DATA3:[MPL.TKB.VTIL]VTIL.OBJ;33   7-SEP-2023 16:08  VAX MACRO V5.4-3
+VTIL            V1.01               34033 MPL$DATA3:[MPL.TKB.VTIL]VTIL.OBJ;40  17-SEP-2023 10:35  VAX MACRO V5.4-3
 VTIL            VERSION 1.0           203 [MPL.TKB.VTIL]VTIL_MSG.OBJ;1         12-AUG-2023 15:55  VAX-11 Message V04-00
 SYS$IODEF       V04-000                 0 SYS$COMMON:[SYSLIB]STARLET.OLB;6      7-JUL-1992 21:00  VAX MACRO V5.4-3
 SYS$MISCDEF     V04-000                 0 SYS$COMMON:[SYSLIB]STARLET.OLB;6     12-OCT-1991 01:33  VAX MACRO V5.4-3
@@ -18,7 +18,7 @@ LIBRTL          V05-001                 0 SYS$COMMON:[SYSLIB]LIBRTL.EXE;6       
 TPUSHR          V02-006                 0 SYS$COMMON:[SYSLIB]TPUSHR.EXE;2       8-JUL-1992 01:05  VAX-11 Linker V05-13
 UVMTHRTL        V05-005                 0 SYS$COMMON:[SYSLIB]UVMTHRTL.EXE;5     8-JUL-1992 00:49  VAX-11 Linker V05-13
 
-MPL$DATA3:[MPL.TKB.VTIL]VTIL.EXE;32                              7-SEP-2023 16:08        VAX-11 Linker V05-13             Page    2
+MPL$DATA3:[MPL.TKB.VTIL]VTIL.EXE;37                             17-SEP-2023 10:35        VAX-11 Linker V05-13             Page    2
 
                                              +------------------------+
                                              ! Image Section Synopsis !
@@ -56,7 +56,7 @@ MTHRTL             3   335    00000000-R        0   0 READ ONLY                 
 		! P  - Protected   !
 		+------------------+
 
-MPL$DATA3:[MPL.TKB.VTIL]VTIL.EXE;32                              7-SEP-2023 16:08        VAX-11 Linker V05-13             Page    3
+MPL$DATA3:[MPL.TKB.VTIL]VTIL.EXE;37                             17-SEP-2023 10:35        VAX-11 Linker V05-13             Page    3
 
                                             +--------------------------+
                                             ! Program Section Synopsis !
@@ -89,7 +89,7 @@ MSG$AAAAAAAAAAC                 00008A14 00008A17 00000004 (          4.) LONG 2
 MSG$SECTION                     00008A18 00008ACA 000000B3 (        179.) BYTE 0   PIC,USR,CON,REL,LCL,NOSHR,NOEXE,  RD,NOWRT,  VEC
                 VTIL            00008A18 00008ACA 000000B3 (        179.) BYTE 0
 
-MPL$DATA3:[MPL.TKB.VTIL]VTIL.EXE;32                              7-SEP-2023 16:08        VAX-11 Linker V05-13             Page    4
+MPL$DATA3:[MPL.TKB.VTIL]VTIL.EXE;37                             17-SEP-2023 10:35        VAX-11 Linker V05-13             Page    4
 
                                                 +-----------------+
                                                 ! Symbols By Name !
@@ -130,7 +130,7 @@ VTIL$_FACILITY  00000801
 VTIL_CTRLC      0801800A           
 VTIL_MAXERRORS  08018012           
 
-MPL$DATA3:[MPL.TKB.VTIL]VTIL.EXE;32                              7-SEP-2023 16:08        VAX-11 Linker V05-13             Page    5
+MPL$DATA3:[MPL.TKB.VTIL]VTIL.EXE;37                             17-SEP-2023 10:35        VAX-11 Linker V05-13             Page    5
 
                                                 +------------------+
                                                 ! Symbols By Value !
@@ -182,7 +182,7 @@ Value                                   Symbols...
 		! WK - Weak        !
 		+------------------+
 
-MPL$DATA3:[MPL.TKB.VTIL]VTIL.EXE;32                              7-SEP-2023 16:08        VAX-11 Linker V05-13             Page    6
+MPL$DATA3:[MPL.TKB.VTIL]VTIL.EXE;37                             17-SEP-2023 10:35        VAX-11 Linker V05-13             Page    6
 
                                                  +----------------+
                                                  ! Image Synopsis !
@@ -202,7 +202,7 @@ User transfer address:                            000038AB
 Debugger transfer address:                        7FFEDF68
 Number of code references to shareable images:           5.
 Image type:                                       EXECUTABLE.
-Map format:                                       FULL in file MPL$DATA3:[MPL.TKB.VTIL]VTIL.MAP;32
+Map format:                                       FULL in file MPL$DATA3:[MPL.TKB.VTIL]VTIL.MAP;37
 Estimated map length:                             185. blocks
                                               +---------------------+
                                               ! Link Run Statistics !
@@ -210,13 +210,13 @@ Estimated map length:                             185. blocks
 
 Performance Indicators                            Page Faults	CPU Time	Elapsed Time
 ----------------------                            -----------	--------	------------
-    Command processing:                                    66	00:00:00.02	00:00:00.02
-    Pass 1:                                               309	00:00:00.07	00:00:00.20
-    Allocation/Relocation:                                 27	00:00:00.00	00:00:00.02
-    Pass 2:                                               108	00:00:00.03	00:00:00.04
-    Map data after object module synopsis:                 11	00:00:00.02	00:00:00.02
+    Command processing:                                    67	00:00:00.02	00:00:00.02
+    Pass 1:                                               308	00:00:00.07	00:00:00.30
+    Allocation/Relocation:                                 26	00:00:00.00	00:00:00.00
+    Pass 2:                                               107	00:00:00.06	00:00:00.06
+    Map data after object module synopsis:                 11	00:00:00.00	00:00:00.00
     Symbol table output:                                    6	00:00:00.00	00:00:00.00
-Total run values:                                         527	00:00:00.14	00:00:00.30
+Total run values:                                         525	00:00:00.15	00:00:00.38
 
 Using a working set limited to 2000 pages and 969 pages of data storage (excluding image)
 
