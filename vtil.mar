@@ -435,7 +435,7 @@ v_blkfab:
 		rfm=<fix>		; fixed length records
 v_blkrab:
 	$rab	fab=v_blkfab,-		; pointer to fab
-		kfb=v_blkkey,-		; pointer to key
+		kbf=v_blkkey,-		; pointer to key
 		ksz=c_keysize,-		; size of key
 		rac=<key>,-		; random access by record number
 		ubf=v_blkbuff,-		; address of user buffer
@@ -1338,7 +1338,7 @@ _kernel_begin:
 
 ;+++
 ;k> break -- ( -- ) Breakpoint!	 For use in debugging kernel and compiler.
-;	This word should only be executed when running in the VAX/VMS Debugger.
+;	This word should only be executed when running in the VAX/VMS Debugger.~~~ Usually you do something in the debugger then "GO _INTERPRETER" to resume execution.
 ;---
 	header	break
 	bpt				; breakpoint
@@ -1736,7 +1736,7 @@ _kernel_begin:
 
 
 ;+++
-;k> flush-buffers -- ( -- ) wite all modified buffers and mark them unmodified.
+;k> flush-buffers -- ( -- ) write all modified buffers and mark them unmodified.
 ;---
 	header	i_flush_buffers,<flush-buffers>
 	clrl	r0			; bufffer number

@@ -1,0 +1,134 @@
+	.title	MAKE-VTILBLOCKS -- Make the VTILBLOCKS.DAT file.
+; This really needs cleaning up.
+	.dsabl	global
+	.extrn	dsc$k_dtype_t, dsc$k_class_s
+	.extrn	lib$get_input, lib$put_output, lib$signal
+	.extrn	rms$_eof, rms$_fnf
+
+c_true		= -1			; true value, actually anything
+					;  but 0 is true
+c_false		= 0			; false value
+c_max_blocks	= 3			; number of block i/o buffers
+c_block_size	= 1024			; size for block i/o buffer
+c_keysize	= 4			; size of key (longword record number)
+c_d_blks_in_blk = c_block_size / 512	; number of disk blocks in VTIL block
+
+	.psect	vbdata,long,noexe
+;
+; rms buffers for VTIL block i/o (which is actually rms record i/o)
+;
+	.align long
+v_blkfab:
+	$fab	dnm=<vtilblocks.dat>,-	; default input file name
+		fac=<get,put>,-		; block i/o operations
+		fnm=<vtilblocks>,-	; input file name
+		mrs=c_block_size,-	; maximum record size
+		rfm=<fix>,-		; fixed length records
+		alq=200,-      		; allocation
+		org=<seq>
+v_blkrab:
+	$rab	fab=v_blkfab,-		; pointer to fab
+		ubf=v_blkbuff,-		; address of user buffer
+		usz=c_block_size	; and the record size
+v_blkkey:
+	.long	0			; buffer for key (longword pos rec #)
+
+c_msglen = 132
+
+v_msgdsc:
+	.word	c_msglen	; descriptor for $FAO message
+	.byte	dsc$k_dtype_t	; data type text
+	.byte	dsc$k_class_s	; descriptor class
+	.long	v_msgbuf	; pointer to message buffer
+v_msgbuf:
+	.blkb	c_msglen
+
+faoctl:
+	.ascid	/Record #!ZL/
+
+faoctl2:
+	.ascid	/    Record number  #!ZL, Byte Address !XL, Byte Index #!ZL/
+
+
+v_create_msg:
+	.ascid	/After $CREATE/
+v_connect_msg:
+	.ascid	/After $CONNECT/
+v_after_set_loop_msg:
+	.ascid	/After set loop/
+v_in_write_loop:
+	.ascid	/In write loop/
+
+;
+; Block i/o buffers
+;
+v_blkbuff:
+	.blkb	c_max_blocks * c_block_size ; buffers for block i/o
+
+	.psect	vbcode,exe,nowrt
+	.entry	vb,^m<r6,r7,r8,r9,r10,r11>
+	$create fab=v_blkfab
+	blbs	r0,10$			; no error, go on
+	brw	error_exit
+10$:
+	pushaq	v_create_msg
+	calls	#1,g^lib$put_output
+
+	$connect rab=v_blkrab
+	blbs	r0,20$
+	brw	error_exit
+20$:
+	pushaq	v_connect_msg
+	calls	#1,g^lib$put_output
+
+	moval	v_blkbuff,v_blkrab+rab$l_rbf
+	movw	#c_block_size,-
+		v_blkrab+rab$w_rsz
+
+	movl	#1,r9			; Record number
+
+record_loop:
+	; output record number
+	movw	#c_msglen,v_msgdsc	; Use the whole buffer
+	$fao_s	ctrstr=faoctl,-
+		outbuf=v_msgdsc,-
+		outlen=v_msgdsc,-
+		p1=r9
+	pushaq	v_msgdsc
+	calls	#1,g^lib$put_output
+	
+	movab	v_blkbuff,r8		; Byte address in block
+	clrl	r7			; Byte counter
+blockset_loop:
+.if defined c_verbose
+	movw	#c_msglen,v_msgdsc	; Use the whole buffer
+	$fao_s	ctrstr=faoctl2,-
+		outbuf=v_msgdsc,-
+		outlen=v_msgdsc,-
+		p1=r9,p2=r8,p3=r7
+	pushaq	v_msgdsc
+	calls	#1,g^lib$put_output
+.endc
+
+	movb	r9,(r8)+
+	aoblss	#c_block_size,r7,blockset_loop
+
+
+	$put	rab=v_blkrab		; Sequential put
+	blbs	r0,50$
+	brw	error_exit
+50$:
+	incl	r9
+	cmpl	r9,#100
+	bgtr	the_end
+	brw	record_loop
+the_end:
+	$close	fab=v_blkfab
+	blbc	r0,error_exit
+	ret
+
+error_exit:
+	pushl	r0			; put error message number on stack
+	calls	#1,g^lib$signal		; signal error
+	ret
+	.end	vb

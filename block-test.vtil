@@ -1,0 +1,14 @@
+0 long buf
+
+: block-test ( b -- )   \ Byte to store in the first byte of the 10th block.
+  block-open            \ Open the block file
+  10 block buf !        \ Get the tenth block and save buffer's address in buf
+  buf @ b@ .            \ Get the first byte in the block and display it
+  \ The result should be 10
+  buf @ b!              \ Save the value 'b' in the first byte in the block
+  buf @ b@ .            \ Get the first byte in the block and display it
+  \ The result should be 'b'
+  update                \ Mark the current buffer as modified
+  save-buffers          \ Save the modified buffers
+  block-close           \ Close the block file
+;

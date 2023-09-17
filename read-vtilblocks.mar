@@ -1,0 +1,177 @@
+	.title	READ-VTILBLOCKS -- Read the VTILBLOCKS.DAT to check it works.
+; This really needs cleaning up.
+	.dsabl	global
+	.extrn	dsc$k_dtype_t, dsc$k_class_s
+	.extrn	lib$get_input, lib$put_output, lib$signal
+	.extrn	rms$_eof, rms$_fnf
+
+c_true		= -1			; true value, actually anything
+					;  but 0 is true
+c_false		= 0			; false value
+c_max_blocks	= 3			; number of block i/o buffers
+c_block_size	= 1024			; size for block i/o buffer
+c_keysize	= 4			; size of key (longword record number)
+c_d_blks_in_blk = c_block_size / 512	; number of disk blocks in VTIL block
+
+	.psect	readvbdata,long,noexe
+;
+; rms buffers for VTIL block i/o (which is actually rms record i/o)
+;
+	.align long
+v_blkfab:
+	$fab	dnm=<vtilblocks.dat>,-	; default input file name
+		fac=<get,put>,-		; block i/o operations
+		fnm=<vtilblocks>,-	; input file name
+		mrs=c_block_size,-	; maximum record size
+		rfm=<fix>,-		; fixed length records
+		org=<seq>		; Fun fact: you can do random access on
+					;    sequential files, as long as 
+					;    they're fixed record size!
+
+v_blkrab:
+	$rab	fab=v_blkfab,-		; pointer to fab
+		kbf=v_blkkey,-		; pointer to key
+		ksz=c_keysize,-		; size of key
+		rac=<key>,-		; random access by record number
+		ubf=v_blkbuff,-		; address of user buffer
+		usz=c_block_size	; and the record size
+v_blkkey:
+	.long	0			; buffer for key (longword pos rec #)
+v_current_buff:				; Buffer # of most recently accessed
+	.long	0			; block
+
+v_msgdsc:
+	.word	132		; descriptor for $FAO message
+	.byte	dsc$k_dtype_t	; data type text
+	.byte	dsc$k_class_s	; descriptor class
+	.long	v_msgbuf	; pointer to message buffer
+v_msgbuf:
+	.blkb	132
+
+v_open_msg:
+	.ascid	/After $OPEN/
+v_connect_msg:
+	.ascid	/After $CONNECT/
+v_get1_msg:
+	.ascid	/Get 1 succeeded/
+v_get2_msg:
+	.ascid	/Get 2 succeeded/
+v_get3_msg:
+	.ascid	/Get 3 succeeded/
+
+faoctl:
+	.ascid	/Record #!ZL: byte 0: !ZL, byte 1023: !ZL/
+faomsg:
+	.word	80			; Length of string
+	.byte	dsc$k_dtype_t		; Data type text
+	.byte	dsc$k_class_s		; descript class
+	.long	faomsgbuf		; pointer to message buffer
+faomsgbuf:
+	.blkb	80
+
+;
+; Block i/o buffers
+;
+v_blkbuff:
+	.blkb	c_max_blocks * c_block_size ; buffers for block i/o
+
+	.psect	readvbcode,exe,nowrt
+	.entry	vbr,^m<r6,r7,r8,r9,r10,r11>
+	$open	fab=v_blkfab
+	blbs	r0,10$			; if no error, go on
+	brw	fab_error
+10$:
+	pushaq	v_open_msg
+	calls	#1,g^lib$put_output
+	$connect rab=v_blkrab
+	blbs	r0,20$			; if no error, go on
+	brw	rab_error
+20$:
+	pushaq	v_connect_msg
+	calls	#1,g^lib$put_output
+
+	moval	v_blkbuff,v_blkrab+rab$l_ubf
+	movl	#1,v_blkkey
+	$get	rab=v_blkrab
+	blbs	r0,get1
+	brw	rab_error
+	
+get1:
+	pushaq	v_get1_msg
+	calls	#1,g^lib$put_output
+	movl	#80,faomsg
+	movab	v_blkbuff,r8
+	movzbl	(r8),r9
+	movzbl	1023(r8),r10
+	$fao_s	ctrstr=faoctl,-
+		outbuf=faomsg,-
+		outlen=faomsg,-
+		p1=#1,p2=r9,p3=r10
+	pushaq	faomsg
+	calls	#1,g^lib$put_output
+
+	movl	#100,v_blkkey
+	$get	rab=v_blkrab
+	blbs	r0,get2
+	brw	misc_error
+
+get2:	
+	pushaq	v_get2_msg
+	calls	#1,g^lib$put_output
+	movl	#80,faomsg
+	movab	v_blkbuff,r8
+	movzbl	(r8),r9
+	movzbl	1023(r8),r10
+	$fao_s	ctrstr=faoctl,-
+		outbuf=faomsg,-
+		outlen=faomsg,-
+		p1=#100,p2=r9,p3=r10
+	pushaq	faomsg
+	calls	#1,g^lib$put_output
+
+
+	movl	#10,v_blkkey
+	$get	rab=v_blkrab
+	blbs	r0,get3
+	brw	misc_error
+
+get3:	
+	pushaq	v_get3_msg
+	calls	#1,g^lib$put_output
+	movl	#80,faomsg
+	movab	v_blkbuff,r8
+	movzbl	(r8),r9
+	movzbl	1023(r8),r10
+	$fao_s	ctrstr=faoctl,-
+		outbuf=faomsg,-
+		outlen=faomsg,-
+		p1=#10,p2=r9,p3=r10
+	pushaq	faomsg
+	calls	#1,g^lib$put_output
+
+
+	$close	fab=v_blkfab
+	blbc	r0,misc_error
+	brw	exit
+
+fab_error:
+	movab	v_blkfab,r6
+	pushl	fab$l_stv(r6)
+	pushl	fab$l_sts(r6)
+	calls	#2,g^lib$signal
+	brw	exit
+
+rab_error:
+	movab	v_blkrab,r6
+	pushl	rab$l_stv(r6)
+	pushl	rab$l_sts(r6)
+	calls	#2,g^lib$signal
+	brw	exit
+
+misc_error:
+	pushl	r0			; put error message number on stack
+	calls	#1,g^lib$signal		; signal errorexit
+
+exit:
+	ret
+	.end	vbr
