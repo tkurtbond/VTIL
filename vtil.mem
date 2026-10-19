@@ -394,20 +394,101 @@
 
           2.4  Strings
 
+          VTIL has no single string data type.  Instead it has three  string
+          formats,  and  words that work with each of them.  All of them are
+          just areas of memory, so you can also  work  on  their  characters
+          directly  with  { b@ },  { b! }, { move }, { fill }, and the other
+          words that work on memory.
+
           2.4.1  String Formats
 
-               Byte-counted Strings.
-               Short-counted Strings.
-               Maxlen-short-counted Strings.
+               Byte-counted  strings.   A  byte-counted  string  is  a  byte
+          containing  the number of characters in the string followed by the
+          characters, so it can be at most 255 characters  long.   { token }
+          leaves  the  token  it reads as a byte-counted string at { eodp },
+          and { read } reads a line from the terminal  into  a  byte-counted
+          string.   { bcount }  turns  the  address of a byte-counted string
+          into the address and length of its text, ready for { write }:
+
+               pad read                \ type: a byte-counted line
+               pad bcount write cr     \ prints: a byte-counted line
+               pad b@ .                \ prints: 19
+
+               Short-counted strings.   A  short-counted  (or  word-counted)
+          string  is  a  short  containing  the  number of characters in the
+          string followed by the characters.  { count } turns the address of
+          a  short-counted  string  into the address and length of its text,
+          { message } writes it to the terminal,  and  { readstr }  reads  a
+          line from the terminal into one.
+               Maxlen-short-counted strings.  A maxlen-short-counted  string
+          is  a  short-counted  string  preceded  by  a short containing the
+          maximum number of characters the string can hold.  The address  of
+          such  a  string  is  the address of its current length, not of its
+          maximum length, so  all  the  words  that  work  on  short-counted
+          strings  work  on  it too.  { strmax } returns its maximum length.
+          These are the strings that the string defining words  create,  and
+          { strcpy }  and  { strcat }  need one as their destination so they
+          know how much room there is.
 
           2.4.2  String Defining Words
 
-               { string }
-               { string" }
+          { <n> string <name> } creates a string variable  <name>  that  can
+          hold    up   to   <n>   characters   and   is   initially   empty.
+          { <n> string" <name> <text>" } does the same, but initializes  the
+          string  to the text that follows the blank after <name>, up to the
+          next { " }, so { hello } below holds "Hello, " with  its  trailing
+          blank.   Text  longer than <n> characters is truncated.  Executing
+          VTIL -- VAX Threaded Interpretive Language                  Page 9
+          Strings
+
+
+          <name> leaves the address of the string (its  current  length)  on
+          the stack.
+
+               40 string greeting
+               40 string name
+               20 string" hello Hello, "
+               greeting strmax .       \ prints: 40
+               greeting count . drop   \ prints: 0
+               hello count . drop      \ prints: 7
+
 
           2.4.3  String Manipulating Words
 
-          { strcat }, { strcmp }, { strcpy }, { strmax }, { strpos }.
+          { <a1> <a2> strcpy } copies the string at <a1> to  the  string  at
+          <a2>,  and { <a1> <a2> strcat } adds the string at <a1> to the end
+          of the string at  <a2>.   { strcmp }  compares  two  short-counted
+          strings  and  leaves 0 if they are equal, a negative number if the
+          first is less than the second, and a  positive  number  if  it  is
+          greater.  Continuing the example above:
+
+               hello greeting strcpy
+               .( Name? ) name 40 readstr   \ type: Kurt
+               name greeting strcat
+               greeting message cr          \ prints: Hello, Kurt
+               hello greeting strcmp .      \ prints: -1
+
+               Two words search for one string in another.  Both  take  each
+          string  as  the  address  and length of its text, as { count } and
+          { bcount } leave them, but they take their arguments  in  opposite
+          orders.   { strpos },  { ( a1 n1 a2 n2 -- a3 n3 ? f ) }, looks for
+          the  string  at  <a1>  in  the  string  at  <a2>,  and  { match },
+          { ( a1 n1 a2 n2 -- a3 ? f ) }, looks for the string at <a2> in the
+          string at <a1>.  If the string is found they leave true on the top
+          of  the  stack  and  the  address  where  it  was found under that
+          ({ strpos } also leaves its length); otherwise they leave false.
+
+               name count greeting count strpos   \ leaves: a3 4 true
+               greeting count name count match    \ leaves: a3 true
+
+               { =text } compares two strings of the same length  given  the
+          addresses  of their text.  { move } copies bytes from one place to
+          another, { move&fill } copies them and pads the destination with a
+          character, and { fill } and { blank } fill memory with a character
+          or with blanks.   { pad }  leaves  the  address  of  an  area  for
+          temporary  strings  256  bytes  past the end of the dictionary; it
+          moves whenever the dictionary grows, so do not keep anything there
+          across definitions.
 
           2.5  Vocabularies
 
@@ -419,6 +500,10 @@
           { vocabulary }  used  in  the form { vocabulary <name> } creates a
           new vocabulary with the name <name>, which is invoked  by  a  word
           called  <name>.   When  the  word  <name>  is executed it sets the
+          VTIL -- VAX Threaded Interpretive Language                 Page 10
+          Vocabularies
+
+
           { context } vocabulary so that VTIL searches in vocabulary  <name>
           for  the  words  to  execute  or compile.  Vocabularies created by
           { vocabulary } are linked back into the vocabulary  that  was  the
@@ -434,11 +519,60 @@
           the previous { current } vocabulary.  You can  switch  { current }
           back  to  the  kernel  vocabulary by saying { kernel definitions }
           (which also sets { context } to the kernel vocabulary).
-          VTIL -- VAX Threaded Interpretive Language                  Page 9
+
+          2.6  Numeric Output Conversion
+
+          { . } prints a number as a signed  number  in  the  current  radix
+          followed  by a space.  When you need more control, such as leading
+          zeros, a decimal point, or a fixed width,  you  build  the  output
+          string  yourself  with the numeric output conversion words { <# },
+          { # }, { #s }, { hold }, { sign }, and { #> }.
+               Conversion works  from  the  rightmost  digit  to  the  left.
+          { <# }  starts a new output string.  Each { # } divides the number
+          on the top of the stack by the radix, adds the  remainder  to  the
+          left  of the string as the next digit, and leaves the quotient for
+          the next { # }.  { #s } does  { # }  until  the  number  is  zero,
+          always  producing at least one digit.  { hold } adds any character
+          to the left of the string, and { sign } adds a minus sign  if  the
+          number  on  the  top  of  the stack is negative.  { #> } drops the
+          number and leaves the address and length of the string, ready  for
+          { write }.   { # }  treats  the  number as unsigned, so to print a
+          signed number you convert its absolute value and keep the original
+          under it for { sign }:
+
+               -56 dup abs <# #s swap sign #> write    \ prints: -56
+
+               Since the characters are added from right to left,  the  code
+          reads backwards.  Here is a word that prints an amount in cents as
+          dollars and cents:
+
+               : .money ( n -- )
+                  dup abs <# # # [ascii] . hold #s
+                  [ascii] $ hold swap sign #> write ;
+               1234 .money     \ prints: $12.34
+               -5 .money       \ prints: -$0.05
+
+               The radix is a variable:  { radix } leaves its  address,  and
+          { binary }, { octal }, { decimal }, and { hex } set it.  It can be
+          any base from 2 to 36, and it applies both to the numbers you type
+          and  to the numbers VTIL prints.  A word can change it temporarily
+          by saving it on the stack and restoring it afterwards:
+          VTIL -- VAX Threaded Interpretive Language                 Page 11
           Numeric Output Conversion
 
 
-          2.6  Numeric Output Conversion
+               : .hex8 ( n -- )   \ print n as eight hexadecimal digits
+                  radix @ swap hex <# # # # # # # # # #> write radix ! ;
+               255 .hex8       \ prints: 000000FF
+               -1 .hex8        \ prints: FFFFFFFF
+               5 2 radix ! . decimal   \ prints: 101
+
+               The output string is built  downward  from  { pad },  in  the
+          space  between  the  end of the dictionary and { pad }, so it does
+          not disturb anything at { pad }.  { hld } holds the address of the
+          leftmost  character  so  far.  Each conversion, including the ones
+          { . } and { ? } do, reuses the same space, so write  or  copy  the
+          string before you convert another number.
 
           2.7  Assembler
 
@@ -468,6 +602,9 @@
           followed  by  its operands.  The compile time word { b^ } compiles
           the next token as a byte, for displacements.  For example, the VAX
           has a rotate instruction, but VTIL has no word for it:
+          VTIL -- VAX Threaded Interpretive Language                 Page 12
+          Assembler
+
 
                hex
                9C ac: ROTL     \ rotate long
@@ -493,9 +630,6 @@
           which  shows  assembly  code  and  ordinary  words  mixed  in  one
           definition.  Since assembler constants  are  compile  time  words,
           they can only be used inside colon definitions.
-          VTIL -- VAX Threaded Interpretive Language                 Page 10
-          Defining New Defining Words
-
 
           2.8  Defining New Defining Words
 
@@ -530,6 +664,10 @@
           { >defer } are compile time words,  but  a  word  that  uses  them
           doesn't  have  to be one:  { 4byte } is an ordinary word, executed
           outside colon definitions to create new words.   Only  if  such  a
+          VTIL -- VAX Threaded Interpretive Language                 Page 13
+          Defining New Defining Words
+
+
           word  is  to  be  used inside a colon definition, copying its code
           into the word being compiled, must it be made a compile time  word
           with { compiletime }, like this:
@@ -541,6 +679,52 @@
 
           2.9  Block I/O Words
 
+          VTIL's mass storage is  the  block  file,  VTILBLOCKS.DAT  in  the
+          current directory unless you define the logical name VTILBLOCKS to
+          point to another file.  The block file  has  100  blocks  of  1024
+          bytes,  numbered  from  1  to  100.   The  program MAKE-VTILBLOCKS
+          creates it, with every byte of block <n> set to <n>.
+               { block-open } opens  the  block  file,  and  { block-close }
+          closes it.  { <n> block } reads block <n> into one of VTIL's three
+          block buffers and leaves the address of the buffer on  the  stack.
+          If  the  block  is  already  in  a  buffer  it  is not read again.
+          Otherwise VTIL uses a buffer that is not in use, or one  that  has
+          not  been  modified,  or,  if  all  of them have been modified, it
+          writes the first buffer to the block file and  uses  that.   Since
+          buffers are reused, the address that { block } leaves is only good
+          until the next { block } or { buffer }; get the address again with
+          { block } when you need it.
+               If you change a block, execute { update } to  mark  the  most
+          recently  used block as modified.  { save-buffers } writes all the
+          modified buffers to the block  file  and  keeps  them  in  memory,
+          { flush-buffers }   writes   them   and  frees  the  buffers,  and
+          { empty-buffers } discards all the buffers without  writing  them.
+          { block-close }   does   not   write   modified   buffers,  so  do
+          { save-buffers } first.  { <n> buffer } is like { block },  except
+          that  it  does not read the block from the file, for when you will
+          replace   the   whole   block.     The    words    { block-read },
+          { block-write },  { buffer-read },  and  { buffer-write }  do  the
+          actual reading and writing.
+               For example, this clears block 5, copies the string { hello }
+          from the Strings section into it, saves it, and reads it back:
+
+               block-open
+               5 block 1024 blank update               \ clear block 5
+               hello count 5 block swap move update    \ copy hello in
+               save-buffers block-close
+               block-open
+               5 block 7 write cr                      \ prints: Hello,
+               block-close
+
+               Errors in  block  I/O  are  reported  by  RMS,  for  instance
+          "%RMS-E-EOF, end of file detected" for a block number past the end
+          of the file, or "%RMS-F-ISI, invalid  internal  stream  identifier
+          (ISI)  value"  if  the block file is not open, and VTIL returns to
+          the { VTIL> } prompt.
+          VTIL -- VAX Threaded Interpretive Language                 Page 14
+          REFERENCE MANUAL
+
+
           3  REFERENCE MANUAL
 
           This part of the manual is intended for reference.  It contains  a
@@ -550,9 +734,6 @@
           are interested, including information that anyone who wants to use
           VTIL's  assembler  will  need.  The header format of VTIL words is
           also explained.
-          VTIL -- VAX Threaded Interpretive Language                 Page 11
-          Data Types
-
 
           3.1  Data Types
 
@@ -602,6 +783,10 @@
 
           Note that *all* stack items are at least a longword in width.  For
           instance,  a  { b }  stack  item  merely  says that the programmer
+          VTIL -- VAX Threaded Interpretive Language                 Page 15
+          Terminology
+
+
           should consider the stack as containing a value that will  fit  in
           an unsigned byte.  Words that use data types that are smaller than
           a longword will only use the first part of the longword  in  their
@@ -609,9 +794,6 @@
           smaller data type from the stack, not just the smaller data  type.
           In  other  words,  the  stack pointer can only be manipulated in 4
           byte increments or decrements.
-          VTIL -- VAX Threaded Interpretive Language                 Page 12
-          Format Of Entries
-
 
           3.3  Format Of Entries
 
@@ -619,7 +801,7 @@
           the  left  side  and  the stack effect comment for the word on the
           right side.  Entries are separated by two blank lines.   Following
           a blank line is the explanation of the word.
-          VTIL -- VAX Threaded Interpretive Language                 Page 13
+          VTIL -- VAX Threaded Interpretive Language                 Page 16
           Kernel Vocabulary
 
 
@@ -679,7 +861,7 @@
           (not)                                                 ( n1 -- n2 )
 
           Leave the bitwise not of "n1" on the stack.
-          VTIL -- VAX Threaded Interpretive Language                 Page 14
+          VTIL -- VAX Threaded Interpretive Language                 Page 17
           Kernel Vocabulary
 
 
@@ -741,7 +923,7 @@
           .(                                                          ( -- )
 
           Write the text following until the next ")" to the  screen.   This
-          VTIL -- VAX Threaded Interpretive Language                 Page 15
+          VTIL -- VAX Threaded Interpretive Language                 Page 18
           Kernel Vocabulary
 
 
@@ -802,7 +984,7 @@
 
 
           <#                                                          ( -- )
-          VTIL -- VAX Threaded Interpretive Language                 Page 16
+          VTIL -- VAX Threaded Interpretive Language                 Page 19
           Kernel Vocabulary
 
 
@@ -864,7 +1046,7 @@
           ?number                                               ( -- n ? f )
 
           Try to convert the token at { eodp } to a number.   If  compiling,
-          VTIL -- VAX Threaded Interpretive Language                 Page 17
+          VTIL -- VAX Threaded Interpretive Language                 Page 20
           Kernel Vocabulary
 
 
@@ -926,7 +1108,7 @@
           b!                                                      ( b a -- )
 
           Store 8 bits of "b" at address "a".
-          VTIL -- VAX Threaded Interpretive Language                 Page 18
+          VTIL -- VAX Threaded Interpretive Language                 Page 21
           Kernel Vocabulary
 
 
@@ -987,7 +1169,7 @@
           block-read                                              ( l a -- )
 
           Read block "l" into the block buffer at address "a".
-          VTIL -- VAX Threaded Interpretive Language                 Page 19
+          VTIL -- VAX Threaded Interpretive Language                 Page 22
           Kernel Vocabulary
 
 
@@ -1048,7 +1230,7 @@
           clist                                                       ( -- )
 
           List the words in the compiler vocabulary, the compile time words.
-          VTIL -- VAX Threaded Interpretive Language                 Page 20
+          VTIL -- VAX Threaded Interpretive Language                 Page 23
           Kernel Vocabulary
 
 
@@ -1110,7 +1292,7 @@
           definitions                                                 ( -- )
 
           Sets { current } to { context }.  { <name> definitions } makes all
-          VTIL -- VAX Threaded Interpretive Language                 Page 21
+          VTIL -- VAX Threaded Interpretive Language                 Page 24
           Kernel Vocabulary
 
 
@@ -1171,7 +1353,7 @@
 
           Fill the area of memory starting at address "a" and extending  "s"
           bytes with the character "c".
-          VTIL -- VAX Threaded Interpretive Language                 Page 22
+          VTIL -- VAX Threaded Interpretive Language                 Page 25
           Kernel Vocabulary
 
 
@@ -1232,7 +1414,7 @@
           kernel                                                      ( -- )
 
           Set { context } to { kernel } vocabulary.
-          VTIL -- VAX Threaded Interpretive Language                 Page 23
+          VTIL -- VAX Threaded Interpretive Language                 Page 26
           Kernel Vocabulary
 
 
@@ -1294,7 +1476,7 @@
 
 
           move                                                ( a1 a2 s -- )
-          VTIL -- VAX Threaded Interpretive Language                 Page 24
+          VTIL -- VAX Threaded Interpretive Language                 Page 27
           Kernel Vocabulary
 
 
@@ -1354,7 +1536,7 @@
           putc                                                      ( c -- )
 
           Output character "c" to the terminal.
-          VTIL -- VAX Threaded Interpretive Language                 Page 25
+          VTIL -- VAX Threaded Interpretive Language                 Page 28
           Kernel Vocabulary
 
 
@@ -1416,7 +1598,7 @@
 
 
           search                                            ( a1 -- a2 ? f )
-          VTIL -- VAX Threaded Interpretive Language                 Page 26
+          VTIL -- VAX Threaded Interpretive Language                 Page 29
           Kernel Vocabulary
 
 
@@ -1476,7 +1658,7 @@
           strings  defined  by  { string } or { string" }, since it uses the
           maxlen field of the  string  at  "a2",  and  only  { string }  and
           { string" } create those maxlen fields.
-          VTIL -- VAX Threaded Interpretive Language                 Page 27
+          VTIL -- VAX Threaded Interpretive Language                 Page 30
           Kernel Vocabulary
 
 
@@ -1536,7 +1718,7 @@
           character  representing a number, "0".."9", "A".."Z" (where "n" is
           a number and "c" is a character).  If not  in  the  correct  range
           leave it alone.
-          VTIL -- VAX Threaded Interpretive Language                 Page 28
+          VTIL -- VAX Threaded Interpretive Language                 Page 31
           Kernel Vocabulary
 
 
@@ -1592,7 +1774,7 @@
           Enter compile mode.  Used with { [ } in  definitions  to  allow  a
           runtime  word to be executed instead of compiled.  Note that { [ }
           is a compiletime word and is therefore in the compiler vocabulary.
-          VTIL -- VAX Threaded Interpretive Language                 Page 29
+          VTIL -- VAX Threaded Interpretive Language                 Page 32
           Compiler Vocabulary
 
 
@@ -1654,7 +1836,7 @@
           Start a section of code that is to be  copied  to  the  dictionary
           whenever this word is executed (i.e., { defer< } starts code to be
           executed by all words defined by the word we are  now  compiling).
-          VTIL -- VAX Threaded Interpretive Language                 Page 30
+          VTIL -- VAX Threaded Interpretive Language                 Page 33
           Compiler Vocabulary
 
 
@@ -1716,7 +1898,7 @@
           Ends a { do } loop.  Adds 1 to loop index and branches  to  { do }
           if  (index  <=  limit).  In other words, { loop } is like Pascal's
           { for index := start to finish do ... }, except that  a  { do  ...
-          VTIL -- VAX Threaded Interpretive Language                 Page 31
+          VTIL -- VAX Threaded Interpretive Language                 Page 34
           Compiler Vocabulary
 
 
@@ -1772,13 +1954,75 @@
           [ascii]                                                     ( -- )
 
           Compile ascii value of 1st character of next token into word.
-          VTIL -- VAX Threaded Interpretive Language                 Page 32
+          VTIL -- VAX Threaded Interpretive Language                 Page 35
           Assembler
 
 
           3.6  Assembler
 
-          VTIL -- VAX Threaded Interpretive Language                 Page 33
+          VTIL's assembler is made of the words you define with { ac: } (see
+          the  Assembler section of the User's Guide), plus the compile time
+          words { b^ }, { w^ }, and { l^ }, which compile the next token  as
+          a byte, short, or long for immediate data and displacements.  VTIL
+          does not define any opcodes itself, so you take them from the  VAX
+          Architecture Handbook or the VAX MACRO reference manual and define
+          the ones you need.
+               A VAX instruction  is  its  opcode  followed  by  an  operand
+          specifier  for  each  operand.   The  high four bits of an operand
+          specifier give the addressing mode, and the low four bits give the
+          register:
+
+                   addressing mode                with PC (register F)
+               0-3 short literal #0 to #63
+               4   index [Rn]
+               5   register Rn
+               6   register deferred (Rn)
+               7   autodecrement -(Rn)
+               8   autoincrement (Rn)+            8F  immediate #n
+               9   autoincrement deferred @(Rn)+  9F  absolute @#a
+               A   byte displacement b^d(Rn)      AF  byte relative
+               B   byte displacement deferred     BF  byte relative deferred
+               C   word displacement w^d(Rn)      CF  word relative
+               D   word displacement deferred     DF  word relative deferred
+               E   long displacement l^d(Rn)      EF  long relative
+               F   long displacement deferred     FF  long relative deferred
+
+          The registers VTIL uses are r9 (9, the end of dictionary pointer),
+          r10  (A, the loop stack pointer), r11 (B, the data stack pointer),
+          SP (E, the return stack pointer), and PC (F), so { (ds)+ } is  8B,
+          { -(ds) } is 7B, { (ds) } is 6B, and { (edp)+ } is 89.
+               Assembly code in a colon definition runs inline, between  the
+          jump to subroutine instructions VTIL compiles for the other words.
+          Follow these rules when you write it:
+               1.  r0 through r8 are free for your use,  but  any  word  may
+                   change  them,  so do not expect them to survive a call to
+                   another word.
+               2.  Leave r9, r10,  and  r11  pointing  to  the  end  of  the
+                   dictionary,  the loop stack, and the data stack, and push
+                   and pop only longwords on the stacks.   The  size  of  an
+                   autoincrement   or  autodecrement  is  the  size  of  the
+                   operand, so a byte or short  operand  of  { (ds)+ }  pops
+                   only one or two bytes.
+               3.  Leave the return stack as you found it.
+               4.  There are no labels, so you work out branch displacements
+                   yourself.    Branch   displacements   and   PC   relative
+                   displacements are both  counted  from  the  address  just
+                   after the displacement.
+
+               A  word  can  also  be  written  entirely  in  machine  code.
+          { create }  makes  a  header, and { b, } compiles the bytes of the
+          code after it, which must end with RSB (05).  This defines { 2* },
+          which  shifts  the  top  of the stack left one bit with ASHL (78),
+          using a short literal shift count:
+          VTIL -- VAX Threaded Interpretive Language                 Page 36
+          Assembler
+
+
+               create 2* ( n1 -- n2 )
+               hex 78 b, 01 b, 6B b, 6B b, 05 b, decimal
+               21 2* .         \ prints: 42
+
+          VTIL -- VAX Threaded Interpretive Language                 Page 37
           Miscellaneous Internals And Implementation Notes
 
 

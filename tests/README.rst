@@ -26,8 +26,9 @@ a command line or print it:
 
 Some scripts need setup on the VAX first:
 
-* ``blocks.vtil`` needs VTILBLOCKS.DAT: copy and build
-  MAKE-VTILBLOCKS.MAR there and run it.
+* ``blocks.vtil`` and ``manual.vtil`` need VTILBLOCKS.DAT: copy and
+  build MAKE-VTILBLOCKS.MAR there and run it.  ``manual.vtil``, which
+  runs the examples in VTIL.RNO, overwrites block 5.
 * ``load.vtil`` needs ``loadme.vtil`` and ``loadbad.vtil`` copied there
   with ``tools/vax-put``.
 * ``trap.vtil``, ``ctrlc.vtil`` and ``overflow.vtil`` test the

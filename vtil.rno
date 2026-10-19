@@ -368,20 +368,113 @@ want to edit.  Normal qualifiers for the EVE command can also be
 included after the <filename>, but no spaces are allowed in the
 command line.
 .HL 2 Strings
+VTIL has no single string data type.  Instead it has three string
+formats, and words that work with each of them.  All of them are just
+areas of memory, so you can also work on their characters directly
+with {#b@#}, {#b!#}, {#move#}, {#fill#}, and the other words that
+work on memory.
 .HL 3 String Formats
 .P
-Byte-counted Strings.
+Byte-counted strings.  A byte-counted string is a byte containing the
+number of characters in the string followed by the characters, so it
+can be at most 255 characters long.  {#token#} leaves the token it
+reads as a byte-counted string at {#eodp#}, and {#read#} reads a line
+from the terminal into a byte-counted string.  {#bcount#} turns the
+address of a byte-counted string into the address and length of its
+text, ready for {#write#}:
+.test page 6
+.BL
+.LM +5
+.LT
+pad read                \ type: a byte-counted line
+pad bcount write cr     \ prints: a byte-counted line
+pad b@ .                \ prints: 19
+.EL
+.LM -5
+.BL
 .P
-Short-counted Strings.
+Short-counted strings.  A short-counted (or word-counted) string is a
+short containing the number of characters in the string followed by
+the characters.  {#count#} turns the address of a short-counted string
+into the address and length of its text, {#message#} writes it to the
+terminal, and {#readstr#} reads a line from the terminal into one.
 .P
-Maxlen-short-counted Strings.
+Maxlen-short-counted strings.  A maxlen-short-counted string is a
+short-counted string preceded by a short containing the maximum number
+of characters the string can hold.  The address of such a string is
+the address of its current length, not of its maximum length, so all
+the words that work on short-counted strings work on it too.
+{#strmax#} returns its maximum length.  These are the strings that the
+string defining words create, and {#strcpy#} and {#strcat#} need one
+as their destination so they know how much room there is.
 .HL 3 String Defining Words
-.P
-{#string#}
-.P
-{#string"#}
+{#<n>#string#<name>#} creates a string variable <name> that can hold
+up to <n> characters and is initially empty.
+{#<n>#string"#<name>#<text>"#} does the same, but initializes the
+string to the text that follows the blank after <name>, up to the
+next {#"#}, so {#hello#} below holds "Hello,#" with its trailing
+blank.  Text longer than <n> characters is truncated.  Executing
+<name> leaves the address of the string (its current length) on the
+stack.
+.test page 9
+.BL
+.LM +5
+.LT
+40 string greeting
+40 string name
+20 string" hello Hello, "
+greeting strmax .       \ prints: 40
+greeting count . drop   \ prints: 0
+hello count . drop      \ prints: 7
+.EL
+.LM -5
+.BL
 .HL 3 String Manipulating Words
-{#strcat#}, {#strcmp#}, {#strcpy#}, {#strmax#}, {#strpos#}.
+{#<a1>#<a2>#strcpy#} copies the string at <a1> to the string at <a2>,
+and {#<a1>#<a2>#strcat#} adds the string at <a1> to the end of the
+string at <a2>.  {#strcmp#} compares two short-counted strings and
+leaves 0 if they are equal, a negative number if the first is less
+than the second, and a positive number if it is greater.  Continuing
+the example above:
+.test page 8
+.BL
+.LM +5
+.LT
+hello greeting strcpy
+.( Name? ) name 40 readstr   \ type: Kurt
+name greeting strcat
+greeting message cr          \ prints: Hello, Kurt
+hello greeting strcmp .      \ prints: -1
+.EL
+.LM -5
+.BL
+.P
+Two words search for one string in another.  Both take each string
+as the address and length of its text, as {#count#} and {#bcount#}
+leave them, but they take their arguments in opposite orders.
+{#strpos#}, {#(#a1#n1#a2#n2#--#a3#n3#?#f#)#}, looks for the string at
+<a1> in the string at <a2>, and {#match#},
+{#(#a1#n1#a2#n2#--#a3#?#f#)#}, looks for the string at <a2> in the
+string at <a1>.  If the string is found they leave true on the top of
+the stack and the address where it was found under that ({#strpos#}
+also leaves its length); otherwise they leave false.
+.test page 5
+.BL
+.LM +5
+.LT
+name count greeting count strpos   \ leaves: a3 4 true
+greeting count name count match    \ leaves: a3 true
+.EL
+.LM -5
+.BL
+.P
+{#=text#} compares two strings of the same length given the addresses
+of their text.  {#move#} copies bytes from one place to another,
+{#move_&fill#} copies them and pads the destination with a character,
+and {#fill#} and {#blank#} fill memory with a character or with
+blanks.  {#pad#} leaves the address of an area for temporary strings
+256 bytes past the end of the dictionary; it moves whenever the
+dictionary grows, so do not keep anything there across definitions.
 .HL 2 Vocabularies
 Vocabularies are subsections of the dictionary.  They allow you to
 have different contexts, so that {#x#} in one vocabulary does one
@@ -406,6 +499,73 @@ previous {#current#} vocabulary.  You can switch {#current#} back to
 the kernel vocabulary by saying {#kernel#definitions#} (which also sets
 {#context#} to the kernel vocabulary).
 .HL 2 Numeric Output Conversion
+{#.#} prints a number as a signed number in the current radix followed
+by a space.  When you need more control, such as leading zeros, a
+decimal point, or a fixed width, you build the output string yourself
+with the numeric output conversion words {#<_##}, {#_##}, {#_#s#},
+{#hold#}, {#sign#}, and {#_#>#}.
+.P
+Conversion works from the rightmost digit to the left.  {#<_##}
+starts a new output string.  Each {#_##} divides the number on the top
+of the stack by the radix, adds the remainder to the left of the
+string as the next digit, and leaves the quotient for the next
+{#_##}.  {#_#s#} does {#_##} until the number is zero, always
+producing at least one digit.  {#hold#} adds any character to the
+left of the string, and {#sign#} adds a minus sign if the number on
+the top of the stack is negative.  {#_#>#} drops the number and leaves
+the address and length of the string, ready for {#write#}.
+{#_##} treats the number as unsigned, so to print a signed number you
+convert its absolute value and keep the original under it for
+{#sign#}:
+.test page 4
+.BL
+.LM +5
+.LT
+-56 dup abs <# #s swap sign #> write    \ prints: -56
+.EL
+.LM -5
+.BL
+.P
+Since the characters are added from right to left, the code reads
+backwards.  Here is a word that prints an amount in cents as dollars
+and cents:
+.test page 8
+.BL
+.LM +5
+.LT
+: .money ( n -- )
+   dup abs <# # # [ascii] . hold #s
+   [ascii] $ hold swap sign #> write ;
+1234 .money     \ prints: $12.34
+-5 .money       \ prints: -$0.05
+.EL
+.LM -5
+.BL
+.P
+The radix is a variable: {#radix#} leaves its address, and
+{#binary#}, {#octal#}, {#decimal#}, and {#hex#} set it.  It can be
+any base from 2 to 36, and it applies both to the numbers you type and
+to the numbers VTIL prints.  A word can change it temporarily by
+saving it on the stack and restoring it afterwards:
+.test page 9
+.BL
+.LM +5
+.LT
+: .hex8 ( n -- )   \ print n as eight hexadecimal digits
+   radix @ swap hex <# # # # # # # # # #> write radix ! ;
+255 .hex8       \ prints: 000000FF
+-1 .hex8        \ prints: FFFFFFFF
+5 2 radix ! . decimal   \ prints: 101
+.EL
+.LM -5
+.BL
+.P
+The output string is built downward from {#pad#}, in the space between
+the end of the dictionary and {#pad#}, so it does not disturb anything
+at {#pad#}.  {#hld#} holds the address of the leftmost character so
+far.  Each conversion, including the ones {#.#} and {#?#} do, reuses
+the same space, so write or copy the string before you convert
+another number.
 .HL 2 Assembler
 VTIL includes its own assembler, and allows you to use assembly
 language anywhere in a colon definition.  Why does it allow this?
@@ -513,6 +673,55 @@ made a compile time word with {#compiletime#}, like this:
 .BL
 Executing {#x#} prints 5 and 7.
 .HL 2 Block I/O Words
+VTIL's mass storage is the block file, VTILBLOCKS.DAT in the current
+directory unless you define the logical name VTILBLOCKS to point to
+another file.  The block file has 100 blocks of 1024 bytes, numbered
+from 1 to 100.  The program MAKE-VTILBLOCKS creates it, with every
+byte of block <n> set to <n>.
+.P
+{#block-open#} opens the block file, and {#block-close#} closes it.
+{#<n>#block#} reads block <n> into one of VTIL's three block buffers
+and leaves the address of the buffer on the stack.  If the block is
+already in a buffer it is not read again.  Otherwise VTIL uses a
+buffer that is not in use, or one that has not been modified, or, if
+all of them have been modified, it writes the first buffer to the
+block file and uses that.  Since buffers are reused, the address that
+{#block#} leaves is only good until the next {#block#} or {#buffer#};
+get the address again with {#block#} when you need it.
+.P
+If you change a block, execute {#update#} to mark the most recently
+used block as modified.  {#save-buffers#} writes all the modified
+buffers to the block file and keeps them in memory, {#flush-buffers#}
+writes them and frees the buffers, and {#empty-buffers#} discards all
+the buffers without writing them.  {#block-close#} does not write
+modified buffers, so do {#save-buffers#} first.  {#<n>#buffer#} is
+like {#block#}, except that it does not read the block from the file,
+for when you will replace the whole block.  The words
+{#block-read#}, {#block-write#}, {#buffer-read#}, and
+{#buffer-write#} do the actual reading and writing.
+.P
+For example, this clears block 5, copies the string {#hello#} from the
+Strings section into it, saves it, and reads it back:
+.test page 10
+.BL
+.LM +5
+.LT
+block-open
+5 block 1024 blank update               \ clear block 5
+hello count 5 block swap move update    \ copy hello in
+save-buffers block-close
+block-open
+5 block 7 write cr                      \ prints: Hello,
+block-close
+.EL
+.LM -5
+.BL
+.P
+Errors in block I/O are reported by RMS, for instance
+"%RMS-E-EOF, end of file detected" for a block number past the end of
+the file, or "%RMS-F-ISI, invalid internal stream identifier (ISI)
+value" if the block file is not open, and VTIL returns to the
+{#VTIL>#} prompt.
 .HL 1 REFERENCE MANUAL
 This part of the manual is intended for reference.  It contains a
 complete list of all words in the VTIL language kernel and compiler
@@ -1867,6 +2076,75 @@ Compile ascii value of 1st character of next token into word.
 .PAGE
 .ENDIF NOPAGING
 .HL 2 Assembler
+VTIL's assembler is made of the words you define with {#ac:#} (see
+the Assembler section of the User's Guide), plus the compile time
+words {#b_^#}, {#w_^#}, and {#l_^#}, which compile the next token as a
+byte, short, or long for immediate data and displacements.  VTIL does
+not define any opcodes itself, so you take them from the VAX
+Architecture Handbook or the VAX MACRO reference manual and define the
+ones you need.
+.P
+A VAX instruction is its opcode followed by an operand specifier for
+each operand.  The high four bits of an operand specifier give the
+addressing mode, and the low four bits give the register:
+.test page 22
+.BL
+.LM +5
+.LT
+    addressing mode                with PC (register F)
+0-3 short literal #0 to #63
+4   index [Rn]
+5   register Rn
+6   register deferred (Rn)
+7   autodecrement -(Rn)
+8   autoincrement (Rn)+            8F  immediate #n
+9   autoincrement deferred @(Rn)+  9F  absolute @#a
+A   byte displacement b^d(Rn)      AF  byte relative
+B   byte displacement deferred     BF  byte relative deferred
+C   word displacement w^d(Rn)      CF  word relative
+D   word displacement deferred     DF  word relative deferred
+E   long displacement l^d(Rn)      EF  long relative
+F   long displacement deferred     FF  long relative deferred
+.EL
+.LM -5
+.BL
+The registers VTIL uses are r9 (9, the end of dictionary pointer),
+r10 (A, the loop stack pointer), r11 (B, the data stack pointer), SP
+(E, the return stack pointer), and PC (F), so {#(ds)+#} is 8B,
+{#-(ds)#} is 7B, {#(ds)#} is 6B, and {#(edp)+#} is 89.
+.P
+Assembly code in a colon definition runs inline, between the jump to
+subroutine instructions VTIL compiles for the other words.  Follow
+these rules when you write it:
+.LS
+.LE;r0 through r8 are free for your use, but any word may change them,
+so do not expect them to survive a call to another word.
+.LE;Leave r9, r10, and r11 pointing to the end of the dictionary, the
+loop stack, and the data stack, and push and pop only longwords on the
+stacks.  The size of an autoincrement or autodecrement is the size of
+the operand, so a byte or short operand of {#(ds)+#} pops only one or
+two bytes.
+.LE;Leave the return stack as you found it.
+.LE;There are no labels, so you work out branch displacements yourself.
+Branch displacements and PC relative displacements are both counted
+from the address just after the displacement.
+.ELS
+.P
+A word can also be written entirely in machine code.  {#create#}
+makes a header, and {#b,#} compiles the bytes of the code after it,
+which must end with RSB (05).  This defines {#2*#}, which shifts the
+top of the stack left one bit with ASHL (78), using a short literal
+shift count:
+.test page 7
+.BL
+.LM +5
+.LT
+create 2* ( n1 -- n2 )
+hex 78 b, 01 b, 6B b, 6B b, 05 b, decimal
+21 2* .         \ prints: 42
+.EL
+.LM -5
+.BL
 .IFNOT NOPAGING
 .PAGE
 .ENDIF NOPAGING

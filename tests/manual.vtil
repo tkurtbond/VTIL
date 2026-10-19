@@ -1,0 +1,45 @@
+\ Examples from the Strings, Numeric Output Conversion, Block I/O and
+\ Assembler sections of VTIL.RNO.  Block 5 of VTILBLOCKS.DAT is changed.
+40 string greeting
+40 string name
+greeting strmax . greeting count . drop     \ 40 0
+20 string" hello Hello, "
+hello count . drop                          \ 7
+hello greeting strcpy
+.( Name? ) name 40 readstr
+Kurt
+name greeting strcat
+greeting message cr                         \ Hello, Kurt
+greeting count . drop                       \ 11
+name count greeting count strpos . . greeting 2 + - .  \ -1 4 7
+greeting count name count match . greeting 2 + - .     \ -1 7
+hello greeting strcmp .                     \ -1
+pad read
+a byte-counted line
+pad bcount write cr                         \ a byte-counted line
+pad b@ .                                    \ 19
+\ numeric output conversion
+: .money ( n -- )
+   dup abs <# # # [ascii] . hold #s [ascii] $ hold swap sign #> write ;
+1234 .money cr                              \ $12.34
+-5 .money cr                                \ -$0.05
+: .hex8 ( n -- )
+   radix @ swap hex <# # # # # # # # # #> write radix ! ;
+255 .hex8 cr                                \ 000000FF
+-1 .hex8 cr                                 \ FFFFFFFF
+10 .                                        \ 10
+5 2 radix ! . decimal                       \ 101
+\ block I/O
+block-open
+5 block 1024 blank update
+hello count 5 block swap move update
+save-buffers block-close
+block-open
+5 block 7 write cr                          \ Hello,
+5 block 7 + b@ .                            \ 32
+block-close
+\ a code word
+create 2* ( n1 -- n2 )
+hex 78 b, 01 b, 6B b, 6B b, 05 b, decimal
+21 2* .                                     \ 42
+.st
