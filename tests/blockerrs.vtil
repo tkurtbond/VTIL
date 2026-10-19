@@ -1,0 +1,11 @@
+\ Block numbers outside 1..100, and blocks before block-open
+5 block b@ .          \ RMS-F-ISI: block file not open
+block-open
+0 block b@ .          \ an RMS error, not an unread buffer
+0 block b@ .          \ the same error again
+101 block b@ .        \ RMS-E-EOF
+101 block b@ .        \ RMS-E-EOF again, not an unread buffer
+empty-buffers
+1 block b@ . 2 block b@ . 3 block b@ . 4 block b@ .   \ 1 2 3 4
+block-close
+.st

@@ -1247,19 +1247,19 @@ _kernel_begin:
 	movl	r0,-(r11)		; set up for buffer-write
 	jsb	i_buffer_write		; write the buffer
 	movl	(r10)+,r0		; get buffer number back
-; read block into buffer
-90$:
+90$:					; read block into buffer~~~ was on the line before
 	movl	(r11),-			; Save the new block number in
 		v_buf_blk_nums[r0]	;   buffer
-	movb	#c_inuse,-		; flag that buffer is in use
-		v_buf_inuse[r0]
+	clrb	v_buf_inuse[r0]		;~~~ not in use until it is read, so a failed read leaves it unused
 	movl	r0,(r11)		; set up for buffer-read
 	jsb	i_buffer_read		; read block into buffer
+	movl	v_current_buff,r0	;~~~ buffer-read set this to the buffer number
+	movb	#c_inuse,v_buf_inuse[r0] ; flag that buffer is in use~~~ was before the read
 	rsb				; return
 ;
 ; block already in memory
-;
-100$:
+100$:	tstb	v_buf_inuse[r0]		;~~~ unused buffers have block 0, so 0 block found one
+	beql	90$			;~~~ not in use, so read the block into it
 ; Comes here if block already in memory, with buffer# in r0, block# on stack
 	mull3	r0,#c_block_size,(r11)	; offset to `r0'th buffer in buffer array
 	addl2	#v_blkbuff,(r11)	; calculate address of `r0'th buffer
@@ -1395,8 +1395,8 @@ _kernel_begin:
 		v_buf_blk_nums[r0]	;   buffer
 	movb	#c_inuse,-		; Flag that buffer is in use
 		v_buf_inuse[r0]
-
-100$:
+100$:	tstb	v_buf_inuse[r0]		;~~~ unused buffers have block 0, so 0 buffer found one
+	beql	90$			;~~~ not in use, so set it up
 ; leave address of buffer on stack
 	mull3	r0,#c_block_size,(r11)	; offset to `r0'th buffer in buffer array
 	addl2	#v_blkbuff,(r11)	; calculate address of `r0'th buffer

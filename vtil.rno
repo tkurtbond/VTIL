@@ -719,7 +719,8 @@ block-close
 .P
 Errors in block I/O are reported by RMS, for instance
 "%RMS-E-EOF, end of file detected" for a block number past the end of
-the file, or "%RMS-F-ISI, invalid internal stream identifier (ISI)
+the file, "%RMS-F-KEY, invalid record number key or key value" for
+block 0, or "%RMS-F-ISI, invalid internal stream identifier (ISI)
 value" if the block file is not open, and VTIL returns to the
 {#VTIL>#} prompt.
 .HL 1 REFERENCE MANUAL
