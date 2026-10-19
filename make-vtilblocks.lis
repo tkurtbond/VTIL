@@ -1,0 +1,371 @@
+MAKE                            -VTILBLOCKS -- Make the VTILBLOCKS.DAT f 11-JAN-2024 10:12:03  VAX MACRO V5.4-3            Page   1
+                                                                         17-SEP-2023 14:28:27  MAKE-VTILBLOCKS.MAR;14            (1)
+
+                                     0000     1 	.title	MAKE-VTILBLOCKS -- Make the VTILBLOCKS.DAT file.
+                                     0000     2 ; This really needs cleaning up.
+                                     0000     3 	.dsabl	global
+                                     0000     4 	.extrn	dsc$k_dtype_t, dsc$k_class_s
+                                     0000     5 	.extrn	lib$get_input, lib$put_output, lib$signal
+                                     0000     6 	.extrn	rms$_eof, rms$_fnf
+                                     0000     7 
+                           FFFFFFFF  0000     8 c_true		= -1			; true value, actually anything
+                                     0000     9 					;  but 0 is true
+                           00000000  0000    10 c_false		= 0			; false value
+                           00000003  0000    11 c_max_blocks	= 3			; number of block i/o buffers
+                           00000400  0000    12 c_block_size	= 1024			; size for block i/o buffer
+                           00000004  0000    13 c_keysize	= 4			; size of key (longword record number)
+                           00000002  0000    14 c_d_blks_in_blk = c_block_size / 512	; number of disk blocks in VTIL block
+                                     0000    15 
+                                 00000000    16 	.psect	vbdata,long,noexe
+                                     0000    17 ;
+                                     0000    18 ; rms buffers for VTIL block i/o (which is actually rms record i/o)
+                                     0000    19 ;
+                                     0000    20 	.align long
+                                     0000    21 v_blkfab:
+                                     0000    22 	$fab	dnm=<vtilblocks.dat>,-	; default input file name
+                                     0000    23 		fac=<get,put>,-		; block i/o operations
+                                     0000    24 		fnm=<vtilblocks>,-	; input file name
+                                     0000    25 		mrs=c_block_size,-	; maximum record size
+                                     0000    26 		rfm=<fix>,-		; fixed length records
+                                     0000    27 		alq=200,-      		; allocation
+                                     0000    28 		org=<seq>
+                                     0050    29 v_blkrab:
+                                     0050    30 	$rab	fab=v_blkfab,-		; pointer to fab
+                                     0050    31 		ubf=v_blkbuff,-		; address of user buffer
+                                     0050    32 		usz=c_block_size	; and the record size
+                                     0094    33 v_blkkey:
+                           00000000  0094    34 	.long	0			; buffer for key (longword pos rec #)
+                                     0098    35 
+                           00000084  0098    36 c_msglen = 132
+                                     0098    37 
+                                     0098    38 v_msgdsc:
+                               0084  0098    39 	.word	c_msglen	; descriptor for $FAO message
+                                 00' 009A    40 	.byte	dsc$k_dtype_t	; data type text
+                                 00' 009B    41 	.byte	dsc$k_class_s	; descriptor class
+                           000000A0' 009C    42 	.long	v_msgbuf	; pointer to message buffer
+                                     00A0    43 v_msgbuf:
+                           00000124  00A0    44 	.blkb	c_msglen
+                                     0124    45 
+                                     0124    46 faoctl:
+64 72 6F 63 65 52 0000012C'010E0000' 0124    47 	.ascid	/Record #!ZL/
+                     4C 5A 21 23 20  0132       
+                                     0137    48 
+                                     0137    49 faoctl2:
+65 52 20 20 20 20 0000013F'010E0000' 0137    50 	.ascid	/    Record number  #!ZL, Byte Address !XL, Byte Index #!ZL/
+20 72 65 62 6D 75 6E 20 64 72 6F 63  0145       
+20 65 74 79 42 20 2C 4C 5A 21 23 20  0151       
+2C 4C 58 21 20 73 73 65 72 64 64 41  015D       
+20 78 65 64 6E 49 20 65 74 79 42 20  0169       
+                        4C 5A 21 23  0175       
+                                     0179    51 
+MAKE                            -VTILBLOCKS -- Make the VTILBLOCKS.DAT f 11-JAN-2024 10:12:03  VAX MACRO V5.4-3            Page   2
+                                                                         17-SEP-2023 14:28:27  MAKE-VTILBLOCKS.MAR;14            (1)
+
+                                     0179    52 
+                                     0179    53 v_create_msg:
+20 72 65 74 66 41 00000181'010E0000' 0179    54 	.ascid	/After $CREATE/
+               45 54 41 45 52 43 24  0187       
+                                     018E    55 v_connect_msg:
+20 72 65 74 66 41 00000196'010E0000' 018E    56 	.ascid	/After $CONNECT/
+            54 43 45 4E 4E 4F 43 24  019C       
+                                     01A4    57 v_after_set_loop_msg:
+20 72 65 74 66 41 000001AC'010E0000' 01A4    58 	.ascid	/After set loop/
+            70 6F 6F 6C 20 74 65 73  01B2       
+                                     01BA    59 v_in_write_loop:
+69 72 77 20 6E 49 000001C2'010E0000' 01BA    60 	.ascid	/In write loop/
+               70 6F 6F 6C 20 65 74  01C8       
+                                     01CF    61 
+                                     01CF    62 ;
+                                     01CF    63 ; Block i/o buffers
+                                     01CF    64 ;
+                                     01CF    65 v_blkbuff:
+                           00000DCF  01CF    66 	.blkb	c_max_blocks * c_block_size ; buffers for block i/o
+                                     0DCF    67 
+                                 00000000    68 	.psect	vbcode,exe,nowrt
+                               0FC0  0000    69 	.entry	vb,^m<r6,r7,r8,r9,r10,r11>
+                                     0002    70 	$create fab=v_blkfab
+                         03 50   E8  000F    71 	blbs	r0,10$			; no error, go on
+                          00BB   31  0012    72 	brw	error_exit
+                                     0015    73 10$:
+                   00000179'EF   7F  0015    74 	pushaq	v_create_msg
+              00000000'GF   01   FB  001B    75 	calls	#1,g^lib$put_output
+                                     0022    76 
+                                     0022    77 	$connect rab=v_blkrab
+                         03 50   E8  002F    78 	blbs	r0,20$
+                          009B   31  0032    79 	brw	error_exit
+                                     0035    80 20$:
+                   0000018E'EF   7F  0035    81 	pushaq	v_connect_msg
+              00000000'GF   01   FB  003B    82 	calls	#1,g^lib$put_output
+                                     0042    83 
+     00000078'EF   000001CF'EF   DE  0042    84 	moval	v_blkbuff,v_blkrab+rab$l_rbf
+                       0400 8F   B0  004D    85 	movw	#c_block_size,-
+                   00000072'EF       0051    86 		v_blkrab+rab$w_rsz
+                                     0056    87 
+                       59   01   D0  0056    88 	movl	#1,r9			; Record number
+                                     0059    89 
+                                     0059    90 record_loop:
+                                     0059    91 	; output record number
+         00000098'EF   0084 8F   B0  0059    92 	movw	#c_msglen,v_msgdsc	; Use the whole buffer
+                                     0062    93 	$fao_s	ctrstr=faoctl,-
+                                     0062    94 		outbuf=v_msgdsc,-
+                                     0062    95 		outlen=v_msgdsc,-
+                                     0062    96 		p1=r9
+                   00000098'EF   7F  007D    97 	pushaq	v_msgdsc
+              00000000'GF   01   FB  0083    98 	calls	#1,g^lib$put_output
+                                     008A    99 	
+              58   000001CF'EF   9E  008A   100 	movab	v_blkbuff,r8		; Byte address in block
+                            57   D4  0091   101 	clrl	r7			; Byte counter
+                                     0093   102 blockset_loop:
+                                     0093   103 .if defined c_verbose
+                                     0093   104 	movw	#c_msglen,v_msgdsc	; Use the whole buffer
+MAKE                            -VTILBLOCKS -- Make the VTILBLOCKS.DAT f 11-JAN-2024 10:12:03  VAX MACRO V5.4-3            Page   3
+                                                                         17-SEP-2023 14:28:27  MAKE-VTILBLOCKS.MAR;14            (1)
+
+                                     0093   105 	$fao_s	ctrstr=faoctl2,-
+                                     0093   106 		outbuf=v_msgdsc,-
+                                     0093   107 		outlen=v_msgdsc,-
+                                     0093   108 		p1=r9,p2=r8,p3=r7
+                                     0093   109 	pushaq	v_msgdsc
+                                     0093   110 	calls	#1,g^lib$put_output
+                                     0093   111 .endc
+                                     0093   112 
+                       88   59   90  0093   113 	movb	r9,(r8)+
+           F5 57   00000400 8F   F2  0096   114 	aoblss	#c_block_size,r7,blockset_loop
+                                     009E   115 
+                                     009E   116 
+                                     009E   117 	$put	rab=v_blkrab		; Sequential put
+                         03 50   E8  00AB   118 	blbs	r0,50$
+                          001F   31  00AE   119 	brw	error_exit
+                                     00B1   120 50$:
+                            59   D6  00B1   121 	incl	r9
+              00000064 8F   59   D1  00B3   122 	cmpl	r9,#100
+                            03   14  00BA   123 	bgtr	the_end
+                          FF9A   31  00BC   124 	brw	record_loop
+                                     00BF   125 the_end:
+                                     00BF   126 	$close	fab=v_blkfab
+                         01 50   E9  00CC   127 	blbc	r0,error_exit
+                                 04  00CF   128 	ret
+                                     00D0   129 
+                                     00D0   130 error_exit:
+                            50   DD  00D0   131 	pushl	r0			; put error message number on stack
+              00000000'GF   01   FB  00D2   132 	calls	#1,g^lib$signal		; signal error
+                                 04  00D9   133 	ret
+                                     00DA   134 	.end	vb
+MAKE                            -VTILBLOCKS -- Make the VTILBLOCKS.DAT f 11-JAN-2024 10:12:03  VAX MACRO V5.4-3            Page   4
+Symbol table                                                             17-SEP-2023 14:28:27  MAKE-VTILBLOCKS.MAR;14            (1)
+
+$$$ADR                         = 000000C0    D            THE_END                          000000BF R  D  04        
+$$.TAB                         = 00000050 R  D  01        VB                               00000000 RG D  04        
+$$.TABEND                      = 00000094 R  D  01        V_AFTER_SET_LOOP_MSG             000001A4 R  D  01        
+$$.TMP                         = 00000000    D            V_BLKBUFF                        000001CF R  D  01        
+$$.TMP1                        = 00000001    D            V_BLKFAB                         00000000 R  D  01        
+$$.TMP2                        = 000000CF                 V_BLKKEY                         00000094 R  D  01        
+$$.TMPX                        = 0000000A R  D  03        V_BLKRAB                         00000050 R  D  01        
+$$.TMPX1                       = 0000000E    D            V_CONNECT_MSG                    0000018E R  D  01        
+$$T2                           = 00000004    D            V_CREATE_MSG                     00000179 R  D  01        
+BLOCKSET_LOOP                    00000093 R  D  04        V_IN_WRITE_LOOP                  000001BA R  D  01        
+C_BLOCK_SIZE                   = 00000400    D            V_MSGBUF                         000000A0 R  D  01        
+C_D_BLKS_IN_BLK                = 00000002    D            V_MSGDSC                         00000098 R  D  01        
+C_FALSE                        = 00000000    D            
+C_KEYSIZE                      = 00000004    D            
+C_MAX_BLOCKS                   = 00000003    D            
+C_MSGLEN                       = 00000084    D            
+C_TRUE                         = FFFFFFFF    D            
+DSC$K_CLASS_S                    ********   X   00        
+DSC$K_DTYPE_T                    ********   X   00        
+ERROR_EXIT                       000000D0 R  D  04        
+FAB$B_DNS                      = 00000035    D            
+FAB$B_FNS                      = 00000034    D            
+FAB$C_BID                      = 00000003    D            
+FAB$C_BLN                      = 00000050    D            
+FAB$C_FIX                      = 00000001    D            
+FAB$C_SEQ                      = 00000000    D            
+FAB$L_ALQ                      = 00000010    D            
+FAB$L_DNA                      = 00000030    D            
+FAB$L_FNA                      = 0000002C    D            
+FAB$L_FOP                      = 00000004    D            
+FAB$V_CHAN_MODE                = 00000002    D            
+FAB$V_FILE_MODE                = 00000004    D            
+FAB$V_GET                      = 00000001    D            
+FAB$V_LNM_MODE                 = 00000000    D            
+FAB$V_PUT                      = 00000000    D            
+FAB$W_GBC                      = 00000048    D            
+FAOCTL                           00000124 R  D  01        
+FAOCTL2                          00000137 R  D  01        
+LIB$GET_INPUT                    ********   X   00        
+LIB$PUT_OUTPUT                   ********   X   00        
+LIB$SIGNAL                       ********   X   00        
+RAB$B_RAC                      = 0000001E    D            
+RAB$C_BID                      = 00000001    D            
+RAB$C_BLN                      = 00000044    D            
+RAB$C_SEQ                      = 00000000    D            
+RAB$L_CTX                      = 00000018    D            
+RAB$L_RBF                      = 00000028    D            
+RAB$L_ROP                      = 00000004    D            
+RAB$W_RSZ                      = 00000022    D            
+RECORD_LOOP                      00000059 R  D  04        
+RMS$_EOF                         ********   X   00        
+RMS$_FNF                         ********   X   00        
+SYS$CLOSE                        ********  G    04        
+SYS$CONNECT                      ********  G    04        
+SYS$CREATE                       ********  G    04        
+SYS$FAO                          ********  G    04        
+SYS$PUT                          ********  G    04        
+MAKE                            -VTILBLOCKS -- Make the VTILBLOCKS.DAT f 11-JAN-2024 10:12:03  VAX MACRO V5.4-3            Page   5
+Psect synopsis                                                           17-SEP-2023 14:28:27  MAKE-VTILBLOCKS.MAR;14            (1)
+
+
+                                                +----------------+
+                                                ! Psect synopsis !
+                                                +----------------+
+
+PSECT name                      Allocation          PSECT No.  Attributes     
+----------                      ----------          ---------  ----------     
+.  ABS  .                       00000000  (    0.)  00 (  0.)  NOPIC   USR   CON   ABS   LCL NOSHR NOEXE NORD  NOWRT NOVEC BYTE  
+VBDATA                          00000DCF  ( 3535.)  01 (  1.)  NOPIC   USR   CON   REL   LCL NOSHR NOEXE   RD    WRT NOVEC LONG  
+$ABS$                           00000000  (    0.)  02 (  2.)  NOPIC   USR   CON   ABS   LCL NOSHR   EXE   RD    WRT NOVEC BYTE  
+$RMSNAM                         00000018  (   24.)  03 (  3.)  NOPIC   USR   CON   REL   LCL NOSHR   EXE   RD    WRT NOVEC BYTE  
+VBCODE                          000000DA  (  218.)  04 (  4.)  NOPIC   USR   CON   REL   LCL NOSHR   EXE   RD  NOWRT NOVEC BYTE  
+MAKE                            -VTILBLOCKS -- Make the VTILBLOCKS.DAT f 11-JAN-2024 10:12:03  VAX MACRO V5.4-3            Page   6
+Cross reference                                                          17-SEP-2023 14:28:27  MAKE-VTILBLOCKS.MAR;14            (1)
+
+
+                                             +------------------------+
+                                             ! Symbol Cross Reference !
+                                             +------------------------+
+
+SYMBOL                          VALUE        DEFINITION      REFERENCES... 
+------                          -----        ----------      ------------- 
+$$$ADR                         =000000C0     96     (1)      96     (1)    
+$$.TAB                         =00000050-R   32     (1)      28     (1)      32     (1)    
+$$.TABEND                      =00000094-R   32     (1)      28     (1)      32     (1)    
+$$.TMP                         =00000000     32     (1)      28     (1)      32     (1)    
+$$.TMP1                        =00000001     126    (1)      117    (1)      126    (1)      70     (1)      77     (1)    
+$$.TMP2                        =000000CF     126    (1)      117    (1)      126    (1)      70     (1)      77     (1)    
+$$.TMPX                        =0000000A-R   28     (1)      28     (1)    
+$$.TMPX1                       =0000000E     28     (1)      28     (1)    
+$$T2                           =00000004     96     (1)      96     (1)    
+BLOCKSET_LOOP                   00000093-R   102    (1)    #-114    (1)    
+C_BLOCK_SIZE                   =00000400     12     (1)    #-114    (1)      14     (1)      28     (1)      32     (1)    
+                                                             66     (1)    #-85     (1)    
+C_D_BLKS_IN_BLK                =00000002     14     (1)    
+C_FALSE                        =00000000     10     (1)    
+C_KEYSIZE                      =00000004     13     (1)    
+C_MAX_BLOCKS                   =00000003     11     (1)      66     (1)    
+C_MSGLEN                       =00000084     36     (1)      39     (1)      44     (1)    #-92     (1)    
+C_TRUE                         =FFFFFFFF     8      (1)    
+DSC$K_CLASS_S                   00000000-XR                  4      (1)      41     (1)    
+DSC$K_DTYPE_T                   00000000-XR                  4      (1)      40     (1)    
+ERROR_EXIT                      000000D0-R   130    (1)    #-119    (1)    #-127    (1)    #-72     (1)    #-79     (1)    
+FAB$B_DNS                      =00000035                     28     (1)    
+FAB$B_FNS                      =00000034                     28     (1)    
+FAB$C_BID                      =00000003                     28     (1)    
+FAB$C_BLN                      =00000050                     28     (1)    
+FAB$C_FIX                      =00000001                     28     (1)    
+FAB$C_SEQ                      =00000000                     28     (1)    
+FAB$L_ALQ                      =00000010                     28     (1)    
+FAB$L_DNA                      =00000030                     28     (1)    
+FAB$L_FNA                      =0000002C                     28     (1)    
+FAB$L_FOP                      =00000004                     28     (1)    
+FAB$V_CHAN_MODE                =00000002                     28     (1)    
+FAB$V_FILE_MODE                =00000004                     28     (1)    
+FAB$V_GET                      =00000001                     28     (1)    
+FAB$V_LNM_MODE                 =00000000                     28     (1)    
+FAB$V_PUT                      =00000000                     28     (1)    
+FAB$W_GBC                      =00000048                     28     (1)    
+FAOCTL                          00000124-R   46     (1)      96     (1)    
+FAOCTL2                         00000137-R   49     (1)    
+LIB$GET_INPUT                   00000000-XR                  5      (1)    
+LIB$PUT_OUTPUT                  00000000-XR                  5      (1)      75     (1)      82     (1)      98     (1)    
+LIB$SIGNAL                      00000000-XR                  132    (1)      5      (1)    
+RAB$B_RAC                      =0000001E                     32     (1)    
+RAB$C_BID                      =00000001                     32     (1)    
+RAB$C_BLN                      =00000044                     32     (1)    
+RAB$C_SEQ                      =00000000                     32     (1)    
+RAB$L_CTX                      =00000018                     32     (1)    
+RAB$L_RBF                      =00000028                   #-84     (1)    
+RAB$L_ROP                      =00000004                     32     (1)    
+RAB$W_RSZ                      =00000022                   #-86     (1)    
+MAKE                            -VTILBLOCKS -- Make the VTILBLOCKS.DAT f 11-JAN-2024 10:12:03  VAX MACRO V5.4-3            Page   7
+Cross reference                                                          17-SEP-2023 14:28:27  MAKE-VTILBLOCKS.MAR;14            (1)
+
+RECORD_LOOP                     00000059-R   90     (1)    #-124    (1)    
+RMS$_EOF                        00000000-XR                  6      (1)    
+RMS$_FNF                        00000000-XR                  6      (1)    
+SYS$CLOSE                       00000000-XR                  126    (1)    
+SYS$CONNECT                     00000000-XR                  77     (1)    
+SYS$CREATE                      00000000-XR                  70     (1)    
+SYS$FAO                         00000000-XR                  96     (1)    
+SYS$PUT                         00000000-XR                  117    (1)    
+THE_END                         000000BF-R   125    (1)    #-123    (1)    
+VB                              00000000-R   69     (1)    
+V_AFTER_SET_LOOP_MSG            000001A4-R   57     (1)    
+V_BLKBUFF                       000001CF-R   65     (1)      100    (1)      32     (1)      84     (1)    
+V_BLKFAB                        00000000-R   21     (1)      126    (1)      32     (1)      70     (1)    
+V_BLKKEY                        00000094-R   33     (1)    
+V_BLKRAB                        00000050-R   29     (1)      117    (1)      77     (1)    #-84     (1)    #-86     (1)    
+V_CONNECT_MSG                   0000018E-R   55     (1)      81     (1)    
+V_CREATE_MSG                    00000179-R   53     (1)      74     (1)    
+V_IN_WRITE_LOOP                 000001BA-R   59     (1)    
+V_MSGBUF                        000000A0-R   43     (1)      42     (1)    
+V_MSGDSC                        00000098-R   38     (1)    #-92     (1)      96     (1)      97     (1)    
+MAKE                            -VTILBLOCKS -- Make the VTILBLOCKS.DAT f 11-JAN-2024 10:12:03  VAX MACRO V5.4-3            Page   8
+Cross reference                                                          17-SEP-2023 14:28:27  MAKE-VTILBLOCKS.MAR;14            (1)
+
+
+                                             +------------------------+
+                                             ! Macros Cross Reference !
+                                             +------------------------+
+
+MACRO             SIZE          DEFINITION       REFERENCES... 
+-----             ----          ----------       ------------- 
+$$R_TABINIT       1             28     (1)       28     (1)       32     (1)    
+$$R_VBFSET        1             28     (1)       28     (1)       32     (1)    
+$CLOSE            1             126    (1)       126    (1)    
+$CONNECT          1             77     (1)       77     (1)    
+$CREATE           1             70     (1)       70     (1)    
+$DEFINI           1             28     (1)       28     (1)       32     (1)    
+$FAB              4             22     (1)       22     (1)    
+$FABDEF           9             28     (1)       28     (1)    
+$FAO_S            2             93     (1)       93     (1)    
+$PUSHADR          1             96     (1)       96     (1)    
+$PUT              1             117    (1)       117    (1)    
+$RAB              2             30     (1)       30     (1)    
+$RABDEF           6             32     (1)       32     (1)    
+$RMSCALL          2             70     (1)       117    (1)       126    (1)       70     (1)       77     (1)    
+
+                                             +------------------------+
+                                             ! Performance indicators !
+                                             +------------------------+
+
+Phase                    Page faults    CPU Time       Elapsed Time   
+-----                    -----------    --------       ------------   
+Initialization                   36     00:00:00.00    00:00:00.00
+Command processing              888     00:00:00.01    00:00:00.02
+Pass 1                          208     00:00:00.14    00:00:00.16
+Symbol table sort                 0     00:00:00.00    00:00:00.00
+Pass 2                            4     00:00:00.04    00:00:00.04
+Symbol table output               0     00:00:00.00    00:00:00.00
+Psect synopsis output             0     00:00:00.00    00:00:00.00
+Cross-reference output            2     00:00:00.00    00:00:00.00
+Assembler run totals           1140     00:00:00.19    00:00:00.22
+
+The working set limit was 2450 pages.
+22437 bytes (44 pages) of virtual memory were used to buffer the intermediate code.
+There were 30 pages of symbol table space allocated to hold 380 non-local and 3 local symbols.
+134 source lines were read in Pass 1, producing 38 object records in Pass 2.
+31 pages of virtual memory were used to define 19 macros.
+
+                                            +--------------------------+
+                                            ! Macro library statistics !
+                                            +--------------------------+
+
+Macro library name                           Macros defined      
+------------------                           --------------      
+SYS$COMMON:[SYSLIB]STARLET.MLB;2                       16        
+
+644 GETS were required to define 16 macros.
+
+There were no errors, warnings or information messages.
+
+MACRO/DEBUG/LIST/CROSS/OBJECT=MAKE-VTILBLOCKS.OBJ MAKE-VTILBLOCKS.MAR

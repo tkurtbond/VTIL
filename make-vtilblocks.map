@@ -1,0 +1,167 @@
+
+MAKE-VTILBLOCKS.EXE                                             11-JAN-2024 10:12        VAX-11 Linker V05-13             Page    1
+
+                                             +------------------------+
+                                             ! Object Module Synopsis !
+                                             +------------------------+
+
+Module Name     Ident              Bytes      File                                Creation Date      Creator
+-----------     -----              -----      -----                               -------------      -------
+MAKE            0                    3777 [MPL.TKB.VTIL]MAKE-VTILBLOCKS.OBJ;1  11-JAN-2024 10:12  VAX MACRO V5.4-3
+SYS$MISCDEF     V04-000                 0 SYS$COMMON:[SYSLIB]STARLET.OLB;6     12-OCT-1991 01:33  VAX MACRO V5.4-3
+RMS$GLOBALS     X-1                     0 SYS$COMMON:[SYSLIB]STARLET.OLB;6     12-OCT-1991 00:42  VAX MACRO V5.4-3
+SYS$P1_VECTOR   X-4                     0 SYS$COMMON:[SYSLIB]STARLET.OLB;6      7-JUL-1992 22:35  VAX MACRO V5.4-3
+LIBRTL          V05-001                 0 SYS$COMMON:[SYSLIB]LIBRTL.EXE;6       8-JUL-1992 00:46  VAX-11 Linker V05-13
+
+MPL$DATA4:[MPL.TKB.VTIL]MAKE-VTILBLOCKS.EXE;1                   11-JAN-2024 10:12        VAX-11 Linker V05-13             Page    2
+
+                                             +------------------------+
+                                             ! Image Section Synopsis !
+                                             +------------------------+
+
+   Cluster      Type Pages   Base Addr  Disk VBN PFC Protection and Paging      Global Sec. Name   Match     Majorid   Minorid
+   -------      ---- -----   ---------  -------- --- ---------------------      ----------------   -----     -------   -------
+
+DEFAULT_CLUSTER    0     1    00000200          2   0 READ WRITE   COPY ON REF
+                   0     6    00000400          0   0 READ WRITE DEMAND ZERO  
+                   0     1    00001000          3   0 READ ONLY    
+                   0     1    00001200          4   0 READ WRITE   COPY ON REF
+                   0     1    00001400          5   0 READ WRITE   FIXUP VECTORS
+                 253    20    7FFFD800          0   0 READ WRITE DEMAND ZERO  
+
+LIBRTL             3   195    00000000-R        0   0 READ ONLY                  LIBRTL_001       LESS/EQUAL        1        14
+                   4     8    00018600-R        0   0 READ WRITE DEMAND ZERO     LIBRTL_002       LESS/EQUAL        1        14
+
+
+
+	  Key for special characters above:
+		+------------------+
+		! R  - Relocatable !
+		! P  - Protected   !
+		+------------------+
+
+MPL$DATA4:[MPL.TKB.VTIL]MAKE-VTILBLOCKS.EXE;1                   11-JAN-2024 10:12        VAX-11 Linker V05-13             Page    3
+
+                                            +--------------------------+
+                                            ! Program Section Synopsis !
+                                            +--------------------------+
+
+Psect Name      Module Name       Base     End           Length            Align                 Attributes
+----------      -----------       ----     ---           ------            -----                 ----------
+
+VBDATA                          00000200 00000FCE 00000DCF (       3535.) LONG 2 NOPIC,USR,CON,REL,LCL,NOSHR,NOEXE,  RD,  WRT,NOVEC
+                MAKE            00000200 00000FCE 00000DCF (       3535.) LONG 2
+
+VBCODE                          00001000 000010D9 000000DA (        218.) BYTE 0 NOPIC,USR,CON,REL,LCL,NOSHR,  EXE,  RD,NOWRT,NOVEC
+                MAKE            00001000 000010D9 000000DA (        218.) BYTE 0
+
+$RMSNAM                         00001200 00001217 00000018 (         24.) BYTE 0 NOPIC,USR,CON,REL,LCL,NOSHR,  EXE,  RD,  WRT,NOVEC
+                MAKE            00001200 00001217 00000018 (         24.) BYTE 0
+
+MPL$DATA4:[MPL.TKB.VTIL]MAKE-VTILBLOCKS.EXE;1                   11-JAN-2024 10:12        VAX-11 Linker V05-13             Page    4
+
+                                                +-----------------+
+                                                ! Symbols By Name !
+                                                +-----------------+
+
+Symbol          Value              Symbol          Value              Symbol          Value              Symbol          Value
+------          -----              ------          -----              ------          -----              ------          -----
+DSC$K_CLASS_S   00000001           
+DSC$K_DTYPE_T   0000000E           
+LIB$GET_INPUT   00001448-RX        
+LIB$PUT_OUTPUT  0000144C-RX        
+LIB$SIGNAL      00001450-RX        
+RMS$_EOF        0001827A           
+RMS$_FNF        00018292           
+SYS$CLOSE       7FFEE1B8           
+SYS$CONNECT     7FFEE1C0           
+SYS$CREATE      7FFEE1C8           
+SYS$FAO         7FFEDF50           
+SYS$IMGSTA      7FFEDF68           
+SYS$PUT         7FFEE188           
+VB              00001000-R         
+
+MPL$DATA4:[MPL.TKB.VTIL]MAKE-VTILBLOCKS.EXE;1                   11-JAN-2024 10:12        VAX-11 Linker V05-13             Page    5
+
+                                                +------------------+
+                                                ! Symbols By Value !
+                                                +------------------+
+
+Value                                   Symbols...
+-----                                   ----------
+00000001       DSC$K_CLASS_S 
+0000000E       DSC$K_DTYPE_T 
+00001000     R-VB            
+00001448    RX-LIB$GET_INPUT 
+0000144C    RX-LIB$PUT_OUTPUT
+00001450    RX-LIB$SIGNAL    
+0001827A       RMS$_EOF      
+00018292       RMS$_FNF      
+7FFEDF50       SYS$FAO       
+7FFEDF68       SYS$IMGSTA    
+7FFEE188       SYS$PUT       
+7FFEE1B8       SYS$CLOSE     
+7FFEE1C0       SYS$CONNECT   
+7FFEE1C8       SYS$CREATE    
+
+
+
+	  Key for special characters above:
+		+------------------+
+		! *  - Undefined   !
+		! U  - Universal   !
+		! R  - Relocatable !
+		! X  - External    !
+		! WK - Weak        !
+		+------------------+
+
+MPL$DATA4:[MPL.TKB.VTIL]MAKE-VTILBLOCKS.EXE;1                   11-JAN-2024 10:12        VAX-11 Linker V05-13             Page    6
+
+                                                 +----------------+
+                                                 ! Image Synopsis !
+                                                 +----------------+
+
+Virtual memory allocated:                         00000200 000015FF 00001400 (5120. bytes, 10. pages)
+Stack size:                                             20. pages
+Image header virtual block limits:                       1.        1. (    1. block)
+Image binary virtual block limits:                       2.        5. (    4. blocks)
+Image name and identification:                    MAKE-VTILBLOCKS 0
+Number of files:                                         6.
+Number of modules:                                       5.
+Number of program sections:                              6.
+Number of global symbols:                              300.
+Number of image sections:                                8.
+User transfer address:                            00001000
+Debugger transfer address:                        7FFEDF68
+Number of code references to shareable images:           3.
+Image type:                                       EXECUTABLE.
+Map format:                                       FULL in file MPL$DATA4:[MPL.TKB.VTIL]MAKE-VTILBLOCKS.MAP;1
+Estimated map length:                             56. blocks
+                                              +---------------------+
+                                              ! Link Run Statistics !
+                                              +---------------------+
+
+Performance Indicators                            Page Faults	CPU Time	Elapsed Time
+----------------------                            -----------	--------	------------
+    Command processing:                                    65	00:00:00.00	00:00:00.00
+    Pass 1:                                               169	00:00:00.02	00:00:00.06
+    Allocation/Relocation:                                 23	00:00:00.00	00:00:00.00
+    Pass 2:                                                63	00:00:00.00	00:00:00.02
+    Map data after object module synopsis:                 11	00:00:00.00	00:00:00.00
+    Symbol table output:                                    6	00:00:00.00	00:00:00.00
+Total run values:                                         337	00:00:00.02	00:00:00.08
+
+Using a working set limited to 2000 pages and 66 pages of data storage (excluding image)
+
+Total number object records read (both passes):   369
+    of which 135 were in libraries and 19 were DEBUG data records containing 7162 bytes
+6991 bytes of DEBUG data were written,starting at VBN 6 with 14 blocks allocated
+
+Number of modules extracted explicitly             = 0
+    with 3 extracted to resolve undefined symbols
+
+26 library searches were for symbols not in the library searched
+
+A total of 5 global symbol table records was written
+
+LINK/DEBUG/MAP/FULL/EXE=MAKE-VTILBLOCKS.EXE MAKE-VTILBLOCKS.OBJ

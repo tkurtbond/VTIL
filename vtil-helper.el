@@ -17,7 +17,7 @@ right margin."
 (global-set-key "\C-ce" 'tkb-right-justify)
 
 (defvar tkb-vtil-text-width 66
-  "With of the body text in VTIL.RNO.")
+  "Width of the body text in VTIL.RNO.")
 
 (defun tkb-vtil-header (name stack)
   "Insert a header for an entry for a VTIL word in VTIL.RNO.

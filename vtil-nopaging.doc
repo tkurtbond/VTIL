@@ -487,9 +487,9 @@ by  the  characters,  and  maxlen-short-counted string, which is a
 short containing  the  maximum  length  of  hte  string,  a  short
 containing  the  current length of the string, and the characters.
 Note that the maxlen-short-counted  string  variables  return  the
-address of the current length of the string.  Ther are no specific
-words to byte-counted string variables, but { array } can be  used
-easily to create such sring variabels.
+address  of  the  current  length  of  the  string.   There are no
+specific  words  to  define  byte-counted  string  variables,  but
+{ array } can be used easily to create such sring variabels.
 
 3.2  Terminology
 
@@ -1340,7 +1340,7 @@ interpreter.
 strcat                                                ( a2 a2 -- )
 
 Concatenate string at "a1" to string at  "a2".   Works  only  with
-strings  defined  by  { string }  or { string"}, since it uses the
+strings  defined  by  { string } or { string" }, since it uses the
 maxlen field of the  string  at  "a2",  and  only  { string }  and
 { string" } create those maxlen fields.
 
@@ -1397,7 +1397,7 @@ Exchange the top two items on the stack.
 tochar                                                  ( n -- c )
 
 Convert top of stack from  a  number,  0..9,  A..Z,  to  an  ascii
-character  reprenting  a  number,"0".."9","A".."Z" (where "n" is a
+character  reprenting a number, "0".."9", "A".."Z" (where "n" is a
 number and "c" is a character).  If not in the correct range leave
 it alone.
 

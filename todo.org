@@ -22,7 +22,7 @@
   I was probably using Pascal syntax for intervals [low..high], but I
   noticed at least one '...', which is wrong, since that's an
   ellipsis.  Sigh.  Use math interval notations instead?  No.  I
-  wouldn't have used them then, I probably should change that now.
+  wouldn't have used them then, I probably shouldn't change that now.
 * TODO Make all the comments on branch statments start with 'go'.
 * TODO Make sure all words have stack comments on '>' line.
 * TODO Make smudge bit pattern a constant.
@@ -35,3 +35,19 @@
   would be better as { eodp pad-moat + }.
 * TODO Test all the block words and related words
   Like: buffer, buffer-read, buffer-write
+* TODO Figure out what is wrong with { vocabulary }
+  I wasn't able to find any typos.
+* DONE
+  VTIL> : x y ;
+  Unknown token: { y } in line:
+  : x y ;
+  VTIL> : x 1 . cr ;
+  Unknown token: { : } in line:
+  : x 1 . cr ;
+  VTIL>
+
+  After that no words can be found.
+
+  Turned out to be a typo that caused the last link in the vocabulary
+  to be overwritten with something that pointed to zero, so suddenly
+  that vocabulary was empty.

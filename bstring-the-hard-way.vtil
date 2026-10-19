@@ -1,0 +1,6 @@
+variable s1
+5 b, ascii h b, ascii e b, ascii l b, ascii l b, ascii o b,
+variable s2
+5 b, ascii h b, ascii e b, ascii l b, ascii l b, ascii ! b, 
+variable s3
+4 b, ascii h b, ascii e b, ascii l b, ascii l b, 

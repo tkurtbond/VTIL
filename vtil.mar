@@ -46,11 +46,11 @@
 ; Conditional Assembly Control Symbols
 ;
 ;******************************************************************************
-;ca_trapping = 0		; If this is defined, code for a condition handler
-			; is assembled.	 We don't always want the condition
+;ca_trapping = 0	; If this is defined, code for a condition handler
+			; is assembled. We don't always want the condition
 			; handler because it also catched breakpoints in the
 			; debugger.
-;ca_controlc = 0		; If this is defined, code to trap control/c and
+;ca_controlc = 0	; If this is defined, code to trap control/c and
 			; return to the VTIL interpreter is assembled.
 			; Note that this uses the trapping so it is useless
 			; if `ca_trapping' is not defined.
@@ -159,7 +159,7 @@ newpage <General Notes>
 ; between names in the MACRO-32 source and in the VTIL.	 For instance,
 ; { context } is the name of a word in the kernel that pushes the address
 ; of the current vocabulary variable on the stack.  However, the definition
-; of context in the MACRO source makes `context' a label wich jsb'ing to
+; of context in the MACRO source makes `context' a label which jsb'ing to
 ; executes the word, so `context' can't be used in MACRO as a label for
 ; the variable as well.
 ;
@@ -173,7 +173,7 @@ newpage <General Notes>
 ;		      character limitations in VAX MACRO symbols.
 ;		      For eample, i_plus = { + }, i_plus_store = { +! }
 ;	op_<name>  -- opcode constant value
-;	r_<name>   -- internal routine <name> that is readed by branching and
+;	r_<name>   -- internal routine <name> that is reached by branching and
 ;		      not by jumping to subroutine.
 ;	s_<name>   --  internal subroutine that is reached by a call.
 ;	q_<name>   -- label of start of a VTIL word with name `?<name>'.
@@ -1481,7 +1481,7 @@ _kernel_begin:
 	movl	(r11),-(r11)		; set up for ?cr
 	jsb	q_n_cr			; start new line if word is too long
 	jsb	write			; tell user
-	movl	#c_blank,-(r1)		; blank to separate words
+	movl	#c_blank,-(r11)		; blank to separate words
 	jsb	putc			; output it
 	movl	@(r11),(r11)		; get previous word's lfa
 	brb	10$			; try it again
@@ -1616,7 +1616,7 @@ _kernel_begin:
 
 
 ;+++
-;k> definitions -- ( -- )  Sets curren to context. { <name> definitions }
+;k> definitions -- ( -- )  Sets current to context. { <name> definitions }
 ;	makes all new words link into vocabulary { <name> }
 ;	(i.e., new operators will be linked dictionary currently being searched).
 ;---
@@ -1759,7 +1759,7 @@ _kernel_begin:
 ;+++
 ;k> forget -- ( -- ) reset content vocab back to word before word forgotten.
 ;	Note that while this makes the forgotten word and any words
-;	defined after it unavailale, it does not reclaim an space,
+;	defined after it unavailale, it does not reclaim any space,
 ;	since the other vocabularies can be threaded through in the
 ;	dictionary between words of this vocabulary.
 ;---
@@ -1815,7 +1815,7 @@ _kernel_begin:
 
 ;+++
 ;k> freemem -- ( -- l ) print amount of memory left in dictionary
-;--- ~~~ does it really leave a longword on the stack?
+;--- ~~~ does it really leave a longword on the stack?  No, it does not.
 	header	freemem
 	subl3	r9,#c_dict_end,-(r11)	; put free space on stack
 	jsb	i_dot			; print it
@@ -2053,7 +2053,7 @@ _kernel_begin:
 
 
 ;+++
-;k> not -- ( f1 -- f2 ) Logical not of top  of stack; not f1.
+;k> not -- ( f1 -- f2 ) Logical not of top of stack; not f1.
 ;---
 	header	not
 	tstl	(r11)+			; Is it false?
@@ -2409,7 +2409,7 @@ _invalid_number:
 10$:
 	movab	v_outbuf,r0		; pointer to start of buffer
 	movzwl	v_outlen,r1		; index into buffer
-	addl2	r1,40			; pointer to next available buffer
+	addl2	r1,r0			; pointer to next available buffer
 	movb	#c_blank,(r0)		; move char into buffer
 	incw	v_outlen		; increment index (or length)
 	rsb				; end of space
@@ -2713,7 +2713,7 @@ _gettoken:
 ;	when a definition is aborted by an unknown token.
 ;---
 	header	unlink
-	movl	@v_current,r8		; reclaim directory space
+	movl	@v_current,r9		; reclaim directory space
 	movl	(r9),@v_current		; get pointer to last word in current
 					; vocab from link field of word
 					; we just deleted
@@ -2791,7 +2791,7 @@ _gettoken:
 	movb	#op_moval,(r9)+		; `moval'
 	movb	#adm_b_rel,(r9)+	; byte relative
 	movb	#6,(r9)+		; (pc+2) ~~~ isn't this (pc+6)?
-	movb	adm_absolute,(r9)+	; absolute mode (address in next lword)
+	movb	#adm_absolute,(r9)+	; absolute mode (address in next lword)
 	moval	v_context,(r9)+		; context
 	movab	#op_rsb,(r9)+		; rsb
 	movl	(r10)+,(r9)+		; initialize link

@@ -6,6 +6,7 @@
 .IF NOPAGING
 .NO PAGING
 .ELSE NOPAGING
+.! Set up running headers
 .TITLE VTIL -- VAX Threaded Interpretive Language
 .SUBTITLE
 .AUTOSUBTITLE 2 
@@ -368,8 +369,19 @@ inluded after the <filename>, but now spaces are allowed in the
 command line.
 .HL 2 Strings
 .HL 3 String Formats
+.P
+Byte-counted Strings.
+.P
+Short-counted Strings.
+.P
+Maxlen-short-counted Strings.
 .HL 3 String Defining Words
+.P
+{#string#}
+.P
+{#string"#}
 .HL 3 String Manipulating Words
+{#strcat#}, {#strcmp#}, {#strcpy#}, {#strmax#}, {#strpos#}.
 .HL 2 Vocabularies
 Vocabularies are subsections of the dictionary.  They allow you to
 have different contexts, so that {#x#} in one vocabulary does one
@@ -465,7 +477,7 @@ to write words that treat two or more stack items as single item if
 you should need to deal wiht data types that are that large.
 .P
 Text is basicallly just any string of bytes containing characters.
-However, to help keep track of the length of such srings three
+However, to help keep track of the length of such strings three
 different "string" formats have been defined: byte-counted string,
 which is a byte containing the number of characters in the string
 followed by the characters; word-counted or short-counted string,
@@ -475,7 +487,7 @@ maxlen-short-counted string, which is a short containing the maximum
 length of hte string, a short containing the current length of the
 string, and the characters.
 Note that the maxlen-short-counted string variables return the address
-of the current length of the string.  Ther are no specific words to
+of the current length of the string.  There are no specific words to define
 byte-counted string variables, but {#array#} can be used easily to
 create such sring variabels.
 .HL 2 Terminology
@@ -1459,7 +1471,7 @@ _strcat                                                ( a2 a2 -- )
 .FILL
 .SKIP 1
 Concatenate string at "a1" to string at "a2".  Works only with strings
-defined by {#string#} or {#string"}, since it uses the maxlen field of
+defined by {#string#} or {#string"#}, since it uses the maxlen field of
 the string at "a2", and only {#string#} and {#string"#} create those
 maxlen fields.
 .SKIP 2
@@ -1523,7 +1535,7 @@ _tochar                                                  ( n -- c )
 .FILL
 .SKIP 1
 Convert top of stack from a number, 0..9, A..Z, to an ascii character
-reprenting a number,"0".."9","A".."Z" (where "n" is a number and "c"
+reprenting a number, "0".."9", "A".."Z" (where "n" is a number and "c"
 is a character).  If not in the correct range leave it alone.
 .SKIP 2
 .NF
@@ -1561,6 +1573,15 @@ _vlist                                                       ( -- )
 .FILL
 .SKIP 1
 List the {#context#} vocabulary.
+.SKIP 2
+.NF
+_vocabulary                                                  ( -- )
+.FILL
+.! Note that this was not documented in the original VTIL.RNO.
+.! Did I simply never get it working?
+.SKIP 1
+Defining word.  Creates a new vocabulary. When the word
+defined by this is executed, context is set to the new vocabulary.
 .SKIP 2
 .NF
 _write                                                   ( a s -- )

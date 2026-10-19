@@ -1,0 +1,434 @@
+READ                            -VTILBLOCKS -- Read the VTILBLOCKS.DAT t 11-JAN-2024 10:12:04  VAX MACRO V5.4-3            Page   1
+                                                                         17-SEP-2023 14:29:02  READ-VTILBLOCKS.MAR;10            (1)
+
+                                     0000     1 	.title	READ-VTILBLOCKS -- Read the VTILBLOCKS.DAT to check it works.
+                                     0000     2 ; This really needs cleaning up.
+                                     0000     3 	.dsabl	global
+                                     0000     4 	.extrn	dsc$k_dtype_t, dsc$k_class_s
+                                     0000     5 	.extrn	lib$get_input, lib$put_output, lib$signal
+                                     0000     6 	.extrn	rms$_eof, rms$_fnf
+                                     0000     7 
+                           FFFFFFFF  0000     8 c_true		= -1			; true value, actually anything
+                                     0000     9 					;  but 0 is true
+                           00000000  0000    10 c_false		= 0			; false value
+                           00000003  0000    11 c_max_blocks	= 3			; number of block i/o buffers
+                           00000400  0000    12 c_block_size	= 1024			; size for block i/o buffer
+                           00000004  0000    13 c_keysize	= 4			; size of key (longword record number)
+                           00000002  0000    14 c_d_blks_in_blk = c_block_size / 512	; number of disk blocks in VTIL block
+                                     0000    15 
+                                 00000000    16 	.psect	readvbdata,long,noexe
+                                     0000    17 ;
+                                     0000    18 ; rms buffers for VTIL block i/o (which is actually rms record i/o)
+                                     0000    19 ;
+                                     0000    20 	.align long
+                                     0000    21 v_blkfab:
+                                     0000    22 	$fab	dnm=<vtilblocks.dat>,-	; default input file name
+                                     0000    23 		fac=<get,put>,-		; block i/o operations
+                                     0000    24 		fnm=<vtilblocks>,-	; input file name
+                                     0000    25 		mrs=c_block_size,-	; maximum record size
+                                     0000    26 		rfm=<fix>,-		; fixed length records
+                                     0000    27 		org=<seq>		; Fun fact: you can do random access on
+                                     0050    28 					;    sequential files, as long as 
+                                     0050    29 					;    they're fixed record size!
+                                     0050    30 
+                                     0050    31 v_blkrab:
+                                     0050    32 	$rab	fab=v_blkfab,-		; pointer to fab
+                                     0050    33 		kbf=v_blkkey,-		; pointer to key
+                                     0050    34 		ksz=c_keysize,-		; size of key
+                                     0050    35 		rac=<key>,-		; random access by record number
+                                     0050    36 		ubf=v_blkbuff,-		; address of user buffer
+                                     0050    37 		usz=c_block_size	; and the record size
+                                     0094    38 v_blkkey:
+                           00000000  0094    39 	.long	0			; buffer for key (longword pos rec #)
+                                     0098    40 v_current_buff:				; Buffer # of most recently accessed
+                           00000000  0098    41 	.long	0			; block
+                                     009C    42 
+                                     009C    43 v_msgdsc:
+                               0084  009C    44 	.word	132		; descriptor for $FAO message
+                                 00' 009E    45 	.byte	dsc$k_dtype_t	; data type text
+                                 00' 009F    46 	.byte	dsc$k_class_s	; descriptor class
+                           000000A4' 00A0    47 	.long	v_msgbuf	; pointer to message buffer
+                                     00A4    48 v_msgbuf:
+                           00000128  00A4    49 	.blkb	132
+                                     0128    50 
+                                     0128    51 v_open_msg:
+20 72 65 74 66 41 00000130'010E0000' 0128    52 	.ascid	/After $OPEN/
+                     4E 45 50 4F 24  0136       
+                                     013B    53 v_connect_msg:
+20 72 65 74 66 41 00000143'010E0000' 013B    54 	.ascid	/After $CONNECT/
+            54 43 45 4E 4E 4F 43 24  0149       
+                                     0151    55 v_get1_msg:
+READ                            -VTILBLOCKS -- Read the VTILBLOCKS.DAT t 11-JAN-2024 10:12:04  VAX MACRO V5.4-3            Page   2
+                                                                         17-SEP-2023 14:29:02  READ-VTILBLOCKS.MAR;10            (1)
+
+20 31 20 74 65 47 00000159'010E0000' 0151    56 	.ascid	/Get 1 succeeded/
+         64 65 64 65 65 63 63 75 73  015F       
+                                     0168    57 v_get2_msg:
+20 32 20 74 65 47 00000170'010E0000' 0168    58 	.ascid	/Get 2 succeeded/
+         64 65 64 65 65 63 63 75 73  0176       
+                                     017F    59 v_get3_msg:
+20 33 20 74 65 47 00000187'010E0000' 017F    60 	.ascid	/Get 3 succeeded/
+         64 65 64 65 65 63 63 75 73  018D       
+                                     0196    61 
+                                     0196    62 faoctl:
+64 72 6F 63 65 52 0000019E'010E0000' 0196    63 	.ascid	/Record #!ZL: byte 0: !ZL, byte 1023: !ZL/
+20 65 74 79 62 20 3A 4C 5A 21 23 20  01A4       
+65 74 79 62 20 2C 4C 5A 21 20 3A 30  01B0       
+      4C 5A 21 20 3A 33 32 30 31 20  01BC       
+                                     01C6    64 faomsg:
+                               0050  01C6    65 	.word	80			; Length of string
+                                 00' 01C8    66 	.byte	dsc$k_dtype_t		; Data type text
+                                 00' 01C9    67 	.byte	dsc$k_class_s		; descript class
+                           000001CE' 01CA    68 	.long	faomsgbuf		; pointer to message buffer
+                                     01CE    69 faomsgbuf:
+                           0000021E  01CE    70 	.blkb	80
+                                     021E    71 
+                                     021E    72 ;
+                                     021E    73 ; Block i/o buffers
+                                     021E    74 ;
+                                     021E    75 v_blkbuff:
+                           00000E1E  021E    76 	.blkb	c_max_blocks * c_block_size ; buffers for block i/o
+                                     0E1E    77 
+                                 00000000    78 	.psect	readvbcode,exe,nowrt
+                               0FC0  0000    79 	.entry	vbr,^m<r6,r7,r8,r9,r10,r11>
+                                     0002    80 	$open	fab=v_blkfab
+                         03 50   E8  000F    81 	blbs	r0,10$			; if no error, go on
+                          019A   31  0012    82 	brw	fab_error
+                                     0015    83 10$:
+                   00000128'EF   7F  0015    84 	pushaq	v_open_msg
+              00000000'GF   01   FB  001B    85 	calls	#1,g^lib$put_output
+                                     0022    86 	$connect rab=v_blkrab
+                         03 50   E8  002F    87 	blbs	r0,20$			; if no error, go on
+                          0191   31  0032    88 	brw	rab_error
+                                     0035    89 20$:
+                   0000013B'EF   7F  0035    90 	pushaq	v_connect_msg
+              00000000'GF   01   FB  003B    91 	calls	#1,g^lib$put_output
+                                     0042    92 
+     00000074'EF   0000021E'EF   DE  0042    93 	moval	v_blkbuff,v_blkrab+rab$l_ubf
+              00000094'EF   01   D0  004D    94 	movl	#1,v_blkkey
+                                     0054    95 	$get	rab=v_blkrab
+                         03 50   E8  0061    96 	blbs	r0,get1
+                          015F   31  0064    97 	brw	rab_error
+                                     0067    98 	
+                                     0067    99 get1:
+                   00000151'EF   7F  0067   100 	pushaq	v_get1_msg
+              00000000'GF   01   FB  006D   101 	calls	#1,g^lib$put_output
+     000001C6'EF   00000050 8F   D0  0074   102 	movl	#80,faomsg
+              58   0000021E'EF   9E  007F   103 	movab	v_blkbuff,r8
+                       59   68   9A  0086   104 	movzbl	(r8),r9
+                  5A   03FF C8   9A  0089   105 	movzbl	1023(r8),r10
+                                     008E   106 	$fao_s	ctrstr=faoctl,-
+READ                            -VTILBLOCKS -- Read the VTILBLOCKS.DAT t 11-JAN-2024 10:12:04  VAX MACRO V5.4-3            Page   3
+                                                                         17-SEP-2023 14:29:02  READ-VTILBLOCKS.MAR;10            (1)
+
+                                     008E   107 		outbuf=faomsg,-
+                                     008E   108 		outlen=faomsg,-
+                                     008E   109 		p1=#1,p2=r9,p3=r10
+                   000001C6'EF   7F  00AD   110 	pushaq	faomsg
+              00000000'GF   01   FB  00B3   111 	calls	#1,g^lib$put_output
+                                     00BA   112 
+     00000094'EF   00000064 8F   D0  00BA   113 	movl	#100,v_blkkey
+                                     00C5   114 	$get	rab=v_blkrab
+                         03 50   E8  00D2   115 	blbs	r0,get2
+                          0105   31  00D5   116 	brw	misc_error
+                                     00D8   117 
+                                     00D8   118 get2:	
+                   00000168'EF   7F  00D8   119 	pushaq	v_get2_msg
+              00000000'GF   01   FB  00DE   120 	calls	#1,g^lib$put_output
+     000001C6'EF   00000050 8F   D0  00E5   121 	movl	#80,faomsg
+              58   0000021E'EF   9E  00F0   122 	movab	v_blkbuff,r8
+                       59   68   9A  00F7   123 	movzbl	(r8),r9
+                  5A   03FF C8   9A  00FA   124 	movzbl	1023(r8),r10
+                                     00FF   125 	$fao_s	ctrstr=faoctl,-
+                                     00FF   126 		outbuf=faomsg,-
+                                     00FF   127 		outlen=faomsg,-
+                                     00FF   128 		p1=#100,p2=r9,p3=r10
+                   000001C6'EF   7F  0122   129 	pushaq	faomsg
+              00000000'GF   01   FB  0128   130 	calls	#1,g^lib$put_output
+                                     012F   131 
+                                     012F   132 
+              00000094'EF   0A   D0  012F   133 	movl	#10,v_blkkey
+                                     0136   134 	$get	rab=v_blkrab
+                         03 50   E8  0143   135 	blbs	r0,get3
+                          0094   31  0146   136 	brw	misc_error
+                                     0149   137 
+                                     0149   138 get3:	
+                   0000017F'EF   7F  0149   139 	pushaq	v_get3_msg
+              00000000'GF   01   FB  014F   140 	calls	#1,g^lib$put_output
+     000001C6'EF   00000050 8F   D0  0156   141 	movl	#80,faomsg
+              58   0000021E'EF   9E  0161   142 	movab	v_blkbuff,r8
+                       59   68   9A  0168   143 	movzbl	(r8),r9
+                  5A   03FF C8   9A  016B   144 	movzbl	1023(r8),r10
+                                     0170   145 	$fao_s	ctrstr=faoctl,-
+                                     0170   146 		outbuf=faomsg,-
+                                     0170   147 		outlen=faomsg,-
+                                     0170   148 		p1=#10,p2=r9,p3=r10
+                   000001C6'EF   7F  018F   149 	pushaq	faomsg
+              00000000'GF   01   FB  0195   150 	calls	#1,g^lib$put_output
+                                     019C   151 
+                                     019C   152 
+                                     019C   153 	$close	fab=v_blkfab
+                         31 50   E9  01A9   154 	blbc	r0,misc_error
+                          0037   31  01AC   155 	brw	exit
+                                     01AF   156 
+                                     01AF   157 fab_error:
+              56   00000000'EF   9E  01AF   158 	movab	v_blkfab,r6
+                         0C A6   DD  01B6   159 	pushl	fab$l_stv(r6)
+                         08 A6   DD  01B9   160 	pushl	fab$l_sts(r6)
+              00000000'GF   02   FB  01BC   161 	calls	#2,g^lib$signal
+                          0020   31  01C3   162 	brw	exit
+                                     01C6   163 
+READ                            -VTILBLOCKS -- Read the VTILBLOCKS.DAT t 11-JAN-2024 10:12:04  VAX MACRO V5.4-3            Page   4
+                                                                         17-SEP-2023 14:29:02  READ-VTILBLOCKS.MAR;10            (1)
+
+                                     01C6   164 rab_error:
+              56   00000050'EF   9E  01C6   165 	movab	v_blkrab,r6
+                         0C A6   DD  01CD   166 	pushl	rab$l_stv(r6)
+                         08 A6   DD  01D0   167 	pushl	rab$l_sts(r6)
+              00000000'GF   02   FB  01D3   168 	calls	#2,g^lib$signal
+                          0009   31  01DA   169 	brw	exit
+                                     01DD   170 
+                                     01DD   171 misc_error:
+                            50   DD  01DD   172 	pushl	r0			; put error message number on stack
+              00000000'GF   01   FB  01DF   173 	calls	#1,g^lib$signal		; signal errorexit
+                                     01E6   174 
+                                     01E6   175 exit:
+                                 04  01E6   176 	ret
+                                     01E7   177 	.end	vbr
+READ                            -VTILBLOCKS -- Read the VTILBLOCKS.DAT t 11-JAN-2024 10:12:04  VAX MACRO V5.4-3            Page   5
+Symbol table                                                             17-SEP-2023 14:29:02  READ-VTILBLOCKS.MAR;10            (1)
+
+$$$ADR                         = 000000A0    D            RMS$_EOF                         ********   X   00        
+$$.TAB                         = 00000050 R  D  01        RMS$_FNF                         ********   X   00        
+$$.TABEND                      = 00000094 R  D  01        SYS$CLOSE                        ********  G    04        
+$$.TMP                         = 00000000    D            SYS$CONNECT                      ********  G    04        
+$$.TMP1                        = 00000001    D            SYS$FAO                          ********  G    04        
+$$.TMP2                        = 000000CF                 SYS$GET                          ********  G    04        
+$$.TMPX                        = 0000000A R  D  03        SYS$OPEN                         ********  G    04        
+$$.TMPX1                       = 0000000E    D            VBR                              00000000 RG D  04        
+$$T2                           = 00000006    D            V_BLKBUFF                        0000021E R  D  01        
+C_BLOCK_SIZE                   = 00000400    D            V_BLKFAB                         00000000 R  D  01        
+C_D_BLKS_IN_BLK                = 00000002    D            V_BLKKEY                         00000094 R  D  01        
+C_FALSE                        = 00000000    D            V_BLKRAB                         00000050 R  D  01        
+C_KEYSIZE                      = 00000004    D            V_CONNECT_MSG                    0000013B R  D  01        
+C_MAX_BLOCKS                   = 00000003    D            V_CURRENT_BUFF                   00000098 R  D  01        
+C_TRUE                         = FFFFFFFF    D            V_GET1_MSG                       00000151 R  D  01        
+DSC$K_CLASS_S                    ********   X   00        V_GET2_MSG                       00000168 R  D  01        
+DSC$K_DTYPE_T                    ********   X   00        V_GET3_MSG                       0000017F R  D  01        
+EXIT                             000001E6 R  D  04        V_MSGBUF                         000000A4 R  D  01        
+FAB$B_DNS                      = 00000035    D            V_MSGDSC                         0000009C R  D  01        
+FAB$B_FNS                      = 00000034    D            V_OPEN_MSG                       00000128 R  D  01        
+FAB$C_BID                      = 00000003    D            
+FAB$C_BLN                      = 00000050    D            
+FAB$C_FIX                      = 00000001    D            
+FAB$C_SEQ                      = 00000000    D            
+FAB$L_ALQ                      = 00000010    D            
+FAB$L_DNA                      = 00000030    D            
+FAB$L_FNA                      = 0000002C    D            
+FAB$L_FOP                      = 00000004    D            
+FAB$L_STS                      = 00000008    D            
+FAB$L_STV                      = 0000000C    D            
+FAB$V_CHAN_MODE                = 00000002    D            
+FAB$V_FILE_MODE                = 00000004    D            
+FAB$V_GET                      = 00000001    D            
+FAB$V_LNM_MODE                 = 00000000    D            
+FAB$V_PUT                      = 00000000    D            
+FAB$W_GBC                      = 00000048    D            
+FAB_ERROR                        000001AF R  D  04        
+FAOCTL                           00000196 R  D  01        
+FAOMSG                           000001C6 R  D  01        
+FAOMSGBUF                        000001CE R  D  01        
+GET1                             00000067 R  D  04        
+GET2                             000000D8 R  D  04        
+GET3                             00000149 R  D  04        
+LIB$GET_INPUT                    ********   X   00        
+LIB$PUT_OUTPUT                   ********   X   00        
+LIB$SIGNAL                       ********   X   00        
+MISC_ERROR                       000001DD R  D  04        
+RAB$B_RAC                      = 0000001E    D            
+RAB$C_BID                      = 00000001    D            
+RAB$C_BLN                      = 00000044    D            
+RAB$C_KEY                      = 00000001    D            
+RAB$L_CTX                      = 00000018    D            
+RAB$L_ROP                      = 00000004    D            
+RAB$L_STS                      = 00000008    D            
+RAB$L_STV                      = 0000000C    D            
+RAB$L_UBF                      = 00000024    D            
+RAB_ERROR                        000001C6 R  D  04        
+READ                            -VTILBLOCKS -- Read the VTILBLOCKS.DAT t 11-JAN-2024 10:12:04  VAX MACRO V5.4-3            Page   6
+Psect synopsis                                                           17-SEP-2023 14:29:02  READ-VTILBLOCKS.MAR;10            (1)
+
+
+                                                +----------------+
+                                                ! Psect synopsis !
+                                                +----------------+
+
+PSECT name                      Allocation          PSECT No.  Attributes     
+----------                      ----------          ---------  ----------     
+.  ABS  .                       00000000  (    0.)  00 (  0.)  NOPIC   USR   CON   ABS   LCL NOSHR NOEXE NORD  NOWRT NOVEC BYTE  
+READVBDATA                      00000E1E  ( 3614.)  01 (  1.)  NOPIC   USR   CON   REL   LCL NOSHR NOEXE   RD    WRT NOVEC LONG  
+$ABS$                           00000000  (    0.)  02 (  2.)  NOPIC   USR   CON   ABS   LCL NOSHR   EXE   RD    WRT NOVEC BYTE  
+$RMSNAM                         00000018  (   24.)  03 (  3.)  NOPIC   USR   CON   REL   LCL NOSHR   EXE   RD    WRT NOVEC BYTE  
+READVBCODE                      000001E7  (  487.)  04 (  4.)  NOPIC   USR   CON   REL   LCL NOSHR   EXE   RD  NOWRT NOVEC BYTE  
+READ                            -VTILBLOCKS -- Read the VTILBLOCKS.DAT t 11-JAN-2024 10:12:04  VAX MACRO V5.4-3            Page   7
+Cross reference                                                          17-SEP-2023 14:29:02  READ-VTILBLOCKS.MAR;10            (1)
+
+
+                                             +------------------------+
+                                             ! Symbol Cross Reference !
+                                             +------------------------+
+
+SYMBOL                          VALUE        DEFINITION      REFERENCES... 
+------                          -----        ----------      ------------- 
+$$$ADR                         =000000A0     148    (1)      109    (1)      128    (1)      148    (1)    
+$$.TAB                         =00000050-R   37     (1)      27     (1)      37     (1)    
+$$.TABEND                      =00000094-R   37     (1)      27     (1)      37     (1)    
+$$.TMP                         =00000000     37     (1)      27     (1)      37     (1)    
+$$.TMP1                        =00000001     153    (1)      114    (1)      134    (1)      153    (1)      80     (1)    
+                                                             86     (1)      95     (1)    
+$$.TMP2                        =000000CF     153    (1)      114    (1)      134    (1)      153    (1)      80     (1)    
+                                                             86     (1)      95     (1)    
+$$.TMPX                        =0000000A-R   27     (1)      27     (1)    
+$$.TMPX1                       =0000000E     27     (1)      27     (1)    
+$$T2                           =00000006     148    (1)      109    (1)      128    (1)      148    (1)    
+C_BLOCK_SIZE                   =00000400     12     (1)      14     (1)      27     (1)      37     (1)      76     (1)    
+C_D_BLKS_IN_BLK                =00000002     14     (1)    
+C_FALSE                        =00000000     10     (1)    
+C_KEYSIZE                      =00000004     13     (1)      37     (1)    
+C_MAX_BLOCKS                   =00000003     11     (1)      76     (1)    
+C_TRUE                         =FFFFFFFF     8      (1)    
+DSC$K_CLASS_S                   00000000-XR                  4      (1)      46     (1)      67     (1)    
+DSC$K_DTYPE_T                   00000000-XR                  4      (1)      45     (1)      66     (1)    
+EXIT                            000001E6-R   175    (1)    #-155    (1)    #-162    (1)    #-169    (1)    
+FAB$B_DNS                      =00000035                     27     (1)    
+FAB$B_FNS                      =00000034                     27     (1)    
+FAB$C_BID                      =00000003                     27     (1)    
+FAB$C_BLN                      =00000050                     27     (1)    
+FAB$C_FIX                      =00000001                     27     (1)    
+FAB$C_SEQ                      =00000000                     27     (1)    
+FAB$L_ALQ                      =00000010                     27     (1)    
+FAB$L_DNA                      =00000030                     27     (1)    
+FAB$L_FNA                      =0000002C                     27     (1)    
+FAB$L_FOP                      =00000004                     27     (1)    
+FAB$L_STS                      =00000008                   #-160    (1)    
+FAB$L_STV                      =0000000C                   #-159    (1)    
+FAB$V_CHAN_MODE                =00000002                     27     (1)    
+FAB$V_FILE_MODE                =00000004                     27     (1)    
+FAB$V_GET                      =00000001                     27     (1)    
+FAB$V_LNM_MODE                 =00000000                     27     (1)    
+FAB$V_PUT                      =00000000                     27     (1)    
+FAB$W_GBC                      =00000048                     27     (1)    
+FAB_ERROR                       000001AF-R   157    (1)    #-82     (1)    
+FAOCTL                          00000196-R   62     (1)      109    (1)      128    (1)      148    (1)    
+FAOMSG                          000001C6-R   64     (1)    #-102    (1)      109    (1)      110    (1)    #-121    (1)    
+                                                             128    (1)      129    (1)    #-141    (1)      148    (1)    
+                                                             149    (1)    
+FAOMSGBUF                       000001CE-R   69     (1)      68     (1)    
+GET1                            00000067-R   99     (1)    #-96     (1)    
+GET2                            000000D8-R   118    (1)    #-115    (1)    
+GET3                            00000149-R   138    (1)    #-135    (1)    
+LIB$GET_INPUT                   00000000-XR                  5      (1)    
+LIB$PUT_OUTPUT                  00000000-XR                  101    (1)      111    (1)      120    (1)      130    (1)    
+                                                             140    (1)      150    (1)      5      (1)      85     (1)    
+READ                            -VTILBLOCKS -- Read the VTILBLOCKS.DAT t 11-JAN-2024 10:12:04  VAX MACRO V5.4-3            Page   8
+Cross reference                                                          17-SEP-2023 14:29:02  READ-VTILBLOCKS.MAR;10            (1)
+
+                                                             91     (1)    
+LIB$SIGNAL                      00000000-XR                  161    (1)      168    (1)      173    (1)      5      (1)    
+MISC_ERROR                      000001DD-R   171    (1)    #-116    (1)    #-136    (1)    #-154    (1)    
+RAB$B_RAC                      =0000001E                     37     (1)    
+RAB$C_BID                      =00000001                     37     (1)    
+RAB$C_BLN                      =00000044                     37     (1)    
+RAB$C_KEY                      =00000001                     37     (1)    
+RAB$L_CTX                      =00000018                     37     (1)    
+RAB$L_ROP                      =00000004                     37     (1)    
+RAB$L_STS                      =00000008                   #-167    (1)    
+RAB$L_STV                      =0000000C                   #-166    (1)    
+RAB$L_UBF                      =00000024                   #-93     (1)    
+RAB_ERROR                       000001C6-R   164    (1)    #-88     (1)    #-97     (1)    
+RMS$_EOF                        00000000-XR                  6      (1)    
+RMS$_FNF                        00000000-XR                  6      (1)    
+SYS$CLOSE                       00000000-XR                  153    (1)    
+SYS$CONNECT                     00000000-XR                  86     (1)    
+SYS$FAO                         00000000-XR                  109    (1)      128    (1)      148    (1)    
+SYS$GET                         00000000-XR                  114    (1)      134    (1)      95     (1)    
+SYS$OPEN                        00000000-XR                  80     (1)    
+VBR                             00000000-R   79     (1)    
+V_BLKBUFF                       0000021E-R   75     (1)      103    (1)      122    (1)      142    (1)      37     (1)    
+                                                             93     (1)    
+V_BLKFAB                        00000000-R   21     (1)      153    (1)      158    (1)      37     (1)      80     (1)    
+V_BLKKEY                        00000094-R   38     (1)    #-113    (1)    #-133    (1)      37     (1)    #-94     (1)    
+V_BLKRAB                        00000050-R   31     (1)      114    (1)      134    (1)      165    (1)      86     (1)    
+                                                           #-93     (1)      95     (1)    
+V_CONNECT_MSG                   0000013B-R   53     (1)      90     (1)    
+V_CURRENT_BUFF                  00000098-R   40     (1)    
+V_GET1_MSG                      00000151-R   55     (1)      100    (1)    
+V_GET2_MSG                      00000168-R   57     (1)      119    (1)    
+V_GET3_MSG                      0000017F-R   59     (1)      139    (1)    
+V_MSGBUF                        000000A4-R   48     (1)      47     (1)    
+V_MSGDSC                        0000009C-R   43     (1)    
+V_OPEN_MSG                      00000128-R   51     (1)      84     (1)    
+READ                            -VTILBLOCKS -- Read the VTILBLOCKS.DAT t 11-JAN-2024 10:12:04  VAX MACRO V5.4-3            Page   9
+Cross reference                                                          17-SEP-2023 14:29:02  READ-VTILBLOCKS.MAR;10            (1)
+
+
+                                             +------------------------+
+                                             ! Macros Cross Reference !
+                                             +------------------------+
+
+MACRO             SIZE          DEFINITION       REFERENCES... 
+-----             ----          ----------       ------------- 
+$$R_TABINIT       1             27     (1)       27     (1)       37     (1)    
+$$R_VBFSET        1             27     (1)       27     (1)       37     (1)    
+$CLOSE            1             153    (1)       153    (1)    
+$CONNECT          1             86     (1)       86     (1)    
+$DEFINI           1             27     (1)       27     (1)       37     (1)    
+$FAB              4             22     (1)       22     (1)    
+$FABDEF           9             27     (1)       27     (1)    
+$FAO_S            2             106    (1)       106    (1)       125    (1)       145    (1)    
+$GET              1             95     (1)       114    (1)       134    (1)       95     (1)    
+$OPEN             1             80     (1)       80     (1)    
+$PUSHADR          1             109    (1)       109    (1)       128    (1)       148    (1)    
+$RAB              2             32     (1)       32     (1)    
+$RABDEF           6             37     (1)       37     (1)    
+$RMSCALL          2             80     (1)       114    (1)       134    (1)       153    (1)       80     (1)       86     (1)    
+                                                 95     (1)    
+
+                                             +------------------------+
+                                             ! Performance indicators !
+                                             +------------------------+
+
+Phase                    Page faults    CPU Time       Elapsed Time   
+-----                    -----------    --------       ------------   
+Initialization                   36     00:00:00.00    00:00:00.00
+Command processing              889     00:00:00.02    00:00:00.02
+Pass 1                          223     00:00:00.16    00:00:00.18
+Symbol table sort                 0     00:00:00.00    00:00:00.00
+Pass 2                            3     00:00:00.04    00:00:00.04
+Symbol table output               0     00:00:00.00    00:00:00.00
+Psect synopsis output             0     00:00:00.00    00:00:00.00
+Cross-reference output            1     00:00:00.00    00:00:00.00
+Assembler run totals           1154     00:00:00.22    00:00:00.24
+
+The working set limit was 2450 pages.
+27060 bytes (53 pages) of virtual memory were used to buffer the intermediate code.
+There were 30 pages of symbol table space allocated to hold 385 non-local and 2 local symbols.
+177 source lines were read in Pass 1, producing 40 object records in Pass 2.
+31 pages of virtual memory were used to define 19 macros.
+
+                                            +--------------------------+
+                                            ! Macro library statistics !
+                                            +--------------------------+
+
+Macro library name                           Macros defined      
+------------------                           --------------      
+SYS$COMMON:[SYSLIB]STARLET.MLB;2                       16        
+
+644 GETS were required to define 16 macros.
+
+There were no errors, warnings or information messages.
+
+READ                            -VTILBLOCKS -- Read the VTILBLOCKS.DAT t 11-JAN-2024 10:12:04  VAX MACRO V5.4-3            Page  10
+VAX-11 Macro Run Statistics                                              17-SEP-2023 14:29:02  READ-VTILBLOCKS.MAR;10            (1)
+
+MACRO/DEBUG/LIST/CROSS/OBJECT=READ-VTILBLOCKS.OBJ READ-VTILBLOCKS.MAR

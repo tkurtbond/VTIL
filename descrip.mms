@@ -3,18 +3,34 @@ MSGFLAGS=/LIST/OBJECT=$(MMS$TARGET_NAME)$(OBJ)
 MFLAGS=/DEBUG/LIST/CROSS/OBJECT=$(MMS$TARGET_NAME)$(OBJ)
 LINKFLAGS=/DEBUG/MAP/FULL
 
-all : vtil.exe vtil.mem vtil-nopaging.doc
+all : vtil.exe vtil.mem vtil.doc vtil-nopaging.mem vtil-nopaging.doc make-vtilblocks.exe read-vtilblocks.exe
+
+.obj.exe : 
+        LINK$(LINKFLAGS)/EXE=$(MMS$TARGET) $(MMS$SOURCE_LIST)
 
 vtil.exe : vtil.obj, vtil_msg.obj
         LINK$(LINKFLAGS)/EXE=$(MMS$TARGET) $(MMS$SOURCE_LIST)
 
 vtil.obj : vtil.mar
 
+make-vtilblocks.exe : make-vtilblocks.obj
+read-vtilblocks.exe : read-vtilblocks.obj
+
+
 vtil-nopaging.mem : vtil.rno
         runoff/variant=nopaging/output=$(MMS$TARGET) $(MMS$SOURCE)
 
-vtil-nopaging.doc : vtil-nopaging.mem
+vtil.mem : vtil.rno
+        runoff/right=10/output=$(MMS$TARGET) $(MMS$SOURCE)
+
+! vtil-nopaging.doc : vtil-nopaging.mem
+!        @stripcrlf $(MMS$SOURCE) $(MMS$TARGET)
+
+.SUFFIXES : .doc .mem
+
+.mem.doc :
         @stripcrlf $(MMS$SOURCE) $(MMS$TARGET)
+
 
 clean : codeclean docclean
 
