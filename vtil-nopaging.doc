@@ -1648,8 +1648,9 @@ r11       -- data stack pointer, grows down in memory
 r10       -- loop stack pointer, grows down in memory
 r9        -- end  of  dictionary  pointer,  grows  up   in   psect
              VTILDICT.
-r8-r6     -- temporary storage when using character instructions
-r0-r5     -- temporary storage
+r8-r4     -- temporary storage,  including  when  using  character
+             instructions
+r0-r3     -- temporary storage
 
                      Header format for a word
 

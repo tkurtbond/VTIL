@@ -1587,6 +1587,9 @@ _vocabulary                                                  ( -- )
 .FILL
 .! Note that this was not documented in the original VTIL.RNO.
 .! Did I simply never get it working?
+.! ~~~ Fixed 2026-10-19.  It did work in 1988: the retyped VTIL.MAR had `movab
+.! ~~~ #op_rsb,(r9)+' where the listing has `movb', so every word it defined
+.! ~~~ took a reserved addressing mode fault.
 .SKIP 1
 Defining word.  Creates a new vocabulary. When the word
 defined by this is executed, context is set to the new vocabulary.
@@ -1822,9 +1825,9 @@ r10#######--#loop stack pointer, grows down in memory
 .INDENT -13
 r9########--#end of dictionary pointer, grows up in psect VTILDICT.
 .INDENT -13
-r8-r6#####--#temporary storage when using character instructions
+r8-r4#####--#temporary storage, including when using character instructions
 .INDENT -13
-r0-r5#####--#temporary storage
+r0-r3#####--#temporary storage
 .LM -13
 .BL
 .CENTER;Header format for a word

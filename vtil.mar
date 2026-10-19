@@ -144,7 +144,7 @@ newpage <General Notes>
 ; r11, ds	-- data stack pointer
 ; r10, ls	-- loop stack pointer
 ; r9, eodp	-- end of dictionary pointer
-; r8-r4 are used for temporary storage when using character instructions.
+; r8-r4 are used for temporary storage, including when using character instructions.~~~ The listing says r8-r6, but strcat and again use r4.
 ;
 ; header format for a word
 ;	long	-- back link to next word in dictionary (hfa, lfa)
