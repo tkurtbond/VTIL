@@ -10,13 +10,13 @@ The tools in ``../tools`` read the account's login and password from
 a command line or print it:
 
 ``tools/vax-build``
-    Copies VTIL.MAR and VTIL_MSG.MSG to the VAX, assembles and links
-    VTIL.EXE there.
+    Copies the sources to the VAX and builds VTIL.EXE and VTILDBG.EXE
+    there with MMS.
 
 ``tools/vtil-test tests/<name>.vtil...``
     Runs VTIL interactively over telnet, sends each line of each
     script, and writes the session to ``tests/<name>.out`` (not kept in
-    git).  ``VTIL_IMAGE=VTILT`` runs another image instead.
+    git).  ``VTIL_IMAGE=VTILDBG`` runs another image instead.
 
 ``tools/vax-put``, ``tools/vax-get``
     Copy files to and from the account by FTP, in ASCII mode.
@@ -30,12 +30,6 @@ Some scripts need setup on the VAX first:
   MAKE-VTILBLOCKS.MAR there and run it.
 * ``load.vtil`` needs ``loadme.vtil`` and ``loadbad.vtil`` copied there
   with ``tools/vax-put``.
-* ``trap.vtil`` and ``ctrlc.vtil`` test the condition handler and the
-  Control/C trap, which the 1988 listing assembled but the current
-  VTIL.MAR leaves out.  Copy ``vtilca.mar`` there and build that
-  version as VTILT::
-
-      MACRO/OBJECT=VTILT VTILCA+VTIL
-      LINK/EXE=VTILT VTILT,VTIL_MSG
-
-  then run them with ``VTIL_IMAGE=VTILT``.
+* ``trap.vtil``, ``ctrlc.vtil`` and ``overflow.vtil`` test the
+  condition handler and the Control/C trap, which are in VTIL.EXE but
+  not in VTILDBG.EXE, the version for the debugger.

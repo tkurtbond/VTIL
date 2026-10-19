@@ -1,0 +1,3 @@
+;~~~ VTILDBG.MAR -- Assemble ahead of VTIL.MAR to build VTIL for the debugger,
+;~~~ without the condition handler and control/c trap: MACRO VTILDBG+VTIL
+ca_debug = 0

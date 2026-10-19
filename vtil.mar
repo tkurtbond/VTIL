@@ -46,15 +46,15 @@
 ; Conditional Assembly Control Symbols
 ;
 ;******************************************************************************
-;ca_trapping = 0	; If this is defined, code for a condition handler
+	.if ndf	ca_debug	;~~~ VTILDBG.MAR defines ca_debug: MACRO VTILDBG+VTIL
+ca_trapping = 0		; If this is defined, code for a condition handler
 			; is assembled. We don't always want the condition
-			; handler because it also catches breakpoints in the
-			; debugger.
-;ca_controlc = 0	; If this is defined, code to trap control/c and
+			; handler because it also catches breakpoints in the debugger.
+ca_controlc = 0		; If this is defined, code to trap control/c and
 			; return to the VTIL interpreter is assembled.
 			; Note that this uses the trapping so it is useless
 			; if `ca_trapping' is not defined.
-
+	.endc			;~~~ ca_debug
 	newpage <External Symbols>
 ;******************************************************************************
 ;

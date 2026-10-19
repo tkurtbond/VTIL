@@ -3,7 +3,7 @@ MSGFLAGS=/LIST/OBJECT=$(MMS$TARGET_NAME)$(OBJ)
 MFLAGS=/DEBUG/LIST/CROSS/OBJECT=$(MMS$TARGET_NAME)$(OBJ)
 LINKFLAGS=/DEBUG/MAP/FULL
 
-all : vtil.exe vtil.mem vtil.doc vtil-nopaging.mem vtil-nopaging.doc make-vtilblocks.exe read-vtilblocks.exe
+all : vtil.exe vtildbg.exe vtil.mem vtil.doc vtil-nopaging.mem vtil-nopaging.doc make-vtilblocks.exe read-vtilblocks.exe
 
 .obj.exe : 
         LINK$(LINKFLAGS)/EXE=$(MMS$TARGET) $(MMS$SOURCE_LIST)
@@ -12,6 +12,14 @@ vtil.exe : vtil.obj, vtil_msg.obj
         LINK$(LINKFLAGS)/EXE=$(MMS$TARGET) $(MMS$SOURCE_LIST)
 
 vtil.obj : vtil.mar
+
+! VTILDBG.EXE is VTIL for the debugger: VTILDBG.MAR defines ca_debug, which
+! leaves out the condition handler and the control/c trap.
+vtildbg.exe : vtildbg.obj, vtil_msg.obj
+        LINK$(LINKFLAGS)/EXE=$(MMS$TARGET) $(MMS$SOURCE_LIST)
+
+vtildbg.obj : vtildbg.mar, vtil.mar
+        MACRO$(MFLAGS) vtildbg+vtil
 
 make-vtilblocks.exe : make-vtilblocks.obj
 read-vtilblocks.exe : read-vtilblocks.obj

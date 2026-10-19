@@ -1,13 +1,13 @@
 #!/bin/sh
-# Copies VTIL.MAR and VTIL_MSG.MSG to the VAX, assembles and links VTIL
-# there, and prints any assembler or linker diagnostics.
+# Copies VTIL's sources to the VAX and builds VTIL.EXE (with the condition
+# handler and control/c trap) and VTILDBG.EXE (without them, for the
+# debugger) there with MMS, printing what MMS does and any diagnostics.
+# Both are linked /DEBUG, so tools/vtil-run.exp runs them RUN/NODEBUG.
 #
 #   tools/vax-build
 here=$(cd "$(dirname "$0")" && pwd)
 cd "$here/.." || exit 2
-"$here/vax-put" vtil.mar vtil_msg.msg || exit 2
+"$here/vax-put" descrip.mms vtil.mar vtildbg.mar vtil_msg.msg || exit 2
 expect -f "$here/vax-dcl.exp" \
-  'MESSAGE/OBJECT=VTIL_MSG VTIL_MSG' \
-  'MACRO/LIST/OBJECT=VTIL VTIL' \
-  'LINK/MAP/EXE=VTIL VTIL,VTIL_MSG' \
-  'PURGE/KEEP=2 VTIL.*' | tr -d '\r' | grep -v -e '^VTILDCL>' -e '^ *$'
+  'MMS VTIL.EXE,VTILDBG.EXE' \
+  'PURGE/KEEP=2 VTIL*.*' | tr -d '\r' | grep -v -e '^VTILDCL>' -e '^ *$'

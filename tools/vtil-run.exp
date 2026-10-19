@@ -26,7 +26,7 @@ vax_login $host
 set dcl $prompt
 set vtil {VTIL> $}
 log_user 1
-send "RUN $image\r"
+send "RUN/NODEBUG $image\r"
 set timeout 30
 set running 1
 expect {
