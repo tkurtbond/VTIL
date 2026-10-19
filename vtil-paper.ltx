@@ -474,7 +474,7 @@ loop, \verb|<index>| is the starting value of the index for a counting
 loop, and \verb|<increment>| is the increment to add to the index.
 \begin{verbatim}
 <flag> if ... else ... endif
-<flag> while ... endwhile
+<flag> while ... <flag> endwhile
 <limit> <index> do ... loop
 <limit> <index> do ... downloop
 <limit> <index> do ... <increment> +loop
@@ -532,12 +532,13 @@ something else.  The word \word{vocabulary}, used in the form
 word \verb|<name>| is executed it sets the \word{context} vocabulary
 to \verb|<name>| vocabulary, which will now be searched for words to
 execute or compile.  Vocabularies created by \word{vocabulary} are
-linked back into the ``kernel'' vocabulary (which has all the runtime
-words that VTIL starts out with in it) just before the word
-\verb|<name>|, so that if the word is not found in vocabulary
-\verb|<name>| the kernel vocabulary is also searched.  This allows
-using all of the kernel vocabulary words even when in another
-vocabulary.  The sequence \word{<name> definitions} changes the
+linked back into the vocabulary that was the \word{context}
+vocabulary when \word{vocabulary} was executed (usually the
+``kernel'' vocabulary, which has all the runtime words that VTIL
+starts out with in it) just before the word \verb|<name>|, so that if
+a word is not found in vocabulary \verb|<name>| that vocabulary is
+also searched.  This allows using all of the kernel vocabulary words
+even when in another vocabulary.  The sequence \word{<name> definitions} changes the
 \word{current}
 vocabulary (the vocabulary that new words are linked to when they are
 defined) so that all the new definitions are compiled into vocabulary
@@ -567,13 +568,49 @@ of the application.  This also allows innermost loops of programs to
 be coded efficiently in assembly language, improving the efficiency of
 programs, when such is required.
 
+The assembler is made of {\em assembler constants}, which are defined
+with \word{ac:}.  The sequence \word{<b> ac: <name>} defines
+\verb|<name>| as a compile-time word that compiles the byte
+\verb|<b>| into the word being defined, so each opcode and each
+operand specifier is simply a word, and an instruction is written as
+its opcode followed by its operands.  The compile-time word
+\word{b^} compiles the next token as a byte, for displacements.  For
+example, the VAX has a rotate instruction, but VTIL has no word for
+it:
+\begin{verbatim}
+hex
+9C ac: ROTL     \ rotate long
+9E ac: MOVAB    \ move address of byte
+D0 ac: MOVL     \ move long
+05 ac: RSB      \ return from subroutine
+AF ac: b^r      \ byte displacement relative to the PC
+6B ac: (ds)     \ (r11), top of the data stack
+7B ac: -(ds)    \ -(r11), push on the data stack
+8B ac: (ds)+    \ (r11)+, pop from the data stack
+89 ac: (edp)+   \ (r9)+, enclose in the dictionary
+AB ac: b^(ds)   \ b^n(r11), the stack item n bytes down
+decimal
+
+: rotl  ( n1 n2 -- n3 )  \ rotate n1 left n2 bits
+   ROTL (ds) b^(ds) b^ 4 b^(ds) b^ 4
+   drop
+;
+\end{verbatim}
+After this, \word{1 4 rotl .} prints 16.  The count operand of
+\verb|ROTL| is a byte, so \verb|(ds)+| would pop only one byte off
+the stack; instead the count is read in place and \word{drop} removes
+it afterwards, which shows assembly code and ordinary words mixed in
+one definition.  Since assembler constants are compile-time words,
+they can only be used inside colon definitions.
+
 \subsubsection{Defining Words That Define New Words}
 Words like \word{long} and \word{longconst} are defined using two
 special compile time words: \word{defer<} and \word{>defer}.  Words
 between \word{defer<} and \word{>defer} in a colon definition are not
 executed when they are compiled into the word which is at {\em that}
 point being defined, and will be executed when {\em that} word is
-executed.  Here is an example:
+executed.  Here is an example, which uses the assembler words defined
+in the previous section:
 %%% This should have used colon words instead of assembly.
 \begin{verbatim}
 : 4byte ( n -- ) \ define a word that defines 4byte variables
@@ -677,9 +714,12 @@ and have still proven to be reasonably easy to write and reasonably
 efficient.
 
 The VAX instruction set and addressing modes are especially well
-suited to implementing a TIL.  Since eleven of the VAX's sixteen
-general purpose registers are available to the programmer for use at
-all times each stack can have its own dedicated register.  The
+suited to implementing a TIL.  VMS reserves four of the VAX's sixteen
+general purpose registers (r15 through r12 are the PC, SP, FP, and
+AP), so each stack can have its own dedicated register: the return
+stack is the system stack, and VTIL dedicates r11 to the data stack,
+r10 to the loop stack, and r9 to the dictionary pointer, which still
+leaves nine registers available for general use.  The
 addressing modes register deferred, autodecrement, autoincrement,
 autoincrement deferred, and the various displacement and displacement
 deferred addressing modes all make access to the values in a stack

@@ -1,0 +1,32 @@
+\ The assembler words from vtil-paper.ltx, made with ac:
+hex
+9C ac: ROTL     \ rotate long
+9E ac: MOVAB    \ move address of byte
+D0 ac: MOVL     \ move long
+05 ac: RSB      \ return from subroutine
+AF ac: b^r      \ byte displacement relative to the PC
+6B ac: (ds)     \ (r11), top of the data stack
+7B ac: -(ds)    \ -(r11), push on the data stack
+8B ac: (ds)+    \ (r11)+, pop from the data stack
+89 ac: (edp)+   \ (r9)+, enclose in the dictionary
+AB ac: b^(ds)   \ b^n(r11), the stack item n bytes down
+decimal
+: rotl  ( n1 n2 -- n3 )  \ rotate n1 left n2 bits
+   ROTL (ds) b^(ds) b^ 4 b^(ds) b^ 4   \ the count is a byte operand,
+   drop ;                              \   so (ds)+ would pop one byte
+1 4 rotl .        \ 16
+hex 80000001 1 rotl . decimal    \ 3
+16 -4 rotl .      \ 1
+: 4byte  ( n -- )
+   create
+   defer<
+      MOVAB b^r b^ 2 -(ds)
+      RSB
+   >defer
+   MOVL (ds)+ (edp)+
+;
+42 4byte v
+v @ .             \ 42
+7 v ! v @ .       \ 7
+ROTL              \ unknown outside a definition
+.st
