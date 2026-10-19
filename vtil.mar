@@ -227,7 +227,7 @@ c_keysize	= 4			; size of key (longword record number)
 c_d_blks_in_blk = c_block_size / 512	; number of disk blocks in VTIL block
 c_max_len	= 160			; maximum length of input line
 c_screen_len	= 80			; screen is 80 chars wide
-c_pad_moat	= 265			; distance of pad from eodp
+c_pad_moat	= 256			; distance of pad from eodp
 c_ds_size	= 1024 * 4		; data stack size: 1024 items of
 					; 4 bytes each
 c_ls_size	= 512 * 4		; loop stack size: 512 items of
@@ -369,15 +369,15 @@ v_undermess:
 v_overmess:
 	.ascid	/Stack Overflow!/
 v_unknown:
-	.ascic	/Unknown token: { /
+	.ascic	/Unknown Token: { /
 v_unknown2:
-	.ascic	/ } in line: /
+	.ascic	/ } In line: /
 v_infilemess:
 	.ascic	/In file: /
 v_filenotfound:
-	.ascid	/File not found!/
+	.ascid	/File Not Found!/
 v_unkn_blk_mess:
-	.ascic	/Uknown Block Number: /
+	.ascic	/Unknown Block Number: /
 v_wordnotfound:
 	.ascic	/Word Not Found: /
 v_nametoolong:
@@ -607,12 +607,12 @@ _kernel_begin:
 
 
 ;+++
-;k> (# -- ( -- ) Start count of items on the stack.  Used with { #) }.
+;k> (* -- ( -- ) Start count of items on the stack.  Used with { *) }.
 ;	Uses the loop stack!
 ;---
-	header	i_count_begin,<(#>
+	header	i_count_begin,<(*>
 	movl	r11,-(r10)		; save address of top of stack
-	rsb				; end of (#
+	rsb				; end of (*
 
 
 ;+++
@@ -658,15 +658,15 @@ _kernel_begin:
 
 
 ;+++
-;k> #) -- ( -- n ) Return number of items on stack since last { (# }.
+;k> *) -- ( -- n ) Return number of items on stack since last { (* }.
 ;	uses the loop stack!
 ;---
-	header	i_count_end,<#)>
+	header	i_count_end,<*)>
 	subl3	r11,(r10)+,-(r11)	; number of bytes difference in
 					; top of stack then and now.
 	divl2	#4,(r11)		; divide to get number of stack
 					; items (longwords)
-	rsb				; end of #)
+	rsb				; end of *)
 
 
 ;+++t
@@ -913,7 +913,7 @@ _kernel_begin:
 ;+++t
 ;k> > -- ( n1 n2 -- f ) true if n1 > n2, false otherwise.
 ;---
-	header	i_greter,^\>\
+	header	i_greater,^\>\
 	cmpl	(r11)+,(r11)+		; reverse order, so n2 < n1
 	blss	10$			; yes
 	movl	#c_false,-(r11)		; no, leave with false
@@ -1097,7 +1097,7 @@ _kernel_begin:
 	movb	#adm_ainc_r9,(r9)+	; (r9)+
 	movb	#op_rsb,(r9)+		; `rsb'
 	movb	(r11),(r9)+		; enclose byte value in dictionary
-	addl	#4,r11			; pop argument
+	addl2	#4,r11			; pop argument
 ; Make it an compiletime word so it will compile the machine language into the
 ; dictionary when defining a new word and will not be found otherwise.
 	jsb	compiletime
@@ -1115,7 +1115,7 @@ _kernel_begin:
 	movl	#c_true,-(r11)		; no, both true, leave with true
 	rsb				; return
 10$:
-	addl2	#4,(r11)		; pop second item off, don't need
+	addl2	#4,r11			; pop second item off, don't need
 					; to check
 20$:
 	movl	#c_false,-(r11)		; leave with false
@@ -1579,7 +1579,7 @@ _kernel_begin:
 	jsb	bcount			; get ( addr count )
 	jsb	write			; write out message
 	addl3	#1,r9,-(r11)		; address of name
-	movab	(r9),-(r11)		; count of name
+	movzbl	(r9),-(r11)		; count of name
 	jsb	write			; write out untruncated name
 	jsb	cr			; start new line
 	movl	#c_max_name_len,(r9)	; truncate name
@@ -1682,7 +1682,7 @@ _kernel_begin:
 ;+++
 ;k> eodp! -- ( a -- ) Make `a' new value of end of dictionary  pointer.
 ;---
-	header	i_eod_store,<eodp!>
+	header	i_eodp_store,<eodp!>
 	movl	(r11)+,r9		; make eodp = top of stack
 	rsb				; end of edop!
 
@@ -1801,7 +1801,7 @@ _kernel_begin:
 ; make vocab point to word before the forgotten one.
 	movl	@(r11),@v_context
 	movl	(r11),r9		; truncate dictionary
-	addl2	#4,(r11)		; pop address of found word
+	addl2	#4,r11			; pop address of found word
 	rsb				; return
 100$:
 	movab	v_wordnotfound,-(r11)	;
@@ -1965,7 +1965,7 @@ _kernel_begin:
 ; match found, calcualte its address.  matchc leaves in r3 the address of the
 ; byte after last byte matched in the source string, so address of matched
 ; string is r3 - objectlen.
-	subl3  (r1),r3,r0		; calculate address of matched string
+	subl3  (r11),r3,r0		; calculate address of matched string
 	addl2  #16,r11			; pop arguments
 	movl   r0,-(r11)		; put address of matched string on stack
 	movl   #c_true,-(r11)		; leave true on top of stack
@@ -2047,7 +2047,7 @@ _kernel_begin:
 ;+++
 ;k> negate -- ( n -- -n )  Leave two's complement of top stack item on stack.
 ;---
-	header	negage
+	header	negate
 	mnegl	(r11),(r11)		; negate it
 	rsb				; end of negate
 
@@ -2273,7 +2273,7 @@ _invalid_number:
 ;---
 	header	i_w_comma,<s,>
 	movw	(r11),(r9)+		; store short in dictinary
-	addl2	#8,r11			; pop arguments
+	addl2	#4,r11			; pop arguments
 	rsb				; end of s,
 
 
@@ -2545,7 +2545,7 @@ _invalid_number:
 	bgeq	10$			; no
 	movl	r2,r6			; yes, use max len for src len
 10$:
-	movc3	r6,2(r11),2(r0)		; move the strings
+	movc3	r6,2(r1),2(r0)		; move the strings
 	movw	r6,@(r11)		; save the new length of dest
 	addl2	#8,r11			; pop arguments
 	rsb				; end of strcpy
@@ -2777,7 +2777,7 @@ _gettoken:
 	movl	@(r11),(r11)		; get previous word's LFA
 	brb	10$			; try it again
 100$:
-	addl2	#4,r10			; pop pointer off stack
+	addl2	#4,r11			; pop pointer off stack
 	rsb				; end of vlist
 
 
@@ -2793,7 +2793,7 @@ _gettoken:
 	movb	#6,(r9)+		; (pc+2) ~~~ isn't this (pc+6)?
 	movb	#adm_absolute,(r9)+	; absolute mode (address in next lword)
 	moval	v_context,(r9)+		; context
-	movab	#op_rsb,(r9)+		; rsb
+	movb	#op_rsb,(r9)+		; rsb
 	movl	(r10)+,(r9)+		; initialize link
 	rsb				; end of vocabulary
 
@@ -2864,7 +2864,7 @@ _gettoken:
 ;+++
 ;k> ] -- ( -- ) enter compile mode.  Used with { [ } in definitions.
 ;---
-	header i_right_back,<]>
+	header i_right_brack,<]>
 	movb   #c_true,v_mode		; enter compile mode
 	rsb				; end of l
 
@@ -2917,7 +2917,7 @@ compiler_begin:
 	movw	#0,(r9)+		; save space for branch displacement
 	subl3	r9,(r10)+,r1		; calculate displacement
 	movw	r1,(r0)			; save displacement
-	movw	#op_addl2,(r9)+		; `addl2'	pop index&limit from ls
+	movb	#op_addl2,(r9)+		; `addl2'	pop index&limit from ls
 	movb	#^x08,(r9)+		; s^#8
 	movb	#adm_r10,(r9)+		; r10
 	rsb				; end of +loop
@@ -2979,7 +2979,7 @@ compiler_begin:
 ; make new word advance dictionary pointer over just added code
 	movb	#op_addl2,(r9)+		; `addl2'
 	movb	#adm_immediate,(r9)+	; i^#
-	movl	r0,(r0)+		; amount to advance
+	movl	r0,(r9)+		; amount to advance
 	movb	#adm_r9,(r9)+		; r9
 	rsb				; end of >defer
 
@@ -3247,7 +3247,7 @@ compiler_begin:
 ;c> until -- ( f -- ) End a { repeat ... until } loop.  If top of stack is
 ;	false, branch back to the { repeat }, else fall out of loop.
 ;---
-	header	until,,v1_compiler
+	header	until,,vl_compiler
 	movb	#op_tstl,(r9)+		; `tstl'
 	movb	#adm_ainc_r11,(r9)+	; (r11)+
 	movb	#op_bneq,(r9)+		; `bneq'
@@ -3256,7 +3256,7 @@ compiler_begin:
 	movl	r9,r0			; save address of displacement
 	movw	#0,(r9)+		; save space for displacement
 	subl3	r9,(r10)+,r1		; calcualte negative displacement
-	movw	r1,(r10)		; save negative displacement
+	movw	r1,(r0)			; save negative displacement
 	rsb				; end of until
 
 
@@ -3377,7 +3377,7 @@ vtil_exit:
 		p3=#3
 	pushl	#vtil_ctrlc
 	calls	#1,g^lib$signal		; this should NOT return!
-	rsb				; end of enable_ctrlc
+	ret				; end of enable_ctrlc
 
 
 ;+++
@@ -3531,7 +3531,7 @@ _q_execute:
 	bneq	10$			; no, go compile it
 	movb	#c_false,v_state	; set v_state false~~~ Why???
 	jsb	@(r11)+			; yes, execute it
-	cmpl	r10,#c_ds_end		; stack overflow?
+	cmpl	r11,#c_ds_end		; stack overflow?
 	blss	_overflow		; yes, go announce it
 	cmpl	r11,#c_ds_start		; stack underflow?
 	bgtr	_underflow		; yes, go announce it
@@ -3604,7 +3604,7 @@ _r_err:	pushl	rab$l_stv(r6)		; push stv and sts of rab
 	calls	#2,g^lib$signal		; signal error
 
 
-_done:	$close	fab=v_infile		; close input
+_done:	$close	fab=v_infab		; close input
 
 
 _exit:
