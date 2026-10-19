@@ -3455,9 +3455,9 @@ r_warm_start:
 	tstb	v_mode		        ; were we compiling before error?
 	beql	10$			; no
 	jsb	unlink			; yes, unlink unfinished word
-10$:
-	movb	#c_false,v_mode		; put into execute mode
+10$:	movb	#c_false,v_mode		; put into execute mode~~~ was on the line after 10$:
 	movb	#c_false,v_state	;   just in case
+	movl	#10,v_radix		;~~~ errors switch back to decimal
 	movw	#0,v_inlen		; so start with new line
 	movw	#0,v_org_inlen		;   just in case
 	tstb	v_infile		; Are we getting from file?

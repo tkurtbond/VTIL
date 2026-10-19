@@ -1,0 +1,7 @@
+\ An error sets the radix back to decimal
+hex FF .              \ FF
+xyzzy                 \ unknown token
+16 .                  \ 16 (in hex it would be 10)
+2 radix ! 5           \ 5 is not a binary digit
+5 .                   \ 5
+.st

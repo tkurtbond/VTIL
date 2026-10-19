@@ -254,7 +254,8 @@ Unknown Token: { xxxx_I'm_unknown } In line:
 
 If source code was being loaded from a file, the line number and
 filename are also displayed.  After an error the rest of the input
-stream is discarded and the data and loop stacks are cleared.
+stream is discarded, the data and loop stacks are cleared, and the
+radix is set back to decimal.
 
 If you have started a command that is taking a long time, you can
 interrupt it by typing \verb|ctrl/c|, which will return you to the

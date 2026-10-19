@@ -66,8 +66,9 @@ the terminal and the line it was in is also echoed, like this:
       Unknown Token: { xxxx_I'm_unknown } In line:
      xxxx_I'm_unknown xyz 1 3 + .  
 
-After an error the rest of the input stream line is discarded  and
-the data and loop stacks are cleared.
+After an error the rest of the input stream line is discarded, the
+data  and  loop  stacks  are cleared, and the radix is set back to
+decimal.
      If you have started a command that is taking a long time, you
 can  interrupt  it  by typing ctrl/c, which will return you to the
 "VTIL>" prompt (this is useful for stopping infinite loops).  VTIL
@@ -520,8 +521,9 @@ dollars and cents:
      The radix is a variable:  { radix } leaves its  address,  and
 { binary }, { octal }, { decimal }, and { hex } set it.  It can be
 any base from 2 to 36, and it applies both to the numbers you type
-and  to the numbers VTIL prints.  A word can change it temporarily
-by saving it on the stack and restoring it afterwards:
+and to the numbers VTIL prints.  An error sets it back to decimal.
+A word can change it temporarily by saving it  on  the  stack  and
+restoring it afterwards:
 
      : .hex8 ( n -- )   \ print n as eight hexadecimal digits
         radix @ swap hex <# # # # # # # # # #> write radix ! ;
@@ -1461,7 +1463,8 @@ radix                                                     ( -- a )
 Leave the address  of  system  radix  long  on  the  stack.   This
 longword  contains  the  current  input  and  output radix (number
 base).  Changing this variable will cause numeric input and output
-to be made in another base.
+to  be  made  in  another  base.   An error sets the radix back to
+decimal.
 
 
 read                                                      ( a -- )

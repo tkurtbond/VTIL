@@ -70,8 +70,9 @@
                 Unknown Token: { xxxx_I'm_unknown } In line:
                xxxx_I'm_unknown xyz 1 3 + .  
 
-          After an error the rest of the input stream line is discarded  and
-          the data and loop stacks are cleared.
+          After an error the rest of the input stream line is discarded, the
+          data  and  loop  stacks  are cleared, and the radix is set back to
+          decimal.
           VTIL -- VAX Threaded Interpretive Language                  Page 3
           Starting Out
 
@@ -555,8 +556,9 @@
                The radix is a variable:  { radix } leaves its  address,  and
           { binary }, { octal }, { decimal }, and { hex } set it.  It can be
           any base from 2 to 36, and it applies both to the numbers you type
-          and  to the numbers VTIL prints.  A word can change it temporarily
-          by saving it on the stack and restoring it afterwards:
+          and to the numbers VTIL prints.  An error sets it back to decimal.
+          A word can change it temporarily by saving it  on  the  stack  and
+          restoring it afterwards:
           VTIL -- VAX Threaded Interpretive Language                 Page 11
           Numeric Output Conversion
 
@@ -1546,7 +1548,8 @@
           Leave the address  of  system  radix  long  on  the  stack.   This
           longword  contains  the  current  input  and  output radix (number
           base).  Changing this variable will cause numeric input and output
-          to be made in another base.
+          to  be  made  in  another  base.   An error sets the radix back to
+          decimal.
 
 
           read                                                      ( a -- )
@@ -1596,12 +1599,11 @@
           save-buffers                                                ( -- )
 
           Write all modified buffers and mark them unmodified.
-
-
-          search                                            ( a1 -- a2 ? f )
           VTIL -- VAX Threaded Interpretive Language                 Page 29
           Kernel Vocabulary
 
+
+          search                                            ( a1 -- a2 ? f )
 
           Search vocabulary at "a1" for a match with byte-counted string  at
           { eodp }.   Return ( false ) if a match is not found, or ( address
