@@ -31,8 +31,13 @@ vtil-nopaging.mem : vtil.rno
 vtil.mem : vtil.rno
         runoff/right=10/output=$(MMS$TARGET) $(MMS$SOURCE)
 
-! vtil-nopaging.doc : vtil-nopaging.mem
-!        @stripcrlf $(MMS$SOURCE) $(MMS$TARGET)
+! MMS V2.6 does not use the .mem.doc rule below for these (it puts .DOC
+! after .MEM, already in its suffix list), so each has its own rule.
+vtil.doc : vtil.mem
+        @stripcrlf $(MMS$SOURCE) $(MMS$TARGET)
+
+vtil-nopaging.doc : vtil-nopaging.mem
+        @stripcrlf $(MMS$SOURCE) $(MMS$TARGET)
 
 .SUFFIXES : .doc .mem
 

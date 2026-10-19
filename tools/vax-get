@@ -1,13 +1,20 @@
 #!/bin/sh
 # Copies files from the vtil account's home directory on the VAX by FTP,
-# in active and ASCII mode, into the current directory, lowercased.
+# in active mode, into the current directory, lowercased.  Most come in
+# ASCII mode, each record a line.  A RUNOFF .MEM file comes in binary
+# mode instead: its records already end in CR LF, which ASCII mode would
+# double, and binary mode gives the bytes as the repository keeps them.
 #
 #   tools/vax-get <NAME.EXT>...
 host=${VAX_HOST:-192.168.2.20}
 netrc=${VAX_NETRC:-$HOME/.netrc-vtil-vax}
 status=0
 for f; do
-  curl -s -S --netrc-file "$netrc" -P - --use-ascii \
+  case $f in
+    *.MEM|*.mem) mode= ;;
+    *) mode=--use-ascii ;;
+  esac
+  curl -s -S --netrc-file "$netrc" -P - $mode \
     -o "$(echo "$f" | tr A-Z a-z)" "ftp://$host/$f" || status=1
 done
 exit $status
