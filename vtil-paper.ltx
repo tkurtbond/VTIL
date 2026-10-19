@@ -35,11 +35,11 @@
   interactive debugging is limited at best.  Interpreted languages are
   easy to use and debug, but very inefficient.  One useful compromise
   between these opposing categories is the class of threaded
-  interpretive languages{\bf TIL}s.  They have many advantages.  {\bf
-    TIL}s incude such elements of structured programming as
+  interpretive languages ({\bf TIL}s).  They have many advantages.  {\bf
+    TIL}s include such elements of structured programming as
   one-entry/one-exit modules; structured control statements such as
   if---then---else, looping statements; and no goto statement, but also
-  allow the programmer to acces the real machine and to extend the
+  allow the programmer to access the real machine and to extend the
   language in a portable manner.  They are interactive, allowing easy
   debugging and program modification, yet are more efficient in
   execution time than interpreted languages and in some cases nearly as
@@ -49,21 +49,21 @@
   implement than a compiler or interpreter.  There are many different
   examples of {\bf TIL}s, but the best known are Forth and Stoic.  The
   primary characteristics of a {\bf TIL} are as follows.  The {\it
-    dictionary} is where the definitions of definitions of all {\it
+    dictionary} is where the definitions of all {\it
     words} (which are similar to procedures and functions) that have
   been defined are stored.  All words take their arguments from and
   return values on, the {\it stack}.  A {\it return stack} contains
   information about the execution of the current word and loop.  Global
   constants and variables can be defined and local variables are
   available (by use of the stack inside words).  The author proposes to
-  develop a simpl {\it TIL} with all the capabilities needed to allow
+  develop a simple {\it TIL} with all the capabilities needed to allow
   programs to be developed.  This would include arithmetic, logical, and
   relational operators; words to allow the defining of constants,
   variables, and new words; input and output to the terminal and disk
   blocks; control structures including if---then---else and looping
   constructs; and a simple line mode editor that works on disk blocks.
 
-  {\bf Key Words:}  Threaded Interpreted Languages, Forth Stoic.
+  {\bf Key Words:}  Threaded Interpreted Languages, Forth, Stoic.
 \end{abstract}
 
 \tableofcontents
@@ -72,14 +72,14 @@
 \begin{center}
   \Large
   VTIL\\
-  A VAX Thread Interpretive Language
+  A VAX Threaded Interpretive Language
 \end{center}
 
 
 \section{Introduction}
 
-VTIL is a threaded interpretive language impmlemented on the VAX.  It
-is an interactive interpreter/compiler for a stack based langauge.
+VTIL is a threaded interpretive language implemented on the VAX.  It
+is an interactive interpreter/compiler for a stack based language.
 VTIL includes arithmetic, logical, and relational operators, though
 only integer arithmetic is provided.  String Manipulation procedures
 are included, as are input and output to the terminal and to disk
@@ -93,13 +93,13 @@ programming tasks not including extensive file access.
 My main purpose in writing VTIL was to explore the implementation of a
 threaded interpretive language.  I am very interested in the design
 and implementation of languages, but the task of writing a compiler or
-interpreter for a reasonably power language seemed impractical given
+interpreter for a reasonably powerful language seemed impractical given
 my limited experience and the amount of time allotted for the seminar.
 However, the class of languages known as Threaded Interpretive
-Langauges (hereafter called TILS) appeared not only to be much easier
+Languages (hereafter called TILs) appeared not only to be much easier
 to implement than conventional languages but also to have many
 interesting features, such as combining the interactive nature of an
-interpreter with execution speed almost as greatas a compiler in many
+interpreter with execution speed almost as great as a compiler in many
 cases.  I had originally intended to write a {\em pointer}-threaded
 TIL, but the advantages of a {\em subroutine}-threaded TIL looked
 extremely intriguing, especially since I was writing in VAX-Macro,
@@ -107,10 +107,10 @@ which is especially suited to subroutine threading.  A secondary
 purpose in this seminar was investigating the interesting
 characteristics of the TIL class of languages, such as their use of
 a data stack as the primary method of communication between routines,
-the extreme extensiblity of the langauge, and the dictionary of words.
+the extreme extensibility of the language, and the dictionary of words.
 
-Becuse many of the names of routines in VTIL contain punctuation, to
-avoid confusion in this paper all the VTIL names, or {em words}, will
+Because many of the names of routines in VTIL contain punctuation, to
+avoid confusion in this paper all the VTIL names, or {\em words}, will
 appear in a different type face and inside braces.  An example is the
 word \word{b!}, which will store a byte value in a variable.  Braces
 will never appear in any VTIL words in this manual.  Also, within a
@@ -129,9 +129,9 @@ rewarded.  Because the fundamental concepts are used throughout the
 language I will first explain the most important ones.
 
 The syntax of VTIL is extremely simple: the input stream is a sequence
-of tokens separated from each other by blank spaces (tabs are {em not}
+of tokens separated from each other by blank spaces (tabs are {\em not}
 identical to blanks).  Each token is either a {\em word} or data for a
-word.  The advantage of of this is that no complicated parsing of the
+word.  The advantage of this is that no complicated parsing of the
 input needs to be done.  If a more complex syntax is needed, the
 programmer can easily add it to his application, but usually it is not
 needed.
@@ -140,7 +140,7 @@ Unlike most languages, VTIL is stack-based and uses postfix notation
 for almost everything, instead of the more familiar infix (or
 algebraic) notation.  That is, the data for an operation always
 precedes the operator.  The advantage of this is that all routines
-take their input data from the same place the {em data stack},
+take their input data from the same place, the {\em data stack},
 eliminating any need for a complicated calling sequence for routines,
 such as \verb|call doit (x,y*x,z)|, which is common to both Fortran
 and Basic, with all of the overhead involved in setting up such a
@@ -148,7 +148,7 @@ call.  Because the data stack is used so often, it will usually be
 referred to simply as the stack.
 
 In addition to the data stack VTIL also makes use of two other
-stacks.  The first is the {em loop stack}, which is used primarily
+stacks.  The first is the {\em loop stack}, which is used primarily
 during execution by the various looping words such as \word{do ... loop} 
 which maintain loop indexes and limits on the stack, and
 during compilation by words that compile control structures, such as
@@ -159,11 +159,11 @@ and the top loop stack item inside such a loop is the index, which can
 be copied to the data stack to be used for computation.  The loop
 stack is also useful for temporary storage of data that would
 otherwise be in the way on the data stack.  When the loop stack is
-used for temporary storage, however, one has the remove the items on
+used for temporary storage, however, one has to remove the items on
 it at the same level of nesting as they were placed on it; that is,
-inside the same lop.  Otherwise the indices of that loop and any
+inside the same loop.  Otherwise the indices of that loop and any
 containing loops will be corrupted.  The final stack that VTIL makes
-use of is the {em return stack}, which is actually the normal VAX
+use of is the {\em return stack}, which is actually the normal VAX
 system stack.  It contains the address to resume execution at when the
 current word is finished executing, just as normal.   Since the system
 stack is used normally it is easy to set up VTIL to call any VAX
@@ -171,17 +171,17 @@ run-time library routines.
 
 In VTIL the fundamental unit is the {\em word}.  Unlike other
 languages, where constants are distinct from variables which are
-distinct from functions and procedures, {em everything} in VTIL is a
+distinct from functions and procedures, {\em everything} in VTIL is a
 word.  A constant in VTIL is a word which pushes a value to the
 stack.  A variable in VTIL is a word which pushes the {\em address} of
 a value to the stack.  The closest VTIL gets to the procedure or
-function of other languages is the {em colon definition}, which
+function of other languages is the {\em colon definition}, which
 executes the words that make it up when it is executed.  Words can be
 written that declare data types or declare and initialize variables.
 All words are invoked in exactly the same way.
 
-One of the central concepts of a TIL is the {em dictionary}.  The
-dictionary is a group of linked lists containing al the defined words
+One of the central concepts of a TIL is the {\em dictionary}.  The
+dictionary is a group of linked lists containing all the defined words
 whether they are defined by the user or were provided with the
 language.  Regardless of how they were defined, they are all treated
 exactly the same.  When a token is to be executed or compiled, the
@@ -191,13 +191,13 @@ written to the terminal for the user.  It is possible to define a new
 word with the same name as an old word, but the new version of the
 word will only be used by words defined after it is; words defined
 before it will continue to use the old version, since they have
-already been compile to call that version of the word.
+already been compiled to call that version of the word.
 
 An important concept in a TIL is that of the {\em vocabulary}.  A
 vocabulary is one of several independent linked lists that are woven
 through the dictionary, only one of which is searched for words at a
 time.  Vocabularies are used to separate words into groups according
-to function.  For instance, all words that take make up the editor
+to function.  For instance, all words that make up the editor
 vocabulary can be completely separated from the words that make up the
 vocabulary for a text formatter.  One can therefore have words with
 the same names, but a different meaning, in different vocabularies,
@@ -230,9 +230,9 @@ To use VTIL you need to run the VTIL interpreter/compiler,
 \verb|VTIL>|, and wait for you to enter commands.  To exit VTIL you
 can type \verb|ctrl/z| or \word{exit} at the \verb|VTIL>| prompt.  To
 execute a VTIL word (like \word{exit} to exit the language) you just
-type the letters of that make up the name of the word, preceded and
+type the letters that make up the name of the word, preceded and
 followed by any number of blank spaces (tabs are not allowed outside
-string constants).  Since VTIL is case sensative, you must type its
+string constants).  Since VTIL is case sensitive, you must type its
 commands in the same case as they are given in this paper, usually
 lower case.  To enter a number (which must be an integer) into the
 data stack just type the number, which can have a leading minus sign.
@@ -258,7 +258,7 @@ stream is discarded and the data and loop stacks are cleared.
 If you have started a command that is taking a long time, you can
 interrupt it by typing \verb|ctrl/c|, which will return you to the
 \verb|VTIL>| prompt (this is useful for stopping infinite loops).
-VTIL will aso catch access violations and most other errors, but there
+VTIL will also catch access violations and most other errors, but there
 is a builtin limit to the number of errors it will catch.  After a
 certain number of errors and \verb|ctrl/c|'s are trapped, VTIL will
 abort with a message indicating that the maximum number of errors has
@@ -271,10 +271,10 @@ The word \word{.} can be used to see the value of the top of the
 stack.  However, \word{.} pops the top of the stack, so the number is
 lost after it is used; most VTIL words consume their arguments.  The
 word \word{.sb} prints the contents of the stack from the bottom up
-without destroying its contents, while the word {.st} prints the
+without destroying its contents, while the word \word{.st} prints the
 contents of the stack from the top down without destroying its
 contents.  The words for addition, subtraction, multiplication,
-division, and modulus are supplied and the expected mathematical
+division, and modulus are supplied and have the expected mathematical
 symbol as their name (except for modulus, which is \word{mod}).
 Another arithmetic word is \word{/mod} which divides the second stack
 item by the top stack item and leaves the quotient and remainder on
@@ -282,7 +282,7 @@ the stack, the remainder on top.
 
 \subsection{Comments}
 
-There are two type of comments in VTIL.  The first is called ``skip
+There are two types of comments in VTIL.  The first is called ``skip
 line'' and starts with a \word{\} and continues until the end of the
 line.  The \word{\} must be separated from other text by at least
 one space on each side.  The second type of comment, called an
@@ -302,7 +302,7 @@ the number of characters in the string followed by bytes containing
 the characters), and {\em word-counted-string} (a VAX memory word
 containing the number of characters in the string followed by bytes
 containing the characters).  Words for accessing and manipulating each
-of these data types is included in the VTIL kernel, as are words for
+of these data types are included in the VTIL kernel, as are words for
 defining arrays and other data types.
 
 \subsection{Stack Manipulation Words}
@@ -348,7 +348,7 @@ and colon definitions.  Names of words can contain any character;
 except a blank: however, it is not a good idea to use any nonprinting
 character, such as a tab or other control character (indeed, in later
 versions of VTIL such names may become illegal altogether).  This
-flexibility allows extremely meaning full names, such as
+flexibility allows extremely meaningful names, such as
 \word{all-here?}, but it also allows extremely unmeaningful names,
 such as \word{-&]*!#}.   If names are well chosen the resulting source
 code is often very English-like.
@@ -356,10 +356,10 @@ code is often very English-like.
 \subsection{Constants and Variables}
 
 The form of a constant definition is \word{<n> longconst <name>} which
-creates a word \verb|<name>| that pushes <n> on the stack whenever it is
+creates a word \verb|<name>| that pushes \verb|<n>| on the stack whenever it is
 executed.
 
-the form of a variable definition is \word{<n> long <name>}, which
+The form of a variable definition is \word{<n> long <name>}, which
 creates a word \verb|<name>| that pushes the address of a long
 variable to the stack whenever it is executed.  The variable is
 initialized to \verb|<n>|.  The word \word{@} (pronounced fetch) is
@@ -382,8 +382,8 @@ the stack again, and finally the value is stored into the variable (by
 
 If this procedure seems clumsy, do not worry; variables are not nearly
 as important in VTIL as in other languages since all calculation is
-done on the the stack, eliminating the need for temporary variables.
-Only the initial value and the the final result need variables, and
+done on the stack, eliminating the need for temporary variables.
+Only the initial value and the final result need variables, and
 then only at the beginning or end of the calculation.  Indeed,
 variables are often not needed even then, since the calculation will
 most likely be encapsulated in a word, which will receive its initial
@@ -415,11 +415,11 @@ collections of statements that execute one after another.  The form of
 a colon definition is \word{: <name> ... ;}, where \verb|name| is the
 name this word will have.  They start with the word \word{:}, which is
 why they are called colon definitions.  The colon is followed by the
-name for this new word, which is has the same rules as names for any
+name for this new word, which has the same rules as names for any
 other type of word.  Following the name is the list of words that make
-up the definitions, terminated by \word{;}.  As an example colon
+up the definition, terminated by \word{;}.  As an example colon
 definition, here is how \word{+!} might be written if it were not
-supplied with the langauge.
+supplied with the language.
 \begin{verbatim}
 : +!  ( n a -- )
    swap over @    \ get the value of the variable
@@ -450,7 +450,7 @@ are compile-time words.  These words set up the loops or the control
 structures in the word being defined, but are not themselves compiled
 into the word.  Usually compile-time words compile some information
 into the word being defined that is figured out during compilation
-rather than during execution, when that information is has to be
+rather than during execution, when that information has to be
 used.  A word is made a compile-time word by following its definition
 with the word \word{compiletime}, which moves the most recently
 defined word in the \word{current} vocabulary to the compiler
@@ -469,7 +469,7 @@ turns off compile mode and \word{]} turns it back on.
 VTIL includes a full complement of control structures, which may only
 be used in colon definitions since they are all compile-time words.
 In the following list \verb|<flag>| is a true or false on the top of
-the stack, \verb|limit| is the supper or lower limit on a counting
+the stack, |\verb|<limit>|| is the upper or lower limit on a counting
 loop, \verb|<index>| is the starting value of the index for a counting
 loop, and \verb|<increment>| is the increment to add to the index.
 \begin{verbatim}
@@ -483,24 +483,24 @@ repeat ... <flag> if ... again
 \end{verbatim}
 
 The \word{repeat ... if ... again} loop is especially interesting.
-The code begin the \word{repeat} and the \word{if} is always executed
+The code between the \word{repeat} and the \word{if} is always executed
 at least once.  If the \verb|<flag>| is true the code between the
 \word{if} and the \word{again} is executed and control returns to the
 code after the \word{repeat} and before the \word{if}.
 If the \verb|<flag>| is false control skips to the
 code after the \word{again}.  When the value that controls a
-\verb|while <condition> do| loop in Pascal cannot be actually
-calculate in the \verb|<condition>| part of the code to calculate it
+\verb|while <condition> do| loop in Pascal cannot actually be
+calculated in the \verb|<condition>| part, the code to calculate it
 has to be included before the body of the loop and as the last thing
 in the loop, both copies of which must be modified if any changes are
 made later.  The \word{repeat ... if ... again} loop allows that code
-to be executed before the the loop body before each iteration, so only
+to be executed before the loop body before each iteration, so only
 one copy of the code needs to be maintained.
 
 \subsubsection{Recursion}
 
 VTIL also allows recursion, as one would expect from a stack based
-language.  Because words and can call words defined earlier with the
+language.  Because words can call words defined earlier with the
 same name, a special compile-time word \word{recurse} is used in  a
 colon definition to call the word being defined.  Following is an
 example of the use of recursion, the word for calculating factorials.
@@ -528,7 +528,7 @@ to have different contexts for different purposes, so that \word{x} in
 one vocabulary does one thing, but \word{x} in another vocabulary does
 something else.  The word \word{vocabulary}, used in the form
 \word{vocabulary <name>}, creates a new vocabulary with the name
-\verb|<name>|, which is invoked with called \verb|<name>|.  When the
+\verb|<name>|, which is invoked by calling \verb|<name>|.  When the
 word \verb|<name>| is executed it sets the \word{context} vocabulary
 to \verb|<name>| vocabulary, which will now be searched for words to
 execute or compile.  Vocabularies created by \word{vocabulary} are
@@ -543,18 +543,18 @@ vocabulary (the vocabulary that new words are linked to when they are
 defined) so that all the new definitions are compiled into vocabulary
 <name> instead of the previous \word{current} vocabulary.
 \word{context} can be switched back to the kernel vocabulary by
-executing \word{kernel} and \word{current} can be switche back to the
+executing \word{kernel} and \word{current} can be switched back to the
 kernel vocabulary by executing \word{kernel definitions} (which also
 sets \word{context} to the kernel vocabulary).
 
 \subsubsection{Inline Assembly Code}
 
 VTIL includes its own assembler, and allows you to use assembly
-language anywhere in a colon defintion (though ti does not {\em
-  encourage} using assembly langauge scattered throughout an
+language anywhere in a colon definition (though it does not {\em
+  encourage} using assembly language scattered throughout an
 application).  There are many situations where some capability of the
 particular machine one is using is needed in a program, but can only
-be reached by using assembly langauge.  If this capability is
+be reached by using assembly language.  If this capability is
 encapsulated in a word or group of words that act like normal words to
 the rest of the program, only these few words will need to be changed
 if the program must later be moved to another machine.  If the whole
@@ -582,7 +582,7 @@ executed.  Here is an example:
    defer<
       \ move value of variable onto stack
       MOVAB b^r b^ 2 -(ds)
-      RSB   \ return from wordd
+      RSB   \ return from word
       \ return to compiling into word to be executed
    >defer
    \ save space for the variable 4 bytes long
@@ -592,7 +592,7 @@ executed.  Here is an example:
 \end{verbatim}
 
 This example shows how a word with the same effect as \word{long}
-might be defined.  Whenever {4byte} is executed a new word is created
+might be defined.  Whenever \word{4byte} is executed a new word is created
 with the code between \word{defer<} and \word{>defer} as its code body
 and space in the dictionary is allocated for the data and
 initialized.
@@ -614,7 +614,7 @@ by the logical name VTILBLOCKS (with the default name
 \verb|VTILBLOCKS.DAT|), would be created by a separate VAX-Macro
 program, and opened, accessed, and closed by VTIL words.  Conceptually,
 the block-file is simply one hundred blocks, each 1024 bytes in
-length, which can individually read into buffers in VTIL and saved if
+length, which can individually be read into buffers in VTIL and saved if
 any changes are made in them.
 
 To use the block-file in VTIL it must first be opened by
@@ -639,14 +639,14 @@ As an example of a VTIL application I wrote a simple line mode editor
 which operates on blocks from the block file.  It interprets a block
 as sixteen lines of 64 characters each, with shorter lines padded with
 spaces or nulls.  The editor uses variables, constants, colon
-defintions, vocabulary words, and words for string manipulation and
-input and output to the terminal.  It coexists with VTIL once it is
+definitions, vocabulary words, and words for string manipulation and
+input and output to the terminal.  It coexists with VTIL once it
 has been loaded, so one can issue VTIL commands while editing.  It
 includes commands to switch to the editor vocabulary, edit a block,
 exit the editor and save any changed blocks, exit the editor without
 saving any blocks, clearing lines, and moving lines around.  Also
 included are commands to find a text string in the block and replace a
-found stext string with another string.  The found strings and the
+found text string with another string.  The found strings and the
 inserted strings are saved so that the commands can be reissued
 without typing anything more than the commands themselves.
 
@@ -655,13 +655,13 @@ without typing anything more than the commands themselves.
 My main interest in this seminar was seeing how a TIL is implemented.
 I found that a TIL can be implemented quickly: after researching TILs
 for a month and thinking about the implementation for two weeks or
-sow, I was able to code an incomplete but working version of VTIL in
+so, I was able to code an incomplete but working version of VTIL in
 six days.  This version allowed definition of constants, variables,
 and simple colon definitions, including the \word{if ... else ... endif} 
 control structure, and did very simple input and output to the
 terminal.  The final version of VTIL includes many more capabilities.
 There are many interesting things about the implementation of VTIL
-what I will discuss next.
+that I will discuss next.
 
 \subsection{The VAX and VTIL}
 
@@ -681,10 +681,10 @@ suited to implementing a TIL.  Since eleven of the VAX's sixteen
 general purpose registers are available to the programmer for use at
 all times each stack can have its own dedicated register.  The
 addressing modes register deferred, autodecrement, autoincrement,
-autoincrement defered, and the various displacement and displacement
+autoincrement deferred, and the various displacement and displacement
 deferred addressing modes all make access to the values in a stack
-extremely easy and efficient.  For instance, to use th evalue of
-whatever in the third item down in the data stack in VAX-Macro, I
+extremely easy and efficient.  For instance, to use the value of
+whatever is in the third item down in the data stack in VAX-Macro, I
 could use the operand \verb|8(r11)| in any instruction.  Using the
 third item as the address of the data is just as easy with
 \verb|@8(r11)| as the operand.  It is easy to see why one of the first
@@ -705,12 +705,12 @@ code, but only two will be considered here.
 The most common method of implementing a TIL is to use {\em
   pointer}-threading.  With pointer-threading there are two different
 kinds of words: secondaries and primitives.  A secondary word consists
-of a list of points to other words, while a primitive consists of
+of a list of pointers to other words, while a primitive consists of
 machine code.  Secondaries are always called by other secondaries (the
 outer loop that interprets the user's commands is a secondary), but
 the secondaries can also call primitives.  Secondaries and primitives
 are typically executed in the following way.  A special interpreter,
-using called the {\em inner interpreter}, oversees execution  of all
+usually called the {\em inner interpreter}, oversees execution  of all
 words.  It maintains an {\em instruction register} which contains the
 address of the next pointer in the current secondary word.  An inner
 interpreter routine called {\bf next} extracts the address of the next
@@ -748,12 +748,12 @@ method of linking subroutines had to be developed, that explained
 above, which really simulates the normal system stack of a processor.
 This implementation is very flexible and also produces very dense
 code, but is unfortunately much slower than if the system stack had
-been used for routine linkage because of the overhead of the innter
+been used for routine linkage because of the overhead of the inner
 interpreter.\cite{CL}
 
 \subsubsection{Subroutine Threading}
 
-Since many modern processors allow any of several regeisters to be
+Since many modern processors allow any of several registers to be
 used with stack instructions, another method can be used when
 implementing a TIL, that of {\em subroutine}-threading, which is the
 method I used in VTIL.  The VAX architecture allows any general
@@ -762,47 +762,47 @@ used for routine linkage.  With subroutine-threading a word consists
 of a list of jump-to-subroutine or branch-to-subroutine instructions
 instead of a list of pointers to words.  In pure subroutine-threading
 a word consists {\em only} of the jump-to-subroutine instructions;
-hwoever, it is often more useful (and just as easy) to allow other
+however, it is often more useful (and just as easy) to allow other
 machine language instructions to be intermixed with the
 jump-to-subroutine instructions, which is what I have done in VTIL.
 This allows more efficient code and has several other advantages that
-will be discusses later in the section on improvements to VTIL.
+will be discussed later in the section on improvements to VTIL.
 Subroutine-threading is much faster than pointer-threading because
 none of the overhead of the inner interpreter is involved.  It is also
 considerably simpler to implement.  See \cite{CL} for information on a
-commercial implementation of forth using this method.
+commercial implementation of Forth using this method.
 
 \subsection{Text Interpreter}
 
 Commands or source text, whether typed by the user at the terminal or
-loaded from a text file, are parsed and acted on byh al oop, which is
+loaded from a text file, are parsed and acted on by a loop, which is
 called the text interpreter, or simply the interpreter.  The
-interpreter is actually several conncted routines that are responsible
+interpreter is actually several connected routines that are responsible
 for either executing words, compiling words into the dictionary, or
-pushing user entered data onto the data stack.  Wheter a word should
+pushing user entered data onto the data stack.  Whether a word should
 be compiled is determined by the value of the global variable
 \verb|mode|, which is true (nonzero) if VTIL is in compile mode, and
-false if it is execute mode.  The interpreter is only executed when
+false if it is in execute mode.  The interpreter is only executed when
 commands from the user are being read at the \verb|VTIL>| prompt; at
-other times words are being directly executed, since they considt of
+other times words are being directly executed, since they consist of
 machine code.
 
 Regardless of whether the word is to be executed or compiled the
-interpret begins in the same way, by extracting the next blank
+interpreter begins in the same way, by extracting the next blank
 delimited token from the input stream and placing it at the end of the
-dictionary (with actually placing it in the dictionary, which would
-involve incrementing the dictionary pointer past the token) as a byute
-contain the lenght of the token followed by the characters of the
+dictionary (without actually placing it in the dictionary, which would
+involve incrementing the dictionary pointer past the token) as a byte
+containing the length of the token followed by the characters of the
 token.  Next, the address of the {\em context} vocabulary, the
 vocabulary in which words are searched for, is placed on the stack and
 \word{?search} is called.  \word{?search} searches through the context
-vocabulary for  word with a name maching the token.  If it is found
+vocabulary for a word with a name matching the token.  If it is found
 \word{?search} returns a true on the top of the stack and the address
 of the header for the word under that.  If it is not found a false is
-returned on the top of the stack.  If VTIL is in complie mode and the
+returned on the top of the stack.  If VTIL is in compile mode and the
 word is not in the context vocabulary, \word{?search} also searches
 the {\em compiler} vocabulary, which contains the words that can only
-be in compile mode.  If it is found a true is returned on the top of
+be used in compile mode.  If it is found a true is returned on the top of
 the stack and the address of the header for that word is returned
 under that, just as normal, and the global variable \verb|state| is
 set true, so that later on another routine will know that it is a
@@ -814,9 +814,9 @@ called.  First, the address of the code for that word is calculated
 from the address of the header.  Then, if VTIL is in execute mode, a
 jump to subroutine to the address on the top of the stack is done
 (\verb|jsb @(r11)+|), and when that returns control branches to the
-beginning of hte text interpreter loop.  However, if VTIL is in
+beginning of the text interpreter loop.  However, if VTIL is in
 compile mode a somewhat more complicated process must be done.  If
-\verb|state| is true, the word is a compile-time word and is executd jast as
+\verb|state| is true, the word is a compile-time word and is executed just as
 if VTIL were in execute mode.  If \verb|state| is false, the word has
 to be compiled into the dictionary, which is done by
 \word{compile-jsb}.  The machine code for the \verb|jsb| instruction
@@ -826,7 +826,7 @@ top of the stack is moved into the dictionary.  After this control
 branches to the beginning of the interpreter loop.
 
 If a match was not found at all, the word \word{?number} is called.
-\word{?nubmer} tries to convert the token into a number, according to
+\word{?number} tries to convert the token into a number, according to
 the current system radix (which can be changed to anything between two
 and thirty-six).  If it can do so a true is returned on the top of the
 stack and the number is returned under that.  If the token could not
@@ -836,22 +836,22 @@ token is written out in an error message.  Control branches back to
 the top of the interpreter loop.
 
 Checking for stack underflow or overflow is also done each time
-thorugh the interpreter.  The process of getting a token and either
+through the interpreter.  The process of getting a token and either
 executing, compiling, or pushing on the loop stack is continued until
 the user is finished and VTIL is exited.
 
 \subsection{Dictionary}
 
-The dictionary is an area of contiguous memory which contains teh
-data, code, and deaders for each defined word.  As new words are
+The dictionary is an area of contiguous memory which contains the
+data, code, and headers for each defined word.  As new words are
 defined the dictionary grows towards the top of memory.  The current
 version of VTIL has allocated 16 kilobytes for expansion of the
-dictionary, but the size of this area may be increased as desiered by
+dictionary, but the size of this area may be increased as desired by
 increasing a symbol in the VAX-Macro source code.
 
 Every entry in the VTIL dictionary has the following fields:
 \begin{description}
-  \item[link] A longword that contains teh address of the header of
+  \item[link] A longword that contains the address of the header of
     the previous word in the dictionary.  The link field of the first
     word in the dictionary (and any independent vocabularies, such as
     the compiler  vocabulary) contains a zero, a null pointer, to
@@ -905,14 +905,14 @@ instruction in the word.  Compiling a word that consists only of calls
 to other words is done by copying a \verb|jsb| and the addressing mode
 specifier for absolute addressing mode to the dictionary, followed by
 the address of the code for the word being called, for each word that
-is to be called.  Most of the compiling that is done is of these siple
+is to be called.  Most of the compiling that is done is of these simple
 types: compiling a header, compiling \verb|jsb| instructions, and
 compiling \verb|rsb| instructions.  Really, any single instruction is
 easy to compile.  The more difficult parts of compiling, as well as
 the more interesting, come in dealing with control structures,
 especially loops.  Following is a discussion of the
 \word{if ... else ... endif} control structure, which will illustrate
-the general ideas behind words the compile control structures.  The
+the general ideas behind words that compile control structures.  The
 dictionary pointer is \verb|R9| and the loop stack pointer is
 \verb|R10|.  Words for the beginning of control structures generally
 save data that the ending word must know on the loop stack instead of
@@ -948,13 +948,13 @@ VAX-Macro.
 
 I used the \verb|bneq| to branch into the true part instead of just
 having a \verb|beql| branch around it, allowing \word{if} statements
-with more ethan 127 bytes of code in each branch, since \verb|brw|
+with more than 127 bytes of code in each branch, since \verb|brw|
 uses a signed VAX memory word and \verb|beql| uses a signed byte
-offset.  Since the length of hte true part will not be known until an
+offset.  Since the length of the true part will not be known until an
 \word{else} or \word{endif} is found, the sixth line saves the address
 of displacement for the jump over the true part on the loop stack
 and the seventh line initializes the displacement to zero, saving
-space for it in the dictionary.  Finally, the eight line saves on the
+space for it in the dictionary.  Finally, the eighth line saves on the
 loop stack the address that the displacement over the true part will
 be calculated from.
 
@@ -977,12 +977,12 @@ else:
 
 The first four lines of this code compile the branch over the false
 part into the dictionary and save the address of the displacement and
-the and the address to displace to in registers, since the top of the
+the address to displace to in registers, since the top of the
 loop stack has information that must be used now to fill in the
 displacements from the \word{if}.  Lines seven through nine calculate
 the displacement over the true part and save it in the code compiled
 by the \word{if}.  Finally, the last two lines before the \verb|rsb|
-save the displacement address and the address to displace from ont he
+save the displacement address and the address to displace from on the
 loop stack, so they will be preserved until the \word{endif}.
 
 \newpage
@@ -1020,7 +1020,7 @@ restart of VTIL is performed as normal.
 
 After having implemented VTIL it is easy to see many ways in which it
 could be improved.  Most of these are additional capabilities that
-would make it easier for teh user to interact with VTIL or that would
+would make it easier for the user to interact with VTIL or that would
 allow programs to interact more fully with the normal VAX
 environment.  Undoubtedly more work with the language will reveal
 other things that also need to be improved (for instance, the current
@@ -1037,7 +1037,7 @@ from a set of words for opening, reading, writing, and closing normal
 files.  The difficulty of this will be in figuring out how to do this
 dynamically, rather than merely allocating a fixed number of file
 control blocks, so that as many files can be open at one time as are
-needed by the users application.  Ideally, all of VAX RMS would be
+needed by the user's application.  Ideally, all of VAX RMS would be
 available to the user; this goal was accomplished in STOIC, which
 allows access to RMS and most of the VAX System Services as well.
 
@@ -1058,7 +1058,7 @@ rarely deep, and finding such problems is therefore usually simple, it
 would be nicer if VTIL itself could find these problems.  One method
 would be during compilation for each control structure that begins a
 block of code to push a unique value onto the loop stack and each
-control structure that ends a block of code to check that the top fo
+control structure that ends a block of code to check that the top of
 the loop stack was indeed put there by the corresponding word.  If it
 was not, a word would be called that would step down through the loop
 stack listing the improperly closed control structures until there
@@ -1094,11 +1094,11 @@ the loop counter is zero; that is, only at the end of a line when
 there are no unclosed loops.  Otherwise, the interpreter will get
 another line of commands from the user.  This method will also
 eliminate the need for a separate compiler vocabulary.  Unfortunately,
-this scheme would complicated the task of defining words, especially
+this scheme would complicate the task of defining words, especially
 colon definitions.
 
 An enhancement that would allow more flexibility in the execution and
-compilation of words, as well as incrase efficiency of the compiled
+compilation of words, as well as increase efficiency of the compiled
 code is an {\em attribute byte} for each word.  This byte would
 contain a value that would tell the interpreter how to deal with the
 word; for instance, a word that needed to be executed immediately,
@@ -1121,7 +1121,7 @@ i_plus:
 \end{verbatim}
 
 If this code (excluding the rsb) were expanded into each definition
-where it was used, it would faster and smaller in code size than
+where it was used, it would be faster and smaller in code size than
 compiling a \verb|jsb| to it.
 
 \section{Conclusions}
@@ -1158,7 +1158,7 @@ more efficient than the typical interpreter.
 VTIL has proved itself to be a reasonably powerful language that can
 be implemented with relatively few man-hours.  The line editor which I
 wrote in VTIL shows that it can be used for reasonable applications.
-The extensibility of the language makes it ideal for developing ones
+The extensibility of the language makes it ideal for developing one's
 own programming language environment.  It embodies the interesting
 characteristics that make TILs so different from more conventional
 languages.  I have enjoyed this project immensely, and plan to
@@ -1176,21 +1176,21 @@ continue working with VTIL and improving it.
   \bibitem{ERA}  Eldridge, Rodrick A.  {\it VAX-11 fig-Forth Version
       2.0 and Glossary}.  Ames: Central Iowa Forth Interest Group.
     DECUS Program Library Package V-SP-52.
-  \bibitem{EMS}  Ewing, Martin S.  {The Caltech FORTH Manual.}
+  \bibitem{EMS}  Ewing, Martin S.  {\it The Caltech FORTH Manual}.
     Pasadena: California Institute of Technology, 1974 (Internal
     Report).
   \bibitem{HK}  Harris, Kim.  ``Forth Extensibility: or how to write a
     Compiler in Twenty-five Words or Less.''  {\it Byte}.  5.8 (1980):
     164--184.
   \bibitem{HR}  Hauck, Roger.  {\it Stoic (Stack Oriented Interactive
-      Compiler)}.  Cambridge: Smithstonian Institute, 1980 (Internal
+      Compiler)}.  Cambridge: Smithsonian Institute, 1980 (Internal
     Documentation).  DECUS Program Library Package V-SP-49.
   \bibitem{JJ}  James, John S.  ``What is Forth?  A Tutorial
     Introduction.''  {\it Byte}.  5.8 (1980): 100--126.
   \bibitem{LRG} Loeliger, R. G.  {\it Threaded Interpretive
       Languages}.  Peterborough: Byte Books, 1981.
-  \bibitem{MCH} More, Charles H.  ``The Evolution of Forth, an Unusual
-    Langauge.''  {\it Byte}.  5.8 (1980): 76-90.
+  \bibitem{MCH} Moore, Charles H.  ``The Evolution of Forth, an Unusual
+    Language.''  {\it Byte}.  5.8 (1980): 76--90.
   \bibitem{RTGW} Ritter, Terry, and Gregory Walker.  ``Varieties of
     Threaded Code for Language Implementation.''  {\it Byte}.  5.9
     (1980): 206--227.
