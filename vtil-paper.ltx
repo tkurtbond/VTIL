@@ -247,7 +247,7 @@ command \word{eve <filename>}.
 If you enter an unknown word, the offending word is echoed to the
 terminal and the line it was in is also echoed, like this:
 \begin{verbatim}
-Unknown token { xxxx_I'm_unknown } in line:
+Unknown Token: { xxxx_I'm_unknown } In line:
 1 2 3 xxxx_I'm_unknown xyz 1 3 + .
 \end{verbatim}
 
@@ -719,7 +719,7 @@ an {\em address register}, incrementing the instruction pointer to the
 next pointer.  The routine {\bf run} then extracts the address pointed
 to by the address register (which is whatever is in the first pointer
 of the word pointed to by the pointer in the original word),
-increments the address counter, and does a jump to the extracted
+increments the address register, and does a jump to the extracted
 address.  If the word pointed to was a primitive, the address is that
 of the first instruction in the machine code for the word, which is
 then executed.  The last instruction in a primitive is a jump to the
@@ -732,8 +732,8 @@ the instruction register and jumps to {\bf next}.  This effectively
 nests down a level into the new secondary word.  The last pointer in a
 secondary word is to the inner interpreter word {\bf semi}, which
 simply pops the top address from the return stack and
-%%% ??? Huh: should be "loads the address to the instruction register?
-loads the address of the instruction register, thereby de-nesting one
+%%% ~~~ Fixed 2026-10-19: was "loads the address of the instruction register".
+loads the address into the instruction register, thereby de-nesting one
 level to the original secondary word.  See \cite[pages 18--20]{Start}
 for more information on the inner interpreter.  (Note that on machines
 with few registers the ``registers'' above would actually be memory
@@ -837,7 +837,7 @@ the top of the interpreter loop.
 
 Checking for stack underflow or overflow is also done each time
 through the interpreter.  The process of getting a token and either
-executing, compiling, or pushing on the loop stack is continued until
+executing, compiling, or pushing on the data stack is continued until
 the user is finished and VTIL is exited.
 
 \subsection{Dictionary}
@@ -964,7 +964,7 @@ else:
         movb    #op_brw,(r9)+  ; branch over false part
         movl    r9,r0          ; save address of displacement
         movw    #0,(r9)+       ; save space for displacement
-        movl    49,r1          ; save address to calculate
+        movl    r9,r1          ; save address to calculate
                                ; displacement from
 ; make branch to false part (fill in displacement in if)
         subl3   (r10)+,r9,r2   ; calculate displacement
@@ -977,7 +977,7 @@ else:
 
 The first four lines of this code compile the branch over the false
 part into the dictionary and save the address of the displacement and
-the address to displace to in registers, since the top of the
+the address to displace from in registers, since the top of the
 loop stack has information that must be used now to fill in the
 displacements from the \word{if}.  Lines seven through nine calculate
 the displacement over the true part and save it in the code compiled
@@ -1150,8 +1150,8 @@ concepts that are unfamiliar to a programmer used to more conventional
 languages.  The postfix notation necessitated by the stack is alien
 and difficult for many people to adjust to.  The greatly reduced
 reliance on variables in calculation is also greatly discouraging to
-traditional programmers.  It can be criticized as an untyped language
-is not built in.  However, type-checking can be added if desired.
+traditional programmers.  It can be criticized as an untyped language,
+since type-checking is not built in.  However, type-checking can be added if desired.
 VTIL is obviously not as efficient as a good compiler, but it is much
 more efficient than the typical interpreter.
 
