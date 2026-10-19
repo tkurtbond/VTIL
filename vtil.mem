@@ -1638,8 +1638,9 @@
 
           endwhile                                                    ( -- )
 
-          Ends a { while ...  endwhile }.  Unconditionally branches back  to
-          { while }.
+          Ends  a   { <flag> while ... <flag> endwhile }.    Unconditionally
+          branches  back  to  { while },  which tests the flag that the code
+          before { endwhile } must leave on the stack.
 
 
           if                                                        ( f -- )
@@ -1668,9 +1669,11 @@
           Ends a { do } loop.  Adds 1 to loop index and branches  to  { do }
           if  (index  <=  limit).  In other words, { loop } is like Pascal's
           { for index := start to finish do ... }, except that  a  { do  ...
-          loop } always executes at least once.
           VTIL -- VAX Threaded Interpretive Language                 Page 30
           Compiler Vocabulary
+
+
+          loop } always executes at least once.
 
 
           recurse                                                     ( -- )
@@ -1707,9 +1710,10 @@
 
           while                                                     ( f -- )
 
-          Start a { while ...  endwhile } loop.  If top of  stack  is  true,
-          execute  code  to { endwhile }, which loops back to { while }.  If
-          false, skip to after the { endwhile }.
+          Start a  { <flag> while ... <flag> endwhile }  loop.   If  top  of
+          stack  is  true, execute code to { endwhile }, which loops back to
+          { while }, so the code before { endwhile } must leave a  new  flag
+          on the stack.  If false, skip to after the { endwhile }.
 
 
           [                                                           ( -- )

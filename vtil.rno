@@ -1713,7 +1713,9 @@ true branch and starts the false branch.
 _endwhile                                                    ( -- )
 .FILL
 .SKIP 1
-Ends a {#while ... endwhile#}.  Unconditionally branches back to {#while#}.
+Ends a {#<flag>#while#...#<flag>#endwhile#}.  Unconditionally
+branches back to {#while#}, which tests the flag that the code before
+{#endwhile#} must leave on the stack.
 .SKIP 2
 .NF
 _if                                                        ( f -- )
@@ -1790,9 +1792,10 @@ back to the {#repeat#}, otherwise fall out of loop.
 _while                                                     ( f -- )
 .FILL
 .SKIP 1
-Start a {#while ... endwhile#} loop.  If top of stack is true, execute
-code to {#endwhile#}, which loops back to {#while#}.  If false, skip
-to after the {#endwhile#}.
+Start a {#<flag>#while#...#<flag>#endwhile#} loop.  If top of stack
+is true, execute code to {#endwhile#}, which loops back to {#while#},
+so the code before {#endwhile#} must leave a new flag on the stack.
+If false, skip to after the {#endwhile#}.
 .SKIP 2
 .NF
 _[                                                           ( -- )
