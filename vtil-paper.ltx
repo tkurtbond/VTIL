@@ -5,6 +5,7 @@
 \usepackage{navigator}
 
 \NewDocumentCommand{\word}{v}{\{~\texttt{#1}~\}}
+\setlength{\emergencystretch}{1.5em} % avoid overfull lines next to \word{...}
 \begin{document}
 \outline[open]{3>}[outlinelocation]{VTIL}
 \begin{titlepage}
@@ -1011,18 +1012,18 @@ be calculated from.
 Here is the VAX-Macro code for \word{else}:
 \begin{verbatim}
 else:
-        movb    #op_brw,(r9)+  ; branch over false part
-        movl    r9,r0          ; save address of displacement
-        movw    #0,(r9)+       ; save space for displacement
-        movl    r9,r1          ; save address to calculate
-                               ; displacement from
+        movb    #op_brw,(r9)+ ; branch over false part
+        movl    r9,r0         ; save address of displacement
+        movw    #0,(r9)+      ; save space for displacement
+        movl    r9,r1         ; save address to calculate
+                              ; displacement from
 ; make branch to false part (fill in displacement in if)
-        subl3   (r10)+,r9,r2   ; calculate displacement
-        movw    r2,@(r10)      ; save displacement
+        subl3   (r10)+,r9,r2  ; calculate displacement
+        movw    r2,@(r10)     ; save displacement
         addl2   #4,r10   ; pop displacement address off stack
-        movl    r0,-(r10)      ; save displacement address
-        movl    r1,-(r10)      ; save address to displace from
-        rsb                    ; end of else
+        movl    r0,-(r10)     ; save displacement address
+        movl    r1,-(r10)     ; save address to displace from
+        rsb                   ; end of else
 \end{verbatim}
 
 The first four lines of this code compile the branch over the false
