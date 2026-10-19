@@ -1,5 +1,5 @@
 ;
-	.title	VTIL -- VAX Threaded Interpretive Language
+	.title	VTIL	VAX Threaded Interpretive Language
 	.ident	/v1.01/			; version number
 ;******************************************************************************
 ;
@@ -27,7 +27,7 @@
 ;			allowing the name-length byte to have the smudge bit
 ;			in it.
 ;******************************************************************************
-;!> VTIL.MAR -- VAX Threaded Interpretive Langague, an interactive compiler.
+;!> VTIL.MAR -- VAX Threaded Interpretive Language, an interactive compiler.
 
 ;
 ; Set up source code formatting macros.
@@ -48,7 +48,7 @@
 ;******************************************************************************
 ;ca_trapping = 0	; If this is defined, code for a condition handler
 			; is assembled. We don't always want the condition
-			; handler because it also catched breakpoints in the
+			; handler because it also catches breakpoints in the
 			; debugger.
 ;ca_controlc = 0	; If this is defined, code to trap control/c and
 			; return to the VTIL interpreter is assembled.
@@ -82,25 +82,25 @@ newpage <General Notes>
 ;******************************************************************************
 ;
 ; Word -- A VTIL word is the equivalent of the procedure and/or function of
-; Pascal or other langauges.  (Context will have to determine whethere we
-; are talking about VTIL words or memory 2-byte words.)	   A word finds any
+; Pascal or other langauges.  (Context will have to determine whether we
+; are talking about VTIL words or memory 2-byte words)	   A word finds any
 ; parameters it needs on the data stack, and leaves any result on the stack
 ; also.	 VTIL words (or sequences of words) will be singled out from normal text
 ; by enclosing them in { } pairs, since many of them include punctuation marks
 ; that might be otherwise confusing.  Also, the string `...' inside a { }
-; pair will indicate a sequence of VTIL words omitted as irrelevent to the
+; pair will indicate a sequence of VTIL words omitted as irrelevant to the
 ; explaination.
 ;
 ; Stack Comments.  A stack comment shows what a word expects to find on the
 ; stack and what results it leaves on the stack after execution.
 ; A stack comment looks like the following: ( n1 n2 -- n1 ).  The rightmost
-; item on each side of the `--' is the top of the stack, so the items in the
-; stack comment are in the same order as they would be if you entered them from
+; item on each side of the `--' is the top of stack, so the items in the
+; stack comment are in same order as they would be if you entered them from
 ; the terminal.	 The `--' separates the items that word expects to find on
-; the stack from the items that it leaves on the stack.	 Ex: After you enter
+; the stack from the items it leaves on the stack.	 Ex: After you enter
 ; { 1 2 3 }, 3 is on the top of the stack.  In ( n1 n2 n3 -- x1 x2 ) n3 is
 ; on top of the stack before the word executes, and x2 is on top of
-; the stack after that word executes.
+; the stack after the word executes.
 ;
 ; Items in stack comments:
 ;	?	-- `?' is not an item on the stack itself.  Instead, it
@@ -113,7 +113,7 @@ newpage <General Notes>
 ;		   of the flag will also leave an address on the stack.
 ;	a	-- address
 ;	b	-- unsigned byte (integer, 1 byte)
-;	c	-- unsigned characcter (1 byte)
+;	c	-- unsigned character (1 byte)
 ;	f	-- boolean flag; 0 = false, true <> 0 (usually 1)
 ;	l	-- long (integer, 4 bytes)
 ;	n	-- integer (usually meaning number.  A longword)
@@ -123,15 +123,15 @@ newpage <General Notes>
 ;	a ( b ) stack item merely says that the programmer should consider
 ;	the stack as containing a value that will fit in an unsigned
 ;	byte.  Words that use data types that are smaller than a longword
-;	will only use th first part of the longword in their calculations,
+;	will only use the first part of the longword in their calculations,
 ;	but will still pop the whole longword containing the smaller data
 ;	type from the stack, not just the smaller data type.  In other words,
 ;	the stack pointer can only be manipulated in 4 byte increments or
 ;	decrements.
 ;
 ; Starting Vocabularies -- At the moment, there are only two starting
-; vocabularies `compiler' and `kernel', which are independent of each other.
-; All later vocabularies should be linked into one of thse.  But See v1_*.
+; vocabularies: `compiler' and `kernel', which are independent of each other.
+; All later vocabularies should be linked into one of these.  See vl_*.
 ;
 ;******************************************************************************
 	newpage <Implementation Notes>
@@ -148,13 +148,13 @@ newpage <General Notes>
 ;
 ; header format for a word
 ;	long	-- back link to next word in dictionary (hfa, lfa)
-;	byte	-- count of name byes (nfa)
+;	byte	-- count of name bytes (nfa)
 ;	byte(s) -- bytes of name
 ;	code	-- executable code for this word (cfa)
 ;	data	-- optional data for this word (pfa)
 ;
 ; Names
-; Since none of the VTIL kernel and compiler words contain underscores,
+; Since none of the VTIL kernel and compiler words contains underscores,
 ; the following conventions were followed so there would be no conflict
 ; between names in the MACRO-32 source and in the VTIL.	 For instance,
 ; { context } is the name of a word in the kernel that pushes the address
@@ -166,18 +166,18 @@ newpage <General Notes>
 ;	<name>	   -- label of start of a VTIL word called <name>
 ;	_<name>	   -- internal branch points
 ;	adm_<name> -- addressing mode constant value
-;	c_<name>   -- constant value
+;	c_<name>   -- constant values
 ;	ca_<name>  -- conditional assembly control symbols
 ;	i_<name>   -- label of start of a VTIL word whose <name> doesn't
-;		      otherwise fit this naming convention, du to the
+;		      otherwise fit this naming convention, due to the
 ;		      character limitations in VAX MACRO symbols.
-;		      For eample, i_plus = { + }, i_plus_store = { +! }
+;		      For example, i_plus = { + }, i_plus_store = { +! }
 ;	op_<name>  -- opcode constant value
 ;	r_<name>   -- internal routine <name> that is reached by branching and
 ;		      not by jumping to subroutine.
 ;	s_<name>   --  internal subroutine that is reached by a call.
 ;	q_<name>   -- label of start of a VTIL word with name `?<name>'.
-;	v_<name>   -- internal variable name.
+;	v_<name>   -- internal variable names
 ;	vl_<name>  -- internal vocabulary link symbol used by the header macro
 ;		      to link built-in vocabularies together.
 ;
@@ -186,15 +186,15 @@ newpage <General Notes>
 ;	{ )name } or { name< } and { >name } and internal names like
 ;	i_name_begin and i_name_end.
 ;
-; To make finding words easie, all the words have a header comment
+; To make finding words easier, all the words have a header comment
 ; like this:
 ;	;+++
-;	;s> name -- explanation
+;	;x> name -- explanation
 ;	;---
-; where `s' is `c' for the compiler words, `k' for the kernel words,
+; where `x' is `c' for the compiler words, `k' for the kernel words,
 ; `m' for macros, `r' for routines, and `s' for subroutines.
 ;
-; The string `;??? starts an internal note to the programmer.  These notes
+; The string `;???' starts an internal note to the programmer.  These notes
 ; generally comment about an alternate method of doing something or suggest
 ; areas that should be improved.  ~~~ indicates a note made while typing this back in.
 ;
@@ -220,9 +220,9 @@ c_com1_end	= 0			; end w/something not in a line of text
 c_com2_begin	= ^a/(/			; start second type of comment with `('
 c_com2_end	= ^a/)/			; end with `)'
 c_inuse		= 1			; buffer in use flag
-c_modified	= 2			; bufffer updated flag
+c_modified	= 2			; buffer updated flag
 c_max_blocks	= 3			; number of block i/o buffers
-c_block_size	= 1024			; size for block i/o buffer
+c_block_size	= 1024			; size for block i/o buffers
 c_keysize	= 4			; size of key (longword record number)
 c_d_blks_in_blk = c_block_size / 512	; number of disk blocks in VTIL block
 c_max_len	= 160			; maximum length of input line
@@ -233,7 +233,7 @@ c_ds_size	= 1024 * 4		; data stack size: 1024 items of
 c_ls_size	= 512 * 4		; loop stack size: 512 items of
 					; 4 bytes each
 ;
-; opcodes == constants for compiling opcodes into dictionary
+; opcodes -- constants for compiling opcodes into dictionary
 ;
 op_acbl		= ^xf1
 op_addl2	= ^xc0
@@ -272,9 +272,9 @@ adm_b_rel	= ^xaf			; byte relative
 ; Assembly-time vocabulary links -- symbols used during assembly to link
 ;	the starting vocabularies together.   These start out at 0 so that
 ;	all vocabularies will end with a null pointer.	During assembly,
-;	each link holds the address of the link fields of the most recently
+;	each link holds the address of the link field of the most recently
 ;	defined.  When a word is defined with the `header' macro then
-;	link field of the new word is initialized to the valu of the
+;	link field of the new word is initialized to the value of the
 ;	link and the link is changed to the address of the link field of the
 ;	new word.
 ;
@@ -296,8 +296,8 @@ vl_kernel = 0		   ; Links the kernel vocabulary together
 ;
 ;!---
 	.macro	header	macname,name=<>,branch=vl_kernel
-	.long	branch		; back link to the previous word in this branch
-	branch = . - 4		; where to link the next word to in this branch
+	.long	branch		; back link to previous word in this branch
+	branch = . - 4		; where to link next word to in this branch
 	.nchr  nchr, ^\name\	; nchr = length( name )
 	.if    le, nchr		; nchr <= 0
 	   .ascic \macname\	; no auxillary name, use principle one
@@ -324,7 +324,7 @@ goodwhere:
 ;	unless lib$_inpstrtru, die messily
 ;!---
 	.macro	isstrerr badwhere=_error_exit,?goodwhere
-	cmpl	#lib$_inpstrtru,r0	; string truncation on error?
+	cmpl	#lib$_inpstrtru,r0	; string truncation error?
 	beql	goodwhere		; yes, ignore and go on
 	blbs	r0,goodwhere		; no error, go on
 	brw	badwhere		; error, branch to error handler
@@ -465,21 +465,21 @@ v_buf_blk_nums:
 ;
 v_readlen:
 	.word			; length of returned input
-v_readdsc:
+v_readdsc:		; descriptor for user input
 	.word	c_max_len	; maximum length
 	.byte	dsc$k_dtype_t	; data type text
 	.byte	dsc$k_class_s	; descriptor class
 v_readaddr:
-	.long	0		; pointer to the input buffer
+	.long	0		; pointer to input buffer
 ; v_static_dsc is the middle of a descriptor so it can be copied onto ds
-; to make full desciptor when top fo stack is ( addr count )
+; to make full descriptor when top of stack is ( addr count )
 v_static_dsc:
 	.byte	dsc$k_dtype_t	; data type text
 	.byte	dsc$k_class_s	; descriptor class
 v_outlen:
 	.word	0		; length of output
 v_outbuf:
-	.blkb	c_max_len	; output bufer
+	.blkb	c_max_len	; output buffer
 
 
 ;
@@ -532,7 +532,7 @@ v_current:		; points to data field of the word for the vocabulary
 	.long	0	; that new words are linked into.
 v_compiler:		; Pointer to most recent word in compiler vocabulary
 	.long	0
-v_kernel:		; Pointer to most recnet word in kernel vocabulary
+v_kernel:		; Pointer to most recent word in kernel vocabulary
 	.long	0	; data field of { kernel }
 v_infile:		; Flag.	 If true, reading from an input file.
 	.byte	c_false	; If false, reading from terminal.  Set by { load }
@@ -560,7 +560,7 @@ _kernel_begin:
 
 
 ;+++t
-;k> ! (store) -- ( n a -- ) store longword `n?' at `a'.
+;k> ! (store) -- ( n a -- ) store longword `n' at `a'.
 ;---
 	header	i_store,<!>
 	movl	4(r11),@(r11)		; store item at what's pointed to by
@@ -595,7 +595,7 @@ _kernel_begin:
 
 
 ;+++
-;k> #s -- ( n1 -- n2 ) Convert all all digits of n1 to output string.  Leaves 0.
+;k> #s -- ( n1 -- n2 ) Convert all digits of `n1' to output string.  Leaves 0.
 ;	Used between { <# } and { #> }.
 ;---
 	header	i_sharp_s,<#s>
@@ -619,7 +619,7 @@ _kernel_begin:
 ;k> (and) -- ( n1 n2 -- n3 ) bitwise and of n1 and n2.
 ;---
 	header	i_bit_and,<(and)>
-	mcoml	(r11),(r11)		; make ones comp because blc ones
+	mcoml	(r11),(r11)		; make ones comp because bic ones
 					; comps mask
 	bicl2	(r11)+,(r11)		; and it
 	rsb				; end of (and)
@@ -673,7 +673,7 @@ _kernel_begin:
 ;k> + -- ( n1 n2 -- n3 ) add the top two stack items, leave result on stack.~~~ Why i_add and not i_plus???
 ;---
 	header	i_add,<+>
-	addl2	(r11)+,(r11)		; add them and leave the result on stack
+	addl2	(r11)+,(r11)		; add them and leave result on stack
 	rsb				; end of +
 
 
@@ -681,14 +681,14 @@ _kernel_begin:
 ;k> +! -- ( n a -- ) Adds `n' to contents of `a'.
 ;---
 	header	i_plus_store,<+!>
-; Add top of stack to cents of address that is top of stack.
+; Add top of stack to contents of address that is top of stack.
 	addl2	   4(r11),@(r11)	;
 	addl2	   #8,r11		; pop arguments
 	rsb				; end of +!
 
 
 ;+++
-;k> +rot - (n1 n2 n3 -- n3 n1 n2 ) rotate top 3 items on the stack up,
+;k> +rot -- ( n1 n2 n3 -- n3 n1 n2 ) rotate top 3 items on the stack up,
 ;	bringing the second to the top.
 ;---
 	header	i_plus_rot,<+rot>
@@ -711,7 +711,7 @@ _kernel_begin:
 ;k> - -- ( n1 n2 -- n3 ) subtract the top stack item from the next stack item.
 ;---
 	header	i_subtract,<->
-	subl2	(r11)+,(r11)		; subract and leave result on stack.
+	subl2	(r11)+,(r11)		; subtract and leave result on stack.
 	rsb				; end of -
 
 
@@ -758,7 +758,7 @@ _kernel_begin:
 	rsb				; end of .(
 
 
-;---
+;+++
 ;k> .sb -- ( -- ) output the stack from the bottom up without consuming it.
 ;	The last item printed is the top of the stack.
 ;---
@@ -809,7 +809,7 @@ _kernel_begin:
 ;---
 	header	i_div_mod,</mod>
 	divl3	(r11),4(r11),r0		; r0 = n1 / n2 = n3
-	mull3	r0,(r11)+,r1		; tmp = n2 * n3
+	mull3	r0,(r11)+,r1		; temp = n2 * n3
 	subl3	r1,(r11)+,r1		; r1 = n1 - (n2 * n3) = n4
 	movl	r0,-(r11)		; push n3, quotient
 	movl	r1,-(r11)		; push n4, remainder
@@ -820,7 +820,7 @@ _kernel_begin:
 ;k> 1+ -- ( n -- n+1 ) Add one to the top of the stack.
 ;---
 	header	i_one_plus,<1+>
-	incl	(r11)			; dd one to the top of the stack.
+	incl	(r11)			; add one to the top of the stack.
 	rsb				; end of 1+
 
 
@@ -835,7 +835,7 @@ _kernel_begin:
 ;+++
 ;k> : -- ( -- ) (colon) defining word that starts a word definition.
 ;	sets { mode } to true
-;	Note that { : } is a compiling word an so is in compiler vocab.
+;	Note that { : } is a compiling word and so is in compiler vocab.
 ;---
 	header	i_colon,<:>
 	movl	v_current,v_context	; search same vocab we are defining into
@@ -878,7 +878,7 @@ _kernel_begin:
 	rsb				; return
 10$:
 	movl	#c_true,-(r11)		; yes, leave with true
-	rsb				; end of <
+	rsb				; end of <=
 
 
 ;+++t
@@ -899,7 +899,7 @@ _kernel_begin:
 ;	return true if they are equal, false otherwise.
 ;---
 	header	i_equal_text,<=text>
-	cmpc3	(r11),@4(r11),@8(r11)	; Are they equal>
+	cmpc3	(r11),@4(r11),@8(r11)	; Are they equal?
 	bneq	10$			; no
 	addl2	#12,r11			; pop arguments
 	movl	#c_true,-(r11)		; yes, leave true
@@ -940,7 +940,7 @@ _kernel_begin:
 ;k> ? -- ( a -- ) Output contents of `a' as a long in current radix.
 ;---
 ; Remark on the internal name of this word: { header q_,<?> } is aesthetically
-; displeasing, so make it i_question by analogoy with i_dot for { . }.
+; displeasing, so make it i_question by analogy with i_dot for { . }.
 	header	i_question,<?>
 	movl	@(r11),(r11)		; get contents of `a'.
 	jsb	i_dot			; print contents
@@ -975,9 +975,9 @@ _kernel_begin:
 ;---
 	header	q_n_cr,<?n-cr>
 	movzwl	v_outlen,r0		; get current length of line.
-	subl3	r0,#c_screen_len,r0	; get current length of line
-	cmpl	(r11)+,r0		; enough characers left?
-	blss	10$			; yes, go to return
+	subl3	r0,#c_screen_len,r0	; characters left in line
+	cmpl	(r11)+,r0		; enough characters left?
+	blss	10$			; yes, go return
 ; no, not enough characters left on line.
 	jsb	cr			; start a new line
 10$:
@@ -993,14 +993,14 @@ _kernel_begin:
 	header	q_number,<?number>
 	jsb	number			; try to make it a number
 	tstl	(r11)			; is it a number?
-	beql	10$			; no, exit leaving false on the stack
+	beql	10$			; no, exit leaving false on dstack
 	addl2	#4,r11			; yes.	pop flag
 	tstb	v_mode			; are we compiling?
-	beql	20$			; no, leaving it on stack
+	beql	20$			; no, leave it on stack
 	jsb	literal			; yes, include in dictionary as
 					; a literal
 20$:
-	movl	#c_true,-(r11)		; leave with true on stack
+	movl	#c_true,-(r11)		; leave with true on dstack
 10$:
 	rsb				; end of ?number
 
@@ -1022,8 +1022,8 @@ _kernel_begin:
 ; start the search at the word before the one currently being compiled;
 ; this would allow use of older definition of word `x' in new definition
 ; of word `x'.	However, as it stands it allows easy recursion.
-;??? changed to eliminate recusion by default, as that is probably more
-; useful, since RECURSE is a simple way to get recusion.
+;??? changed to eliminate recursion by default, as that is probably more
+; useful, since RECURSE is a simple way to get recursion.
 ;??? The problem with this is that if you switch vocabularies while defining
 ; a word, the new vocab (which you want to search from the first) also is
 ; searched from the second word.  Perhaps I should set the smudge bit (gasp!
@@ -1042,7 +1042,7 @@ _kernel_begin:
 	bneq	10$			; yes, exit with ( addr true ) on dstack
 	tstb	v_mode			; no. Are we compiling?
 	beql	10$			; no, exit leaving false on dstack
-	movl	v_compiler,(r11)	; yes, get adddress of compiler vocab
+	movl	v_compiler,(r11)	; yes, get address of compiler vocab
 	jsb	search			; search it
 	tstl	(r11)			; Was it found?
 	beql	10$			; no, exit with false on dstack
@@ -1054,7 +1054,7 @@ _kernel_begin:
 ; when we are compiling?  This would allow defining new versions in compiler
 ; of words in context that would be more efficient during compilation (or
 ; have a different effect, or allow immediate and noimmediate words that
-; should do the same thing, like { % }).
+; would do the same thing, like { % }).
 
 
 
@@ -1085,7 +1085,7 @@ _kernel_begin:
 
 
 ;+++t
-;k> ac: -- ( b -- ) assembler constant (makes opcode & operand defintions).
+;k> ac: -- ( b -- ) assembler constant (makes opcode & operand definitions).
 ;	ac: creates a word that compiles the byte on the top of the stack at
 ;	definition into the dictionary.
 ;---
@@ -1114,20 +1114,20 @@ _kernel_begin:
 	beql	20$			; yes
 	movl	#c_true,-(r11)		; no, both true, leave with true
 	rsb				; return
-10$:
+10$:				; first false
 	addl2	#4,r11			; pop second item off, don't need
 					; to check
-20$:
+20$:				; second false
 	movl	#c_false,-(r11)		; leave with false
 	rsb				; end of and
 
 
 ;+++
-;k> array -- ( n -- ) create word that pushes addres of `n' bytes
+;k> array -- ( n -- ) create word that pushes address of `n' bytes
 ;	which are saved in the dictionary.
 ;---
 	header	array
-	jsb	create			; enclose next token in dictinary
+	jsb	create			; enclose next token in dictionary
 	movb	#op_movab,(r9)+		; `moval'
 	movb	#adm_b_rel,(r9)+	; byte relative
 	movb	#2,(r9)+		; (pc+2)
@@ -1162,7 +1162,7 @@ _kernel_begin:
 ;k> b, -- ( b -- ) store low byte of top stack entry into dictionary.
 ;---
 	header	i_b_comma,<b,>
-	movb	(r11),(r9)+		; store in dictinary
+	movb	(r11),(r9)+		; store in dictionary
 	addl2	#4,r11			; pop argument
 	rsb				; end of b,
 
@@ -1204,7 +1204,7 @@ _kernel_begin:
 
 
 ;+++
-;k> blank --- ( a w -- ) fill `w' bytes from `a' with blanks.
+;k> blank -- ( a w -- ) fill `w' bytes from `a' with blanks.
 ;---
 	header	blank
 	movc5	#0,(r9),-		; srclen,src  use (r9) to be safe
@@ -1241,12 +1241,12 @@ _kernel_begin:
 		v_buf_inuse[r0]		;   been modified?
 	bneq	90$			; no, read block into it
 	aoblss	#c_max_blocks,r0,30$	; move to next buffer if any
-; all buffers are modified, so we must write out out and use it.
-	clrl	r0			; for now, always use the zero'th one
+; all buffers are modified, so we must write one out and use it.
+	clrl	r0			; for now, always use zero'th one
 	movl	r0,-(r10)		; save buffer number
 	movl	r0,-(r11)		; set up for buffer-write
 	jsb	i_buffer_write		; write the buffer
-	movl	(r10)+,r0		; get the buffer number back
+	movl	(r10)+,r0		; get buffer number back
 ; read block into buffer
 90$:
 	movl	(r11),-			; Save the new block number in
@@ -1260,9 +1260,9 @@ _kernel_begin:
 ; block already in memory
 ;
 100$:
-; Comes here if block already in memory, with buffers in r0, block# on stack
+; Comes here if block already in memory, with buffer# in r0, block# on stack
 	mull3	r0,#c_block_size,(r11)	; offset to `r0'th buffer in buffer array
-	addl2	#v_blkbuff,(r11)	; calcualte addressof `r0'th buffer
+	addl2	#v_blkbuff,(r11)	; calculate address of `r0'th buffer
 	movl	r0,v_current_buff	; mark this as most current block
 	rsb				; end of block
 
@@ -1304,7 +1304,7 @@ _kernel_begin:
 
 
 ;+++
-;k> block-read -- ( l a -- ) Read block `l' from buffer at address `a'.
+;k> block-read -- ( l a -- ) Read block `l' into buffer at address `a'.
 ;---
 	header	i_block_read,<block-read>
 	movl	(r11)+,-		; get address of buffer
@@ -1341,7 +1341,7 @@ _kernel_begin:
 ;	This word should only be executed when running in the VAX/VMS Debugger.~~~ Usually you do something in the debugger then "GO _INTERPRETER" to resume execution.
 ;---
 	header	break
-	bpt				; breakpoint
+	bpt				; break point
 	rsb				; end of break
 
 
@@ -1372,7 +1372,7 @@ _kernel_begin:
 20$:
 	tstb	v_buf_inuse[r0]		; Is it in use?
 	beql	90$			; no, read block into it
-	aoblss	#c_max_blocks,r0,20$	; move to the next buffer, if any
+	aoblss	#c_max_blocks,r0,20$	; move to next buffer, if any
 ; Are there any unmodified buffers?
 	clrl	r0
 30$:
@@ -1385,9 +1385,9 @@ _kernel_begin:
 	movl	r0,-(r10)		; save buffer number
 	movl	r0,-(r11)		; set up for buffer-write
 	jsb	i_buffer_write		; write the buffer
-	movl	(r10)+,r0		; get the buffer number back
+	movl	(r10)+,r0		; get buffer number back
 ;
-; come here with bloc## on stack and buffer# in r0.
+; come here with block# on stack and buffer# in r0.
 ;
 90$:
 ; save block info
@@ -1418,7 +1418,7 @@ _kernel_begin:
 					; this is left after exit
 	movl	v_buf_blk_nums[r0],-	; number of block
 		-(r11)			;   to read
-	movl	4(r11),-(r11)		; get another copy of the buffer address
+	movl	4(r11),-(r11)		; get another copy of buffer address
 	jsb	i_block_read		; read the block
 	rsb				; end of buffer-read
 
@@ -1431,7 +1431,7 @@ _kernel_begin:
 	movl	(r11)+,r0		; get buffer number
 	movl	v_buf_blk_nums[r0],-	; number of block
 		-(r11)			;   to write
-	mull3	r0,#c_block_size,r1	; offset into the buffer buffer
+	mull3	r0,#c_block_size,r1	; offset into buffer buffer
 	addl3	r1,#v_blkbuff,-(r11)	; address of buffer to write
 					; this is left after exit
 	jsb	i_block_write		; write the block
@@ -1454,14 +1454,14 @@ _kernel_begin:
 
 
 ;+++t
-;k> cfa -- ( a -- a ) given the address of the header of a word, return the address of
+;k> cfa -- ( a -- a ) given address of header of word, return the address of
 ;	the code for that word (i.e., the Code Field Address).
 ;---
 ;??? the smudge bit makes this one a little harder.
 	header	cfa
 	addl2	#4,(r11)		; skip over link field
-	movzbl	@(r11),r0		; get unsigned length of name
-	bicb2	#^b10000000,r0		; clear smudge bit of length of name
+	movzbl	@(r11),r0		; get unsigned byte-count of name
+	bicb2	#^b10000000,r0		; clear smudge bit of count
 	incl	(r11)			; skip over count byte
 	addl2	r0,(r11)		; skip over name field
 	rsb				; end of cfa
@@ -1479,7 +1479,7 @@ _kernel_begin:
 	addl3	(r11),#4,-(r11)		; get address of name field
 	jsb	bcount			; set up for write
 	movl	(r11),-(r11)		; set up for ?cr
-	jsb	q_n_cr			; start new line if word is too long
+	jsb	q_n_cr			; start new line if word too long
 	jsb	write			; tell user
 	movl	#c_blank,-(r11)		; blank to separate words
 	jsb	putc			; output it
@@ -1493,24 +1493,24 @@ _kernel_begin:
 ;+++t
 ;k> compile-jsb ( a -- ) compile a jump to subroutine to location `a'.
 ;---
-;??? At the moment this uses absolute mode.  Should it use displacment
-; off a register so that it can be ?relocatable (like stoic)?  Or should it
+;??? At the moment this uses absolute mode.  Should it use displacement
+; off a register so it can be ?relocatable (like stoic)?  Or should it
 ; use a brw (which I'm not sure would work in { defer< ... >defer }.
 	header	   i_compile_jsb,<compile-jsb>
 	movb	   #op_jsb,(r9)+	; `jsb'
 	movb	   #adm_absolute,(r9)+	; absolute mode
 	movl	   (r11)+,(r9)+		; save place to jump to in dictionary
-	rsb				; end of compile-jsb
+	rsb				; end of compile-jump
 
 
-;+++
-;k> compiletime -- ( -- ) move word defined to the compiler vocabulary.
+;+++t
+;k> compiletime -- ( -- ) move last word defined to the compiler vocabulary.
 ;	This word unlinks the last word in the current vocabulary and
-;	links it to the compiler vocabulary.  Compiiler words are *never*
+;	links it to the compiler vocabulary.  Compiler words are *never*
 ;	executed during execute mode.
 ;---
 	header	compiletime
-	movl	@v_current,r0		; save pointer to word we a unlinking
+	movl	@v_current,r0		; save pointer to word we are unlinking
 	movl	(r0),@v_current		; make current previous word in vocab
 	movl	v_compiler,(r0)		; link word to prev in compiler vocab
 	movl	r0,v_compiler		; make v_compiler point to new word
@@ -1520,8 +1520,8 @@ _kernel_begin:
 ; which would have to be checked during compilation.  It would allow
 ; considerably more flexibility (remember how % started out a word and ended
 ; up part of _interpreter because it was either compiletime or runtime?).
-;??? Much beter idea.  Have a compile buffer like STOIC and have only
-; compiletime and runtime words, both of which are in the same vocabulary.
+;??? Much better idea.  Have a compile buffer like STOIC and have only
+; compiletime and runtime words, both of which are in same vocabulary.
 ; If not inside a { : ... ; }, do a jsb at the end of the line? if in colon
 ; definition, copy it to the dictionary and update dictionary links.
 ; Have to think about this.
@@ -1583,7 +1583,7 @@ _kernel_begin:
 	jsb	write			; write out untruncated name
 	jsb	cr			; start new line
 	movl	#c_max_name_len,(r9)	; truncate name
-	movab	v_nametrunc,-(r11)	; get address of stack
+	movab	v_nametrunc,-(r11)	; get address of error message on stack
 	jsb	bcount			; get ( addr count )
 	jsb	write			; write out message
 	addl3	#1,r9,-(r11)		; address of name
@@ -1642,7 +1642,7 @@ _kernel_begin:
 
 
 ;+++
-;k> dup -- ( n -- n n ) Duplicated the top stack entry.
+;k> dup -- ( n -- n n ) Duplicates the top stack entry.
 ;---
 	header	dup
 	movl	(r11),-(r11)
@@ -1661,7 +1661,7 @@ _kernel_begin:
 		v_buf_blk_nums[r0]	;  holds no block number
 	acbl	#c_max_blocks-1,-	; buffer #'s in [0 .. c_max_blocks-1]
 		#1,r0,10$		; move to next buffer number, if any
-	rsb				; end of empty buffers
+	rsb				; end of empty-buffers
 
 
 ;
@@ -1672,7 +1672,7 @@ _kernel_begin:
 
 ;+++
 ;k> eodp -- ( -- a ) Return address of next free byte in dictionary.
-;	Means "end of dictinary pointer".
+;	Means "end of dictionary pointer".
 ;---
 	header	eodp
 	movl	r9,-(r11)		; get
@@ -1684,7 +1684,7 @@ _kernel_begin:
 ;---
 	header	i_eodp_store,<eodp!>
 	movl	(r11)+,r9		; make eodp = top of stack
-	rsb				; end of edop!
+	rsb				; end of eodp!
 
 
 ;+++
@@ -1725,7 +1725,7 @@ _kernel_begin:
 
 
 ;+++
-;k> fill -- ( a w c -- l ) Fill `w' bytes from `a' with character `c'.
+;k> fill -- ( a w c -- ) Fill `w' bytes from `a' with character `c'.
 ;---
 	header	fill
 	movc5	#0,(r9),-		; srclen,src (use eodp just to be safe)
@@ -1739,12 +1739,12 @@ _kernel_begin:
 ;k> flush-buffers -- ( -- ) write all modified buffers and mark them unmodified.
 ;---
 	header	i_flush_buffers,<flush-buffers>
-	clrl	r0			; bufffer number
+	clrl	r0			; buffer number
 10$:
 	cmpb	#c_modified,-		; Has the buffer
 		v_buf_inuse[r0]		;   been modified?
 	bneq	20$			; no, skip it
-	movl	r0,-(r10)		; save the buffer name
+	movl	r0,-(r10)		; save the buffer number
 	movl	r0,-(r11)		; set up for buffer-write
 	jsb	i_buffer_write		; write the buffer
 	movl	(r10)+,r0		; get the buffer number back
@@ -1757,9 +1757,9 @@ _kernel_begin:
 
 
 ;+++
-;k> forget -- ( -- ) reset content vocab back to word before word forgotten.
+;k> forget -- ( -- ) reset context vocab back to word before word forgotten.
 ;	Note that while this makes the forgotten word and any words
-;	defined after it unavailale, it does not reclaim any space,
+;	defined after it unavailable, it does not reclaim any space,
 ;	since the other vocabularies can be threaded through in the
 ;	dictionary between words of this vocabulary.
 ;---
@@ -1787,14 +1787,14 @@ _kernel_begin:
 
 
 ;+++
-;k> forget/erase -- ( -- ) rset context vocab to word before word forgotten
-;	and move the dictinary back to header address of word forgotten.
-;	In other words, dictinary is truncated BEFORE the word forgotten. ~~~Add warning
+;k> forget/erase -- ( -- ) reset context vocab to word before word forgotten
+;	and move the dictionary pointer back to header address of word forgotten.
+;	In other words, dictionary is truncated BEFORE the word forgotten. ~~~Add warning
 ;---
 	header	i_forget_erase,<forget/erase>
 	movl	#c_blank,-(r11)		; set up for blank delimited token
 	jsb	token			; get token
-	movl	@v_context,-(r11)	; start search at contxt
+	movl	@v_context,-(r11)	; start search at context
 	jsb	search			; search it
 	tstl	(r11)+			; Was it found?
 	beql	100$			; No, tell user
@@ -1808,7 +1808,7 @@ _kernel_begin:
 	jsb	bcount			; get address of text and length
 	jsb	write			; write error message
 	movl	r9,-(r11)		; address of token not found in search
-	jsb	bcount			; get addres of text and length
+	jsb	bcount			; get address of text and length
 	jsb	write			; write the name of the word ~~ not found
 	brw	r_warm_start		; end of forget/erase
 
@@ -1858,7 +1858,7 @@ _kernel_begin:
 
 
 ;+++
-;k> i> -- ( -- ) Copy the top of the loop stack to the data stack.
+;k> i> -- ( -- n ) Copy the top of the loop stack to the data stack.
 ;	This word is used inside of { do ... loop }'s to get the index
 ;	of the innermost loop onto the top of the stack.
 ;---
@@ -1884,7 +1884,7 @@ _kernel_begin:
 
 
 ;+++
-;k> load -- ( -- ) Take input from file instead of the terminal.
+;k> load -- ( -- ) Take input from file instead of from terminal.
 ;	Format: { load filename }
 ;---
 	header	load
@@ -1902,7 +1902,7 @@ _kernel_begin:
 	$connect rab=v_inrab		; connect to input
 	blbc	r0,20$			; Quit on error
 	brb	40$			; branch to read loop
-10$:
+10$:				; error on open
 	cmpl	r0,#rms$_fnf		; is it file not found?
 	bneq	15$			; no
 	pushaq	v_filenotfound		;
@@ -1911,7 +1911,7 @@ _kernel_begin:
 15$:
 	moval	v_infab,r6		; error: keep fab address
 	brw	_f_err			; signal file error
-20$:
+20$:				; error on connect
 	moval	v_inrab,r6		; keep rab address
 	brw	_r_err			; signal record error
 40$:
@@ -1921,7 +1921,7 @@ _kernel_begin:
 
 
 ;+++t
-;k> long -- ( n -- ) Create a word that pushed address of longword on stack,
+;k> long -- ( n -- ) Create a word that pushes address of longword on stack,
 ;	save space in dictionary, and initialize to `n'.
 ;---
 	header	i_long,<long>
@@ -1936,7 +1936,7 @@ _kernel_begin:
 
 
 ;+++t
-;k> longconst -- ( n -- ) Create a word that pushed a `n' to the stack.
+;k> longconst -- ( n -- ) Create a word that pushes a `n' to the stack.
 ;---
 	header	longconst
 	jsb	create			; enclose next token in dictionary
@@ -1956,13 +1956,13 @@ _kernel_begin:
 
 ;+++
 ;k> match -- ( a1 n1 a2 n2 -- a3 ? f ) Search for string of length `n2' at
-;	`a2' in string of length `n' at `a'.
+;	`a2' in string of length `n1' at `a1'.
 ;---
 	header	i_match,<match>
 	matchc	(r11),@4(r11),-		; object string (one we're looking for)
 		8(r11),@12(r11)		; source string (one we're looking in)
 	bneq	100$			; no match found
-; match found, calcualte its address.  matchc leaves in r3 the address of the
+; match found, calculate its address.  matchc leaves in r3 the address of the
 ; byte after last byte matched in the source string, so address of matched
 ; string is r3 - objectlen.
 	subl3  (r11),r3,r0		; calculate address of matched string
@@ -1978,16 +1978,16 @@ _kernel_begin:
 
 
 ;+++
-;k> max -- ( n1 n2 -- n2 ) Leave larger of n1 and n2 on stack.
+;k> max -- ( n1 n2 -- n3 ) Leaves larger of n1 and n2 on stack.
 ;---
 	header	max
 	cmpl	(r11),4(r11)		; compare top two stack items
 	bleq	10$			; Top less than under item?
 ; no, top greater
-	movl	(r11),4(r11)		; move greater down stack
+	movl	(r11),4(r11)		; move greater down on stack
 10$:
 	addl2	#4,r11			; pop first argument, since
-					;   great is in second item now
+					;   greater is in second item now
 	rsb				; end of max
 
 
@@ -2001,7 +2001,7 @@ _kernel_begin:
 
 
 ;+++
-;k> min -- ( n1 n2 -- n2 ) Leaves small or n1 and n2 on stack.
+;k> min -- ( n1 n2 -- n3 ) Leaves smaller of n1 and n2 on stack.
 ;---
 	header	min
 	cmpl	(r11),4(r11)		; compare top two stack items
@@ -2009,7 +2009,7 @@ _kernel_begin:
 	movl	(r11),4(r11)		;
 10$:
 	addl2	#4,r11			; pop top stack item since lesser is
-					;   in second line.
+					;   in second item.
 	rsb				; end of min
 
 
@@ -2034,7 +2034,7 @@ _kernel_begin:
 
 ;+++
 ;k> move&fill -- ( a1 w1 a2 w2 c -- ) copies bytes from `a1' to `a2'.
-;	If `w2' > `wl', fill with c.  If `w2' < `w1', truncate.
+;	If `w2' > `w1', fill with `c'.  If `w2' < `w1', truncate.
 ;---
 	header	i_move_fill,<move&fill>
 	movc5	12(r11),@16(r11),-	; sourcelen, source
@@ -2089,7 +2089,7 @@ _number_top:
 	bleq	_check_base		; yes, continue
 	cmpl	r2,#^x11		; Is it A or greater?
 	blss	_invalid_number		; no, leave with false
-	cmpl	r2,#^x2a		; is it Z or less
+	cmpl	r2,#^x2a		; is it Z or less?
 	bgtr	_check_lowercase	; no, go check if lower case
 	subl2	#7,r2			; convert to ^xA...^xZ
 	brb	_check_base		; now check if it is valid in current
@@ -2106,7 +2106,7 @@ _check_base:
 	mull2	v_radix,r0		; result = result * base
 	addl2	r2,r0			; result = result + num
 	decl	r7			; count = count - 1
-	incl	r6			; move to next byte in number
+	incl	r6			; move to next byte
 	tstl	r7			; count = 0?
 	bgtr	_number_top		; no, do it again
 	tstl	r1			; negative?
@@ -2122,7 +2122,7 @@ _invalid_number:
 
 
 ;+++
-;,> octal -- ( -- ) Set the base to octal.
+;k> octal -- ( -- ) Set the base to octal.
 ;---
 	header	octal
 	movl	#8,v_radix		; Switch to base 8
@@ -2135,7 +2135,7 @@ _invalid_number:
 	header	or
 	tstl	(r11)+			; is first true?
 	bneq	10$			; Yes
-	tstl	(r11)+			; Is seconed true?
+	tstl	(r11)+			; Is second true?
 	bneq	20$			; Yes
 	movl	#c_false,-(r11)		; Both false, leave with false on stack
 	rsb				; return
@@ -2150,14 +2150,14 @@ _invalid_number:
 
 ;+++
 ;k> over -- ( n1 n2 -- n1 n2 n1 ) Leave a copy of the second item on the stack.
-;+++
+;---
 	header	over			; push copy of n1 on top of stack
 	movl	4(r11),-(r11)
 	rsb				; end of over
 
 
 ;+++
-;k> pad -- ( -- a ) Leave address of (edop + c_pad_moat) on stack.
+;k> pad -- ( -- a ) Leave address of (eodp + c_pad_moat) on stack.
 ;	This is a good area to use for temporary storage of such things
 ;	as strings.
 ;---
@@ -2172,7 +2172,7 @@ _invalid_number:
 	header	putc
 	cmpw	v_outlen,#c_max_len	; is output buffer full?
 	blss	10$			; no, go on
-	jsb	cr			; yes output it
+	jsb	cr			; yes, output it
 10$:
 	movab	v_outbuf,r0		; pointer to start of buffer
 	movzwl	v_outlen,r1		; index into buffer
@@ -2191,7 +2191,7 @@ _invalid_number:
 	rsb				; end of radix
 
 
-;+++
+;+++t
 ;k> read ( a -- ) return a byte-counted string from terminal at `a'
 ;---
 	header	read
@@ -2214,10 +2214,10 @@ _invalid_number:
 	calls	#3,g^lib$get_input	; get a line from terminal
 	isstrerr
 30$:
-	clrw	v_outlen		; clean output length, since any
+	clrw	v_outlen		; clear output length, since any
 					;   outstanding was just output
 	cvtwb	v_readlen,@(r11)	; save byte-count at address on stack
-	addl2	#4,r11			; pop address off stack
+	addl2	#4,r11			; pop addr off stack
 	rsb				; end of read
 
 
@@ -2240,7 +2240,7 @@ _invalid_number:
 	movw	v_static_dsc,2(r11)	; move middle of descriptor on stack
 	clrw	v_outlen		; clear output length, since any
 					;   outstanding will be saved.
-	pushl	r11			; put addrss of descriptor on rstack
+	pushl	r11			; put address of descriptor on rstack
 	addl2	#8,r11			; move stack ptr back over descriptor
 20$:
 	pushl	r11			; push address of descriptor
@@ -2260,7 +2260,7 @@ _invalid_number:
 
 
 ;+++
-;k> s! -- ( n a -- ) Store a short integer (first 16 bits of `n' at `a'.~~~ `n' should be a `s'.
+;k> s! -- ( n a -- ) Store a short integer (first 16 bits of `n') at `a'.~~~ `n' should be a `s'.
 ;---
 	header	i_word_store,<s!>
 	movw	4(r11),@(r11)		; store the first 16 bits
@@ -2269,10 +2269,10 @@ _invalid_number:
 
 
 ;+++
-;k> s, -- ( s -- ) Store low word of `s' in dictinary.
+;k> s, -- ( s -- ) Store low word of `s' in dictionary.
 ;---
 	header	i_w_comma,<s,>
-	movw	(r11),(r9)+		; store short in dictinary
+	movw	(r11),(r9)+		; store word in dictionary
 	addl2	#4,r11			; pop arguments
 	rsb				; end of s,
 
@@ -2309,7 +2309,7 @@ _invalid_number:
 	movb	#c_inuse,-		; mark the buffer as
 		v_buf_inuse(r0)		;   in use, but not modified.
 20$:
-	acbl	#c_max_blocks-1,-	; buffer # is in [0 .. c_max_blocks-1]
+	acbl	#c_max_blocks-1,-	; buffer #'s in [0 .. c_max_blocks-1]
 		#1,r0,10$		; move to next buffer number, if any
 	rsb				; end of save-buffers
 
@@ -2323,17 +2323,17 @@ _invalid_number:
 	tstl	(r11)			; Is it nil pointer on top of stack?
 	beql	10$			; yes, stop search, leave false on stack
 	addl3	#4,(r11),r6		; r6 = Address of byte-count
-	cmpb	(r6),(r9)		; no, ?equal length
+	cmpb	(r6),(r9)		; no, ?equal lengths
 	bneq	20$			; no
 	cvtbw	(r9),r6			; yes, get string length
 	addl3	#5,(r11),r7		; get address of word name
 	addl3	#1,r9,r8		; get address of token
 	cmpc3	r6,(r7),(r8)		; compare strings
 	bneq	20$			; strings don't match
-; string match
+; strings match
 	movl	#c_true,-(r11)		; move true to top of stack
 	brb	10$			; exit leaving ( addr true ) on dstack.
-20$:
+20$:				; get address of next word
 	movl	@(r11),(r11)		; get address of next word
 	brb	search			; try it again
 10$:
@@ -2343,7 +2343,7 @@ _invalid_number:
 ;+++
 ;k> short -- ( n -- ) Create a word that pushed the address of two bytes
 ;	(a VAX memory `word') on the stack, reserves space in the dictionary
-;	for those two bytes, and initializes it to the value of `n'.
+;	for those two bytes, and initializes it to value of `n'.
 ;---
 	header	i_short,<short>
 	jsb	create			; enclose next token in dictionary
@@ -2353,7 +2353,7 @@ _invalid_number:
 	movb	#adm_adec_r11,(r9)+	; -(r11)
 	movb	#op_rsb,(r9)+		; `rsb'
 	movw	(r11),(r9)+		; move top of stack into dictionary
-	addl2	#4,r11			; pop aruments
+	addl2	#4,r11			; pop arguments
 	rsb				; end of short
 
 
@@ -2370,7 +2370,7 @@ _invalid_number:
 
 
 ;+++
-;k> smudge -- ( -- ) Sets the smudge (high) bit in the length byte as the word
+;k> smudge -- ( -- ) Sets the smudge (high) bit in the length byte so the word
 ;	that is currently being defined won't be found in itself.
 ;---
 	header	smudge
@@ -2381,11 +2381,11 @@ _invalid_number:
 
 
 ;+++
-;k> sp@ -- ( -- l ) Returns the address of the top fo the data stack before
+;k> sp@ -- ( -- l ) Returns the address of the top of the data stack before
 ;	{ sp@ } is executed.
 ;---
 	header	i_sp_fetch,<sp@>
-	movl	r11,-(r11)		; put address of top of stack on stack
+	movl	r11,-(r11)		; put address top of stack on stack
 	rsb				; end of sp@
 
 
@@ -2393,7 +2393,7 @@ _invalid_number:
 ;k> sp0 -- ( -- l ) Returns the address of the bottom of the data stack.
 ;	Note that the stack grows downward, so this is actually the
 ;	top in memory of the data-stack structure's space.
-;___
+;---
 	header	i_sp_0,<sp0>
 	moval	c_ds_start,-(r11)	; put address on stack
 	rsb				; end of sp0
@@ -2409,14 +2409,14 @@ _invalid_number:
 10$:
 	movab	v_outbuf,r0		; pointer to start of buffer
 	movzwl	v_outlen,r1		; index into buffer
-	addl2	r1,r0			; pointer to next available buffer
+	addl2	r1,r0			; pointer to next available char
 	movb	#c_blank,(r0)		; move char into buffer
 	incw	v_outlen		; increment index (or length)
 	rsb				; end of space
 
 
 ;+++
-;,> spaces -- ( n -- ) Output `n' spaces to terminal
+;k> spaces -- ( n -- ) Output `n' spaces to terminal
 ;---
 	header	spaces
 	tstl	(r11)			; Is it less than or equal to zero?
@@ -2451,11 +2451,11 @@ _invalid_number:
 	calls	#3,g^lib$get_input	; get a line from terminal
 	blbs	r0,8$			; no error, go on
 	cmpl	#rms$_eof,r0		; Is it eof from terminal?
-	bneq	7$			; no, go die messily
+	bneq	7$			; no, die messily
 	brw	_exit			; yes, exit silently
 7$:
 	brw	_error_exit		; die messily
-8$:
+8$:				; no error, continue
 	movw	v_inlen,v_org_inlen	; save original length
 	rsb				; success read from terminal, return
 10$:
@@ -2463,7 +2463,7 @@ _invalid_number:
 	blbs	r0,20$			; write the record
 	cmpl	r0,#rms$_eof		; was error end-of-file
 	beql	30$			; successful completion
-; error otherwize
+; error otherwise
 	moval	v_inrab,r6		; keep rab address
 	brw	_r_err			; signal record error
 20$:
@@ -2472,7 +2472,7 @@ _invalid_number:
 	movw	v_inrab+rab$w_rsz,-
 		v_org_inlen
 	incl	v_filelinenum		; increment line number in file
-	rsb				; success read from file, return
+	rsb				; success read from file
 30$:
 	$close	fab=v_infab		; close input
 	movb	#c_false,v_infile	; set v_infile flag false
@@ -2481,7 +2481,7 @@ _invalid_number:
 
 
 ;+++
-;k> strcat -- ( a1 a2 -- ) Catenate string at `a`' to string at `a2'.
+;k> strcat -- ( a1 a2 -- ) Catenate string at `a1' to string at `a2'.
 ;	Works only with strings defined by { string } or { string" }
 ;	since it uses maxlen of string at `a2'.
 ;---
@@ -2494,7 +2494,7 @@ _invalid_number:
 	addl3	#2,r2,r2		; address of dest char
 	movzwl	(r4),r5			; maxlen of dest
 	subl3	r7,r5,r6		; space available in dest
-	cmpl	r6,r0			; less space available than to copy
+	cmpl	r6,r0			; less space available than to copy?
 	bleq	10$			; yes, use space available in dest as len
 	movl	r0,r6			; no, move all characters in src
 10$:
@@ -2507,8 +2507,8 @@ _invalid_number:
 
 ;+++
 ;k> strcmp -- ( a1 a2 -- n ) Compare word-counted strings.
-;	Return 0 if string at `a`' = string at `a2'.
-;	Return >0 if string at `a`' > string at `a2'.
+;	Return 0 if string at `a1' = string at `a2'.
+;	Return >0 if string at `a1' > string at `a2'.
 ;	Return <0 if string at `a1' < string at `a2'.
 ;---
 	header	strcmp
@@ -2539,14 +2539,14 @@ _invalid_number:
 	movl	(r11),r0		; get address of destination
 	movl	4(r11),r1		; get address of source
 	movzwl	(r1),r6			; length of source
-	subl3	#2,r0,r2		; address of destination max len
+	subl3	#2,r0,r2		; address of destination max length
 	movzwl	(r2),r2			; dest max len
 	cmpl	r2,r6			; max len < source len?
 	bgeq	10$			; no
 	movl	r2,r6			; yes, use max len for src len
 10$:
 	movc3	r6,2(r1),2(r0)		; move the strings
-	movw	r6,@(r11)		; save the new length of dest
+	movw	r6,@(r11)		; save the new len of dest
 	addl2	#8,r11			; pop arguments
 	rsb				; end of strcpy
 
@@ -2590,7 +2590,7 @@ _invalid_number:
 	movl	#^a\"\,-(r11)		; set up for quote terminated token
 	jsb	token			; get the token
 	movzbl	(r9)+,r0		; get count and move over to first char
-	cmpw	(r11),r0		; is max length < token length
+	cmpw	(r11),r0		; is max length < token length?
 	bgeq	10$			; no
 	movl	(r11),r0		; yes, only allow maxlen chars from
 					;   token
@@ -2602,7 +2602,7 @@ _invalid_number:
 
 
 ;+++
-;k> strmax -- ( -- ) Return maximum length of string at `a'.
+;k> strmax -- ( a -- ) Return maximum length of string at `a'.
 ;---
 	header	strmax
 	subl2	#2,(r11)		; get address of max len
@@ -2611,10 +2611,10 @@ _invalid_number:
 
 
 ;+++
-;k> strpos -- ( a1 n1 a2 n2 -- a3 n3 ? f ) Find pos and len of substring in str.
+;k> strpos -- ( a1 n1 a2 n2 -- a3 n3 ? f ) Find pos and len of substring in string.
 ;	Searches string whose text is at `a2' and length is `n2' for substring
-;	whose text is at `a`' and whose length is `n1'.  Returns true on top of
-;	stack if found and under that { a3 n3 }, address and length of located
+;	whose text is at `a1' and whose length is `n1'.  Returns true on top of
+;	stack if found and under that ( a3 n3 ), address and length of located
 ;	substring.  Otherwise returns false.
 ;---
 	header	strpos
@@ -2629,7 +2629,7 @@ _invalid_number:
 	movl	r1,-(r11)		; put address of found string on stack
 	movl	r0,-(r11)		; put length of found string on stack
 	movl	#c_true,-(r11)		; put true on stack
-	rsb				; rturn
+	rsb				; return
 10$:
 	addl2	#16,r11			; pop arguments
 	movl	#c_false,-(r11)
@@ -2647,13 +2647,13 @@ _invalid_number:
 
 
 ;+++
-;k> tochar -- convert top fo stack from 0..9, A..Z to '0'..'9','A'..'Z'
+;k> tochar -- convert top of stack from 0..9, A..Z to '0'..'9','A'..'Z'
 ;	( n -- c ) where n is a number and c is a char.
-;	If not in rnage leave alow.
+;	If not in range leave alone.
 ;---
 	header	tochar
 ; with 10 numbers and 26 letters, largest base is 36.
-; didgits go from 0 to 35.
+; digits go from 0 to 35.
 	tstl	(r11)			; n < 0?
 	blss	100$			; yes, exit
 	cmpl	(r11),#35		; n > 35
@@ -2670,7 +2670,7 @@ _invalid_number:
 
 ;+++t
 ;k> token -- ( c -- ) Get next token from input stream and put it in dictionary.
-;	Note that this dos NOT increment the dictionary pointer!
+;	Note that this does NOT increment the dictionary pointer!
 ;---
 	header	token
 	cmpb	#c_blank,(r11)		; ?c = ' '~~~, an ascii blank
@@ -2682,20 +2682,20 @@ _skipwhitespace:
 	jsb     sread                   ; get a new line, only whitespace found
 	brb	_skipwhitespace		; do it over
 _startfound:
-	movl	r1,v_inptr		; where non-whitespcae found
+	movl	r1,v_inptr		; where non-whitespace found
 	movw	r0,v_inlen		; bytes remaining in string
 _gettoken:
 	clrl	r6
 	clrl	r7
 	locc	(r11),v_inlen,@v_inptr	; locate character
-	subw3	r0,v_inlen,r6		; (v_inlen = r0) = number of chars
+	subw3	r0,v_inlen,r6		; (v_inlen - r0) = number of chars
 					;   to copy
-	movw    r0,v_inlen              ; these are only bytes left (including one
+	movw    r0,v_inlen              ; these are only bytes left (include one
 					; located~~~close paren?
 	movl	r1,r7			; save address of found char
 	cvtwb	r6,(r9)			; store byte length
-	addl3	#1,r9,r8		; where to put in dictinary
-	movc3	r6,@v_inptr,(r8)	; move string to dictinary
+	addl3	#1,r9,r8		; where to put in dictionary
+	movc3	r6,@v_inptr,(r8)	; move string to dictionary
 	movl	r7,v_inptr		; v_inptr points into string
 	tstw	v_inlen			; Are any more char?  (including
 					;   located one)
@@ -2727,7 +2727,7 @@ _gettoken:
 	header	unsmudge
 	movl	@v_current,r0		; address of word being defined
 	addl2	#4,r0			; move over link field
-	bicb2	#^b10000000,(r0)	; clear smudge bit of length of name
+	bicb2	#^b10000000,(r0)	; clear smudge bit...
 	rsb				; end of unsmudge
 
 
@@ -2742,15 +2742,15 @@ _gettoken:
 
 
 ;+++
-;k> variable -- ( -- ) Create a word that pushed its PFA on the stack.
+;k> variable -- ( -- ) Create a word that pushes its PFA on the stack.
 ;	Doesn't reserve any space.  Use for making initialized arrays.
-;	PF = parameter field address = address of data following end
-;	of code body of work.
+;	PFA = parameter field address = address of data following end
+;	of code body of word.
 ;---
 ;??? This concept is fuzzy.  Work on it.
 	header	  variable
 	jsb	  create		; enclose next token in dictionary
-	movb	  #op_movab,(r9)+	; `movb'
+	movb	  #op_movab,(r9)+	; `movab'
 	movb	  #adm_b_rel,(r9)+	; byte relative
 	movb	  #2,(r9)+		; (pc+2)
 	movb	  #adm_adec_r11,(r9)+	; -(r11)
@@ -2849,7 +2849,7 @@ _gettoken:
 	beql	10$			; yes
 	tstl	(r11)+			; no, is the second one false?
 	beql	30$			; yes, leave with true
-	brb	20$			; no leave with false
+	brb	20$			; no, leave with false
 10$:					; first one false
 	tstl	(r11)+			; Is the second one true?
 	bneq	30$			; yes, leave with true
@@ -2866,7 +2866,7 @@ _gettoken:
 ;---
 	header i_right_brack,<]>
 	movb   #c_true,v_mode		; enter compile mode
-	rsb				; end of l
+	rsb				; end of ]
 
 
 _kernel_end:
@@ -2874,8 +2874,8 @@ _kernel_end:
 ;*******************************************************************************
 ;
 ; Compiler Built-ins -- a new word is unlinked from the current vocabulary
-;	and linked into the compilier vocabulary by the word { compiletime }.
-;	Computer (or compiletime} words are only search for during the
+;	and linked into the compiler vocabulary by the word { compiletime }.
+;	Compiler (or compiletime) words are only searched for during the
 ;	definition of new words, which prevents them from mucking about with
 ;	the stacks and the dictionary when we are interpreting the user's
 ;	commands.
@@ -2885,7 +2885,7 @@ compiler_begin:
 
 
 ;+++
-;c> (variable) - ( -- ) compiles the code body of a word that pushes the
+;c> (variable) -- ( -- ) compiles the code body of a word that pushes the
 ;	address of its parameter field on the stack.  Must be the last word
 ;	in the word...
 ;---
@@ -2900,8 +2900,8 @@ compiler_begin:
 
 
 ;+++
-;c> +loop -- ( n -- ) where n is an increment.  Edns { do .. +loop }.  Adds top
-;	of stack to loop index and branches to { do } if ((index > 0) and
+;c> +loop -- ( n -- ) where n is an increment.  Ends { do ... +loop }.  Adds top
+;	of stack to loop index and branches to { do } if ((index >= 0) and
 ;	(index < limit)), or if ((index < 0) and (index > limit)).~~~ WTF: and should be or???
 ;	In other words, { +loop } with a positive argument is like Pascal's
 ;	{ for index := start to finish do ... } and with a negative argument
@@ -2924,7 +2924,7 @@ compiler_begin:
 
 
 ;+++
-;c> ." -- ( -- ) compile text until next `"' into dictinary to be printed when
+;c> ." -- ( -- ) compile text until next `"' into dictionary to be printed when
 ;	the current word is executed.
 ;---
 	header	i_dot_quote,<.">,vl_compiler
@@ -2935,15 +2935,15 @@ compiler_begin:
 	movb	#op_brw,(r9)+		; `brw'
 	movl	r9,-(r10)		; save address of displacement
 	movw	#0,(r9)+		; save space for displacement
-	movl	#^a\"\,-(r11)		; set up for `"' delimited tokens
+	movl	#^a\"\,-(r11)		; set up for `"' delimited token
 	jsb	token			; get token
-	movzbl	(r9),r0			; get length of token
+	movzbl	(r9),r0			; get length of string
 	addl3	#1,r0,r1		; calc displacement (count length too)
 	movw	r1,@(r10)		; fill in displacement
 	addl2	#4,r10			; pop item off loop stack
 	addl2	r1,r9			; save string in dictionary
 	movb	#op_movl,(r9)+		; `movl'
-	movb	#adm_immediate,(r9)+	; immeidate mode
+	movb	#adm_immediate,(r9)+	; immediate mode
 	movl	r0,(r9)+		; length of string
 	movb	#adm_adec_r11,(r9)+	; -(r11)
 ; we now have ( address count ) on stack (when new word executed)
@@ -2960,13 +2960,13 @@ compiler_begin:
 	header	i_semicolon,<;>,vl_compiler
 	movb	#op_rsb,(r9)+		; put an rsb in to end word
 	movb	#c_false,v_mode		; switch off compiler v_mode
-;??? might need to unset high bit in count of name (smudge) bit
+;??? might need to unset high bit in count of name (smudge bit)
 	jsb	unsmudge      	     	; clear smudge bit so word is found
 	rsb				; end of ;
 
 
 ;+++
-;c> >defer -- ( -- ) ends a section of code that is to copied to the
+;c> >defer -- ( -- ) ends a section of code that is to be copied to the
 ;	dictionary whenever this word is executed (i.e., { >defer } ends code
 ;	to be executed by all words defined by the word we are now compiling).
 ;	{ >defer } is used to define words that define words.
@@ -2985,7 +2985,7 @@ compiler_begin:
 
 
 ;+++
-;c> again -- ( -- ) Terminate a { repeat ... if ... again } loop.  { agin }
+;c> again -- ( -- ) Terminate a { repeat ... if ... again } loop.  { again }
 ;	unconditionally branches back to the { repeat }.
 ;---
 	header	again,,vl_compiler
@@ -2996,10 +2996,10 @@ compiler_begin:
 	movb	#op_brw,(r9)+		; `brw'
 	movl	r9,r2			; save address for negative displacement
 	movw	#0,(r9)+		; save space for displacement
-	subl3	r9,(r10)+,r3		; calculate negative displacment
+	subl3	r9,(r10)+,r3		; calculate negative displacement
 	movw	r3,(r2)			; save negative displacement
 ; construct forward branch from { if } to after { again }
-	subl3	r0,r9,r4		; calculate { if }'s displacment
+	subl3	r0,r9,r4		; calculate { if }'s displacement
 	movw	r4,(r1)			; save displacement
 	rsb				; end of again
 
@@ -3008,7 +3008,7 @@ compiler_begin:
 ;c> b^ -- ( -- ) Convert next token to number and enclose low byte in dictionary.~~~ byte immediate???
 ;---
 	header	i_b_up,<b^>,vl_compiler
-	movl	#c_blank,-(r11)		; set up for blank delimeted token
+	movl	#c_blank,-(r11)		; set up for blank delimited token
 	jsb	token			; get it
 	jsb	number			; try to make it a number
 	tstl	(r11)+			; is it a number?
@@ -3100,7 +3100,7 @@ compiler_begin:
 					;   displacement from
 ; make branch to false part (fill in displacement in if)
 	subl3	(r10)+,r9,r2		; calculate displacement
-	movw	r2,@(r10)		; save displacment
+	movw	r2,@(r10)		; save displacement
 	addl2	#4,r10			; pop address of displacement off lstack
 	movl	r0,-(r10)		; save address of displacement
 	movl	r1,-(r10)		; save address to displace from
@@ -3108,7 +3108,7 @@ compiler_begin:
 
 
 ;+++
-;c> endif -- ( -- ) { endif } ends either of { if } or { else } branches.
+;c> endif -- ( -- ) { endif } ends either { if } or { else } branches.
 ;	{ if ... else ... endif } and { if ... endif } are both legal.
 ;---
 	header	endif,,vl_compiler
@@ -3140,7 +3140,7 @@ compiler_begin:
 ;	the { if } until an { endif } or an { else }.  At an { else } skip to
 ;	the code after the { endif }.  If the top of the stack
 ;	is false, skip to the { endif } or { else }.
-;	In the { repeat ... if ... again } if the top fo the stack is true the
+;	In the { repeat ... if ... again } if the top of stack is true the
 ;	code up to the { again } is executed and then a branch back to
 ;	{ repeat } is done.  If the top of the stack is false, execution jumps
 ;	to the code after the { again }.
@@ -3152,20 +3152,20 @@ compiler_begin:
 	movb	#^x03,(r9)+		; to (pc+3)
 	movb	#op_brw,(r9)+		; `brw'
 	movl	r9,-(r10)		; save address of displacement
-	movw	#0,(r9)+		; save space for displacmnent
+	movw	#0,(r9)+		; save space for displacement
 	movl	r9,-(r10)		; save address to calculate
 					;   displacement from
 	rsb				; end of if
 
 
 ;+++
-;c> l^ -- ( -- ) Convert next token to number and enclose in dictionary.
+;c> l^ -- ( -- ) Convert next token to number and enclose it in dictionary.
 ;---
 	header	i_l_up,<l^>,vl_compiler
 	movl	#c_blank,-(r11)		; set up for blank delimited token
 	jsb	token			; get it
 	jsb	number			; try to make it a number
-	tstl	(r11)+			; Is it a number>
+	tstl	(r11)+			; Is it a number?
 	bneq	10$			; yes
 	rsb				; no, for now just exit~~~ WTF, no error?
 10$:
@@ -3174,7 +3174,7 @@ compiler_begin:
 
 
 ;+++
-;c> literal -- ( n -- ) convert top of stack to a literal in current word.
+;c> literal -- ( -- ) convert top of stack to a literal in current word.
 ;---
 	header	literal,,vl_compiler
 	movb	#op_movl,(r9)+		; `movl'
@@ -3189,7 +3189,7 @@ compiler_begin:
 ;	to { do } if ((index >= 0) and (index < limit)).  In other words,
 ;	{ loop } is like Pascal's { for index := start to finish do ... }.
 ;---
-	header	i_loop,<loop>,vl_compiler ; VAX/VMS debuffer thinks loop is a a command
+	header	i_loop,<loop>,vl_compiler ; VAX/VMS debugger thinks loop is a command
 	movb	#op_acbl,(r9)+		  ; `acbl'
 	movb	#adm_b_dis_r10,(r9)+	  ; b^(r10)
 	movb	#4,(r9)+		  ; 4 byte displacement for previous adm
@@ -3206,7 +3206,7 @@ compiler_begin:
 
 
 ;+++
-;c> recurse -- ( -- ) Compile a jsb to the word that is currently being defined,
+;c> recurse -- ( -- ) Compile a jsb to the word that is current being defined,
 ;	allowing recursion.
 ;---
 	header	recurse,,vl_compiler
@@ -3255,7 +3255,7 @@ compiler_begin:
 	movb	#op_brw,(r9)+		; `brw'
 	movl	r9,r0			; save address of displacement
 	movw	#0,(r9)+		; save space for displacement
-	subl3	r9,(r10)+,r1		; calcualte negative displacement
+	subl3	r9,(r10)+,r1		; calculate negative displacement
 	movw	r1,(r0)			; save negative displacement
 	rsb				; end of until
 
@@ -3275,7 +3275,7 @@ compiler_begin:
 	movl	r9,-(r10)		; save address of displacement to
 					;   statements after loop
 	movw	#0,(r9)+		; save space for displacement
-	movl	r9,-(r10)		; address to make diplacement to
+	movl	r9,-(r10)		; address to make displacement to
 					;   after loop from~~~ awkward phrasing
 	rsb				; end of while
 
@@ -3290,13 +3290,13 @@ compiler_begin:
 
 
 ;+++
-;c> [ascii] -- ( -- ) compile ascii value of 1st char of next token into word.
+;c> [ascii] -- ( -- n ) compile ascii value of 1st char of next token into word.
 ;---
 	header	i_compile_ascii,<[ascii]>,vl_compiler
 	movl	#c_blank,-(r11)		; set up for blank separated token
 	jsb	token			; get it
-	movzbl	1(r9),-(r11)		; put ascii value of 1st char of token on stack
-	jsb	literal			; compile it into the dictionary
+	movzbl	1(r9),-(r11)		; put ascii value of token on stack
+	jsb	literal			; compile it into dictionary
 	rsb				; end of ascii
 
 
@@ -3332,7 +3332,7 @@ _compiler_end:
 		pribuf=v_getchn_in_buf  ; where to find input buffer
 
 	cmpb	#dc$_term,v_getchn_buf+4 ; is it a terminal?
-	bneq	5$			; not a terminal, so don't enable ctr-c
+	bneq	5$			; not a terminal, so don't enable ctrl-c
 ; enable control-c trapping
 	.show	   meb,me
 	$qio_s	chan=v_input_chan,-
@@ -3350,7 +3350,7 @@ _compiler_end:
 
 	calls	#0,s_cold_start		; call subroutine to start from scratch
 ; If we have returned from cold start there was an error caught by the
-; trap subroutine and we want to a warm start.
+; trap subroutine and we want to do a warm start.
 10$:
 	calls	#0,s_warm_start		; call subroutine to do warm start.
 ; If we have returned from warm start there was an error caught by the
@@ -3398,11 +3398,11 @@ vtil_exit:
 	movl	chf$l_mch_depth(r0),-	; get depth, so we will unwind to
 		v_trap_depth		;   the main program
 	$unwind_s depadr=v_trap_depth	; unwind stack
-	ret				; return to main progam
+	ret				; return to main program
 10$:
 	pushl	#0			; number of fao parameters
 	pushl	#vtil_maxerrors		; message number
-	pushl	#2			; number of longs in message vecor,
+	pushl	#2			; number of longs in message vector,
 					; not including this one.
 	movl	sp,r0			; save address of buffer
 	$putmsg_s msgvec=(r0)		; write message
@@ -3412,26 +3412,26 @@ vtil_exit:
 	newpage <Initialization>
 ;*******************************************************************************
 ;
-; Initialization
+; Initialization -- Set up VTIL to run.
 ;
 ;*******************************************************************************
 
 ;+++
 ;s> cold_start -- do all initial setup
-;+++
+;---
 	.entry	s_cold_start,^m<>
 	movl	sp,v_returnstack	; save original return stack pointer
 	movl	#c_dict_begin,r9	; initialize dictionary pointer
 ; vl_compiler and vl_kernel are symbols that contain location of last word in
 ; these vocabularies, which are built-in.
-	movl	#vl_compiler,v_compiler	; Initialize compiler vocabulary
-	movl	#vl_kernel,v_kernel	; Initialize kernel vocabulary
+	movl	#vl_compiler,v_compiler	; Initialize compiler vocab
+	movl	#vl_kernel,v_kernel	; Initialize kernel vocab
 ; greet user
 	pushaq	v_greeting
 	calls	#1,g^lib$put_output	; greet user
 	moval	v_kernel,v_context	; Initialize context
 	moval	v_kernel,v_current	; Initialize current
-	brw	_initialize		; skip patching stuff
+	brw	_initialize		; skip patching stuff...
 
 
 ;+++
@@ -3456,7 +3456,7 @@ r_warm_start:
 	beql	10$			; no
 	jsb	unlink			; yes, unlink unfinished word
 10$:
-	movb	#c_false,v_mode		; put in execute mode
+	movb	#c_false,v_mode		; put into execute mode
 	movb	#c_false,v_state	;   just in case
 	movw	#0,v_inlen		; so start with new line
 	movw	#0,v_org_inlen		;   just in case
@@ -3466,7 +3466,7 @@ r_warm_start:
 	movb	#c_false,v_infile	; set infile flag false
 	movl	#0,v_filelinenum	; zero file line as well
 	movab	v_infilemess,-(r11)	; put address of 'In file:' on stack
-	jsb 	bcount			; convert from ascic to write format ( address count )
+	jsb 	bcount			; convert from ascic to write format
 	jsb	write			; put in output
 	moval	v_fname,-(r11)		; put address of filename on stack
 	movzbl	v_fnamelen,-(r11)	; put count of filename on stack
@@ -3479,7 +3479,7 @@ r_warm_start:
 ; The following is also done during a cold start.
 ;
 _initialize:
-	; Initialize stacks.
+	; initialize stacks
 	moval	c_ds_start,r11 		; move address of data stack to ds pointer
 	moval	c_ls_start,r10		; move address of loop stack to ls pointer
 
@@ -3491,8 +3491,8 @@ _initialize:
 ;
 ;*******************************************************************************
 _interpreter:
-	movl	#c_blank,-(r11)		; set up for space delimeted token
-	jsb	token			; get the next token
+	movl	#c_blank,-(r11)		; set up for space delimited token
+	jsb	token			; get next token
 ; is it a comment?
 	cmpb	#1,(r9)			; token only one byte long?
 	bneq	10$			; no
@@ -3508,7 +3508,7 @@ _interpreter:
 30$:
 	jsb	q_number		; see if it is a number
 	tstl	(r11)+			; was it valid?
-	bneq	_interpreter		; yes, leave with number on the stack
+	bneq	_interpreter		; yes, leave with number on stack
 	brw	_unknowntoken		; no, tell user bad token
 
 
@@ -3539,8 +3539,8 @@ _q_execute:
 10$:
 	movb	#c_false,v_state	; set v_state false~~~ what does this tell us???
 	jsb	i_compile_jsb		; compile a jump to the word whose
-					;   cfa addressis at the top of stack
-	brw	_interpreter		; everthing ok, do it again
+					;   cfa address is at the top of stack
+	brw	_interpreter		; everything ok, do it again
 
 
 _underflow:
@@ -3552,7 +3552,7 @@ _underflow:
 
 _overflow:
 	jsb	cr			; make sure everything is output
-	pushaq	v_overmess		; make sure everything is output
+	pushaq	v_overmess		; push address of overflow message
 	calls	#1,g^lib$put_output	; tell user
 	brw	r_warm_start			; clean up VTIL
 
@@ -3566,7 +3566,7 @@ _unknowntoken:
 	movzbl	(r9),-(r11)		; get byte count of string on stack
 	jsb	write			; show user bad token
 	movab	v_unknown2,-(r11)	; Put address of 'In line:' on stack
-	jsb	bcount			; convert it to ( address count )
+	jsb	bcount			; convert it ( address count )
 	jsb	write			; tell user
 	tstb	v_infile		; In a file?
 	beql	10$			; no
@@ -3584,11 +3584,11 @@ _unknowntoken:
 	newpage <Exit Routines>
 ;*******************************************************************************
 ;
-; Exit Routines -- Routines to handle successful and unsuccessful  exits
+; Exit Routines -- Routines to handle successful and nonsuccessful exits
 ;
 ;*******************************************************************************
 _error_exit:				; die messily
-	pushl	r0			; put error message number on stack
+	pushl	r0			; put error message number on rstack
 	calls	#1,g^lib$signal		; signal error
 	ret				; return
 
@@ -3620,7 +3620,7 @@ _exit:
 ;*******************************************************************************
 	.psect	vtildict
 c_dict_begin:
-	. = .+<16 * 1024>		; reserve space for dictinary~~~ why not a constant???
+	. = .+<16 * 1024>		; reserve space for dictionary~~~ why not a constant???
 c_dict_end:
 
 
@@ -3628,7 +3628,7 @@ c_dict_end:
 ; Block i/o buffers -- Here because that is the safest place for them.
 ;
 v_blkbuff:
-	.blkb	c_max_blocks * c_block_size ; buffers for block i/o
+	.blkb	c_max_blocks * c_block_size ; buffer for block i/o
 
 
 ;*******************************************************************************
