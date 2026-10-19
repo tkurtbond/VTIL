@@ -421,18 +421,19 @@
           called  <name>.   When  the  word  <name>  is executed it sets the
           { context } vocabulary so that VTIL searches in vocabulary  <name>
           for  the  words  to  execute  or compile.  Vocabularies created by
-          { vocabulary } are linked back into the "kernel" vocabulary (which
-          has  all  the  runtime words that VTIL starts out with in it) just
-          before the word <name>,  so  that  if  the  word  isn't  found  in
-          vocabulary  <name>  the  kernel vocabulary is also searched.  This
-          allows you to use all the kernel vocabulary words  even  when  you
-          are  in  another  vocabulary.  The sequence { <name> definitions }
-          changes the { current } vocabulary (the vocabulary new  words  are
-          linked  to  when they are defined) so that all new definitions are
-          compiled  into  vocabulary  <name>   instead   of   the   previous
-          { current }  vocabulary.   You  can switch { current } back to the
-          kernel vocabulary by  saying  { kernel definitions }  (which  also
-          sets { context } to the kernel vocabulary).
+          { vocabulary } are linked back into the vocabulary  that  was  the
+          { context }  vocabulary  when { vocabulary } was executed (usually
+          the "kernel" vocabulary, which has all the runtime words that VTIL
+          starts  out  with in it) just before the word <name>, so that if a
+          word isn't found in vocabulary  <name>  that  vocabulary  is  also
+          searched.   This allows you to use all the kernel vocabulary words
+          even  when  you  are  in   another   vocabulary.    The   sequence
+          { <name> definitions }  changes  the  { current }  vocabulary (the
+          vocabulary new words are linked to when they are defined) so  that
+          all new definitions are compiled into vocabulary <name> instead of
+          the previous { current } vocabulary.  You can  switch  { current }
+          back  to  the  kernel  vocabulary by saying { kernel definitions }
+          (which also sets { context } to the kernel vocabulary).
           VTIL -- VAX Threaded Interpretive Language                  Page 9
           Numeric Output Conversion
 
@@ -459,6 +460,42 @@
           also   allows   the  innermost  loops  of  programs  to  be  coded
           efficiently in assembly  language,  improving  the  efficiency  of
           programs, when such is required.
+               The assembler is  made  of  assembler  constants,  which  are
+          defined  with  { ac: }.   The  sequence { <b> ac: <name> } defines
+          <name> as a compile time word that compiles the byte <b> into  the
+          word  being  defined, so each opcode and each operand specifier is
+          simply a word,  and  an  instruction  is  written  as  its  opcode
+          followed  by  its operands.  The compile time word { b^ } compiles
+          the next token as a byte, for displacements.  For example, the VAX
+          has a rotate instruction, but VTIL has no word for it:
+
+               hex
+               9C ac: ROTL     \ rotate long
+               9E ac: MOVAB    \ move address of byte
+               D0 ac: MOVL     \ move long
+               05 ac: RSB      \ return from subroutine
+               AF ac: b^r      \ byte displacement relative to the PC
+               6B ac: (ds)     \ (r11), top of the data stack
+               7B ac: -(ds)    \ -(r11), push on the data stack
+               8B ac: (ds)+    \ (r11)+, pop from the data stack
+               89 ac: (edp)+   \ (r9)+, enclose in the dictionary
+               AB ac: b^(ds)   \ b^n(r11), the stack item n bytes down
+               decimal
+
+               : rotl  ( n1 n2 -- n3 )  \ rotate n1 left n2 bits
+                  ROTL (ds) b^(ds) b^ 4 b^(ds) b^ 4
+                  drop
+               ;
+
+          After this, { 1 4 rotl . } prints 16.  The count operand  of  ROTL
+          is a byte, so (ds)+ would pop only one byte off the stack; instead
+          the count is read in place and  { drop }  removes  it  afterwards,
+          which  shows  assembly  code  and  ordinary  words  mixed  in  one
+          definition.  Since assembler constants  are  compile  time  words,
+          they can only be used inside colon definitions.
+          VTIL -- VAX Threaded Interpretive Language                 Page 10
+          Defining New Defining Words
+
 
           2.8  Defining New Defining Words
 
@@ -484,16 +521,23 @@
                ;
 
           This example shows how the word with the same effect  as  { long }
-          might be defined.
+          might  be  defined,  using  the  assembler  words  defined  in the
+          Assembler section.
                In essence, the compilation of the sequence of words  between
           { defer< }  and  { >defer }  is  *deferred* until the word that is
           being defined is executed, at which point those words are compiled
-          into  whatever  new  word  is  then being defined.  Obviously, all
-          words with { defer< ... >defer } sequences  in  them  have  to  be
-          compile time words.
-          VTIL -- VAX Threaded Interpretive Language                 Page 10
-          Block I/O Words
+          into  whatever  new  word  is  then being defined.  { defer< } and
+          { >defer } are compile time words,  but  a  word  that  uses  them
+          doesn't  have  to be one:  { 4byte } is an ordinary word, executed
+          outside colon definitions to create new words.   Only  if  such  a
+          word  is  to  be  used inside a colon definition, copying its code
+          into the word being compiled, must it be made a compile time  word
+          with { compiletime }, like this:
 
+               : five. defer< 5 . >defer ; compiletime
+               : x five. 7 . ;
+
+          Executing { x } prints 5 and 7.
 
           2.9  Block I/O Words
 
@@ -506,6 +550,9 @@
           are interested, including information that anyone who wants to use
           VTIL's  assembler  will  need.  The header format of VTIL words is
           also explained.
+          VTIL -- VAX Threaded Interpretive Language                 Page 11
+          Data Types
+
 
           3.1  Data Types
 
@@ -552,9 +599,6 @@
                l    long (integer, 4 bytes)
                n    integer (usually meaning number, a longword)
                s    short (integer, 2 bytes)
-          VTIL -- VAX Threaded Interpretive Language                 Page 11
-          Terminology
-
 
           Note that *all* stack items are at least a longword in width.  For
           instance,  a  { b }  stack  item  merely  says that the programmer
@@ -565,6 +609,9 @@
           smaller data type from the stack, not just the smaller data  type.
           In  other  words,  the  stack pointer can only be manipulated in 4
           byte increments or decrements.
+          VTIL -- VAX Threaded Interpretive Language                 Page 12
+          Format Of Entries
+
 
           3.3  Format Of Entries
 
@@ -572,7 +619,7 @@
           the  left  side  and  the stack effect comment for the word on the
           right side.  Entries are separated by two blank lines.   Following
           a blank line is the explanation of the word.
-          VTIL -- VAX Threaded Interpretive Language                 Page 12
+          VTIL -- VAX Threaded Interpretive Language                 Page 13
           Kernel Vocabulary
 
 
@@ -632,7 +679,7 @@
           (not)                                                 ( n1 -- n2 )
 
           Leave the bitwise not of "n1" on the stack.
-          VTIL -- VAX Threaded Interpretive Language                 Page 13
+          VTIL -- VAX Threaded Interpretive Language                 Page 14
           Kernel Vocabulary
 
 
@@ -694,7 +741,7 @@
           .(                                                          ( -- )
 
           Write the text following until the next ")" to the  screen.   This
-          VTIL -- VAX Threaded Interpretive Language                 Page 14
+          VTIL -- VAX Threaded Interpretive Language                 Page 15
           Kernel Vocabulary
 
 
@@ -755,7 +802,7 @@
 
 
           <#                                                          ( -- )
-          VTIL -- VAX Threaded Interpretive Language                 Page 15
+          VTIL -- VAX Threaded Interpretive Language                 Page 16
           Kernel Vocabulary
 
 
@@ -817,7 +864,7 @@
           ?number                                               ( -- n ? f )
 
           Try to convert the token at { eodp } to a number.   If  compiling,
-          VTIL -- VAX Threaded Interpretive Language                 Page 16
+          VTIL -- VAX Threaded Interpretive Language                 Page 17
           Kernel Vocabulary
 
 
@@ -879,7 +926,7 @@
           b!                                                      ( b a -- )
 
           Store 8 bits of "b" at address "a".
-          VTIL -- VAX Threaded Interpretive Language                 Page 17
+          VTIL -- VAX Threaded Interpretive Language                 Page 18
           Kernel Vocabulary
 
 
@@ -940,7 +987,7 @@
           block-read                                              ( l a -- )
 
           Read block "l" into the block buffer at address "a".
-          VTIL -- VAX Threaded Interpretive Language                 Page 18
+          VTIL -- VAX Threaded Interpretive Language                 Page 19
           Kernel Vocabulary
 
 
@@ -1001,7 +1048,7 @@
           clist                                                       ( -- )
 
           List the words in the compiler vocabulary, the compile time words.
-          VTIL -- VAX Threaded Interpretive Language                 Page 19
+          VTIL -- VAX Threaded Interpretive Language                 Page 20
           Kernel Vocabulary
 
 
@@ -1063,7 +1110,7 @@
           definitions                                                 ( -- )
 
           Sets { current } to { context }.  { <name> definitions } makes all
-          VTIL -- VAX Threaded Interpretive Language                 Page 20
+          VTIL -- VAX Threaded Interpretive Language                 Page 21
           Kernel Vocabulary
 
 
@@ -1124,7 +1171,7 @@
 
           Fill the area of memory starting at address "a" and extending  "s"
           bytes with the character "c".
-          VTIL -- VAX Threaded Interpretive Language                 Page 21
+          VTIL -- VAX Threaded Interpretive Language                 Page 22
           Kernel Vocabulary
 
 
@@ -1185,7 +1232,7 @@
           kernel                                                      ( -- )
 
           Set { context } to { kernel } vocabulary.
-          VTIL -- VAX Threaded Interpretive Language                 Page 22
+          VTIL -- VAX Threaded Interpretive Language                 Page 23
           Kernel Vocabulary
 
 
@@ -1247,7 +1294,7 @@
 
 
           move                                                ( a1 a2 s -- )
-          VTIL -- VAX Threaded Interpretive Language                 Page 23
+          VTIL -- VAX Threaded Interpretive Language                 Page 24
           Kernel Vocabulary
 
 
@@ -1307,7 +1354,7 @@
           putc                                                      ( c -- )
 
           Output character "c" to the terminal.
-          VTIL -- VAX Threaded Interpretive Language                 Page 24
+          VTIL -- VAX Threaded Interpretive Language                 Page 25
           Kernel Vocabulary
 
 
@@ -1369,7 +1416,7 @@
 
 
           search                                            ( a1 -- a2 ? f )
-          VTIL -- VAX Threaded Interpretive Language                 Page 25
+          VTIL -- VAX Threaded Interpretive Language                 Page 26
           Kernel Vocabulary
 
 
@@ -1429,7 +1476,7 @@
           strings  defined  by  { string } or { string" }, since it uses the
           maxlen field of the  string  at  "a2",  and  only  { string }  and
           { string" } create those maxlen fields.
-          VTIL -- VAX Threaded Interpretive Language                 Page 26
+          VTIL -- VAX Threaded Interpretive Language                 Page 27
           Kernel Vocabulary
 
 
@@ -1489,7 +1536,7 @@
           character  representing a number, "0".."9", "A".."Z" (where "n" is
           a number and "c" is a character).  If not  in  the  correct  range
           leave it alone.
-          VTIL -- VAX Threaded Interpretive Language                 Page 27
+          VTIL -- VAX Threaded Interpretive Language                 Page 28
           Kernel Vocabulary
 
 
@@ -1545,7 +1592,7 @@
           Enter compile mode.  Used with { [ } in  definitions  to  allow  a
           runtime  word to be executed instead of compiled.  Note that { [ }
           is a compiletime word and is therefore in the compiler vocabulary.
-          VTIL -- VAX Threaded Interpretive Language                 Page 28
+          VTIL -- VAX Threaded Interpretive Language                 Page 29
           Compiler Vocabulary
 
 
@@ -1597,7 +1644,7 @@
           unconditionally branches back to the { repeat }.
 
 
-          b                                                          ( -- )
+          b^                                                          ( -- )
 
           Convert next token to number and enclose low byte in dictionary.
 
@@ -1607,7 +1654,7 @@
           Start a section of code that is to be  copied  to  the  dictionary
           whenever this word is executed (i.e., { defer< } starts code to be
           executed by all words defined by the word we are  now  compiling).
-          VTIL -- VAX Threaded Interpretive Language                 Page 29
+          VTIL -- VAX Threaded Interpretive Language                 Page 30
           Compiler Vocabulary
 
 
@@ -1654,7 +1701,7 @@
           See also { else } and { endif }.
 
 
-          l                                                          ( -- )
+          l^                                                          ( -- )
 
           Convert next token to a number and enclose it in dictionary.
 
@@ -1669,7 +1716,7 @@
           Ends a { do } loop.  Adds 1 to loop index and branches  to  { do }
           if  (index  <=  limit).  In other words, { loop } is like Pascal's
           { for index := start to finish do ... }, except that  a  { do  ...
-          VTIL -- VAX Threaded Interpretive Language                 Page 30
+          VTIL -- VAX Threaded Interpretive Language                 Page 31
           Compiler Vocabulary
 
 
@@ -1695,11 +1742,11 @@
           loops.
 
 
-          w                                                          ( -- )
+          w^                                                          ( -- )
 
           Convert the next token to a number and  enclose  low  16  bits  (a
           short  integer)  in the dictionary.  This word is used mainly with
-          the assembler, which is why it is { w } instead of { s }.
+          the assembler, which is why it is { w^ } instead of { s^ }.
 
 
           until                                                     ( f -- )
@@ -1725,13 +1772,13 @@
           [ascii]                                                     ( -- )
 
           Compile ascii value of 1st character of next token into word.
-          VTIL -- VAX Threaded Interpretive Language                 Page 31
+          VTIL -- VAX Threaded Interpretive Language                 Page 32
           Assembler
 
 
           3.6  Assembler
 
-          VTIL -- VAX Threaded Interpretive Language                 Page 32
+          VTIL -- VAX Threaded Interpretive Language                 Page 33
           Miscellaneous Internals And Implementation Notes
 
 

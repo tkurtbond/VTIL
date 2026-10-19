@@ -6,3 +6,7 @@ foo        \ 5
 99 mk4 bar
 bar        \ 6
 .st
+\ a word using defer< ... >defer that is a compile-time word itself
+: five. defer< 5 . >defer ; compiletime
+: x five. 7 . ;
+x          \ 5 7

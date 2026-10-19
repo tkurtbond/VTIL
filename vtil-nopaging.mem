@@ -394,18 +394,19 @@ new vocabulary with the name <name>, which is invoked  by  a  word
 called  <name>.   When  the  word  <name>  is executed it sets the
 { context } vocabulary so that VTIL searches in vocabulary  <name>
 for  the  words  to  execute  or compile.  Vocabularies created by
-{ vocabulary } are linked back into the "kernel" vocabulary (which
-has  all  the  runtime words that VTIL starts out with in it) just
-before the word <name>,  so  that  if  the  word  isn't  found  in
-vocabulary  <name>  the  kernel vocabulary is also searched.  This
-allows you to use all the kernel vocabulary words  even  when  you
-are  in  another  vocabulary.  The sequence { <name> definitions }
-changes the { current } vocabulary (the vocabulary new  words  are
-linked  to  when they are defined) so that all new definitions are
-compiled  into  vocabulary  <name>   instead   of   the   previous
-{ current }  vocabulary.   You  can switch { current } back to the
-kernel vocabulary by  saying  { kernel definitions }  (which  also
-sets { context } to the kernel vocabulary).
+{ vocabulary } are linked back into the vocabulary  that  was  the
+{ context }  vocabulary  when { vocabulary } was executed (usually
+the "kernel" vocabulary, which has all the runtime words that VTIL
+starts  out  with in it) just before the word <name>, so that if a
+word isn't found in vocabulary  <name>  that  vocabulary  is  also
+searched.   This allows you to use all the kernel vocabulary words
+even  when  you  are  in   another   vocabulary.    The   sequence
+{ <name> definitions }  changes  the  { current }  vocabulary (the
+vocabulary new words are linked to when they are defined) so  that
+all new definitions are compiled into vocabulary <name> instead of
+the previous { current } vocabulary.  You can  switch  { current }
+back  to  the  kernel  vocabulary by saying { kernel definitions }
+(which also sets { context } to the kernel vocabulary).
 
 2.6  Numeric Output Conversion
 
@@ -429,6 +430,39 @@ application that doesn't depend on  the  specific  machine.   This
 also   allows   the  innermost  loops  of  programs  to  be  coded
 efficiently in assembly  language,  improving  the  efficiency  of
 programs, when such is required.
+     The assembler is  made  of  assembler  constants,  which  are
+defined  with  { ac: }.   The  sequence { <b> ac: <name> } defines
+<name> as a compile time word that compiles the byte <b> into  the
+word  being  defined, so each opcode and each operand specifier is
+simply a word,  and  an  instruction  is  written  as  its  opcode
+followed  by  its operands.  The compile time word { b^ } compiles
+the next token as a byte, for displacements.  For example, the VAX
+has a rotate instruction, but VTIL has no word for it:
+
+     hex
+     9C ac: ROTL     \ rotate long
+     9E ac: MOVAB    \ move address of byte
+     D0 ac: MOVL     \ move long
+     05 ac: RSB      \ return from subroutine
+     AF ac: b^r      \ byte displacement relative to the PC
+     6B ac: (ds)     \ (r11), top of the data stack
+     7B ac: -(ds)    \ -(r11), push on the data stack
+     8B ac: (ds)+    \ (r11)+, pop from the data stack
+     89 ac: (edp)+   \ (r9)+, enclose in the dictionary
+     AB ac: b^(ds)   \ b^n(r11), the stack item n bytes down
+     decimal
+
+     : rotl  ( n1 n2 -- n3 )  \ rotate n1 left n2 bits
+        ROTL (ds) b^(ds) b^ 4 b^(ds) b^ 4
+        drop
+     ;
+
+After this, { 1 4 rotl . } prints 16.  The count operand  of  ROTL
+is a byte, so (ds)+ would pop only one byte off the stack; instead
+the count is read in place and  { drop }  removes  it  afterwards,
+which  shows  assembly  code  and  ordinary  words  mixed  in  one
+definition.  Since assembler constants  are  compile  time  words,
+they can only be used inside colon definitions.
 
 2.8  Defining New Defining Words
 
@@ -454,13 +488,23 @@ which  is at *that* point being defined, and will be executed when
      ;
 
 This example shows how the word with the same effect  as  { long }
-might be defined.
+might  be  defined,  using  the  assembler  words  defined  in the
+Assembler section.
      In essence, the compilation of the sequence of words  between
 { defer< }  and  { >defer }  is  *deferred* until the word that is
 being defined is executed, at which point those words are compiled
-into  whatever  new  word  is  then being defined.  Obviously, all
-words with { defer< ... >defer } sequences  in  them  have  to  be
-compile time words.
+into  whatever  new  word  is  then being defined.  { defer< } and
+{ >defer } are compile time words,  but  a  word  that  uses  them
+doesn't  have  to be one:  { 4byte } is an ordinary word, executed
+outside colon definitions to create new words.   Only  if  such  a
+word  is  to  be  used inside a colon definition, copying its code
+into the word being compiled, must it be made a compile time  word
+with { compiletime }, like this:
+
+     : five. defer< 5 . >defer ; compiletime
+     : x five. 7 . ;
+
+Executing { x } prints 5 and 7.
 
 2.9  Block I/O Words
 
@@ -1516,7 +1560,7 @@ Terminate  a  { repeat  ...   if  ...   again }  loop.   { again }
 unconditionally branches back to the { repeat }.
 
 
-b                                                          ( -- )
+b^                                                          ( -- )
 
 Convert next token to number and enclose low byte in dictionary.
 
@@ -1569,7 +1613,7 @@ and  the  { else }  (or { endif } if no else is used) are skipped.
 See also { else } and { endif }.
 
 
-l                                                          ( -- )
+l^                                                          ( -- )
 
 Convert next token to a number and enclose it in dictionary.
 
@@ -1606,11 +1650,11 @@ Start { repeat ...  until } and  { repeat  ...   if  ...   again }
 loops.
 
 
-w                                                          ( -- )
+w^                                                          ( -- )
 
 Convert the next token to a number and  enclose  low  16  bits  (a
 short  integer)  in the dictionary.  This word is used mainly with
-the assembler, which is why it is { w } instead of { s }.
+the assembler, which is why it is { w^ } instead of { s^ }.
 
 
 until                                                     ( f -- )

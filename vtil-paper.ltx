@@ -637,8 +637,18 @@ initialized.
 In essence, the compilation of the sequence of words between
 \word{defer<} and \word{>defer} is {\em deferred} until the word that
 is being defined is executed, at which point those words are compiled
-into whatever word is then being defined.  Obviously all words with
-\word{defer< ... >defer} in them have to be compile time words.
+into whatever word is then being defined.  \word{defer<} and
+\word{>defer} are compile-time words, but a word that uses them does
+not have to be one: \word{4byte} is an ordinary word, executed outside
+colon definitions to create new words.  Only if such a word is to be
+used inside a colon definition, copying its code into the word being
+compiled, must it be made a compile-time word with
+\word{compiletime}, like this:
+\begin{verbatim}
+: five. defer< 5 . >defer ; compiletime
+: x five. 7 . ;
+\end{verbatim}
+Executing \word{x} prints 5 and 7.
 
 \subsection{Block Input/Output}
 
