@@ -1,0 +1,14 @@
+pad read
+typed line
+pad bcount write cr     \ typed line
+.( what? ) pad read
+answer
+pad bcount write cr     \ answer
+40 string s1
+s1 40 readstr
+read into string
+s1 message cr           \ read into string
+.( prompt: ) s1 40 readstr
+second
+s1 message cr           \ second
+.st

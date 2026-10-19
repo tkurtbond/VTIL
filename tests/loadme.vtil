@@ -1,0 +1,4 @@
+\ a file for { load }
+: loaded1 111 . ;
+: loaded2 222 . ;
+loaded1

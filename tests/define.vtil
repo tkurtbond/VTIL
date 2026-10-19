@@ -1,0 +1,20 @@
+: three 1 2 + ;
+three .   \ 3
+: sq dup * ;
+5 sq .    \ 25
+42 long l1
+l1 @ .    \ 42
+99 l1 ! l1 ? \ 99
+5 l1 +! l1 ? \ 104
+7 byte b1  b1 b@ .  \ 7
+200 b1 b!  b1 b@ . b1 bs@ . \ 200 -56
+1000 short s1 s1 s@ . -2 s1 s! s1 s@ . s1 ss@ . \ 1000 65534 -2
+123 longconst k1 k1 . \ 123
+10 array a1  a1 10 ascii z fill  a1 b@ .  \ 122
+a1 10 blank a1 b@ . \ 32
+variable v1 11 , 22 , 33 b, 44 s,
+v1 @ . v1 4 + @ . v1 8 + b@ . v1 9 + s@ .   \ 11 22 33 44
+eodp v1 11 + - .  \ 0
+: u1 ascii q ; u1 . \ check what ascii in a def does
+: u2 [ascii] q ; u2 . \ 113
+.st

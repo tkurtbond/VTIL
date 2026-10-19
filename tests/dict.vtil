@@ -1,0 +1,22 @@
+: w1 1 . ;
+: w2 2 . ;
+w1 w2
+forget w2
+w1
+w2
+: w3 3 . ;
+eodp
+forget/erase w3
+eodp - .
+w3
+freemem
+vocabulary voc1
+voc1 definitions
+: inv 77 . ;
+inv
+kernel
+inv
+voc1 inv
+kernel definitions
+context @ current @ = .
+.st

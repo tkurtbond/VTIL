@@ -1,0 +1,13 @@
+#!/bin/sh
+# Runs VTIL scripts on the VAX (tools/vtil-run.exp), each one's session
+# written, without carriage returns, to <script>.out beside it, and
+# printed.
+#
+#   tools/vtil-test <script.vtil>...
+here=$(cd "$(dirname "$0")" && pwd)
+for s; do
+  out=${s%.vtil}.out
+  expect -f "$here/vtil-run.exp" "$s" ${VTIL_IMAGE:-} | tr -d '\r' >"$out"
+  echo "=== $s"
+  cat "$out"
+done

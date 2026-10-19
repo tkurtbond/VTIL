@@ -1,0 +1,5 @@
+: lp repeat 1 if again ;
+lp
+
+.( after ctrl-c) cr
+7 .

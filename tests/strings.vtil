@@ -1,0 +1,18 @@
+20 string s1
+20 string" s2 hello"
+s2 message cr                \ hello
+s1 strmax . s1 count . drop  \ 20 0
+s2 s1 strcpy s1 message cr   \ hello
+s2 s1 strcat s1 message cr   \ hellohello
+s1 s2 strcmp . s2 s1 strcmp . s2 s2 strcmp .  \ 1 -1 0
+3 string" s3 abcdef"
+s3 message cr s3 count . drop \ abc 3
+s2 count s1 count strpos . . s1 2 + - .  \ -1 5 0
+s1 count s2 count strpos .   \ 0
+s1 count s2 count match . s1 2 + - .  \ -1 0  (finds s2 in s1)
+s2 count s1 count match .   \ 0  (s1 is not in s2)
+s2 2 + s1 2 + 5 =text . s2 2 + s3 2 + 3 =text .  \ -1 0
+pad eodp - .     \ 256
+s2 count pad 10 ascii * move&fill pad 10 write cr  \ hello*****
+.st
+s2 2 + pad 5 move pad 5 write cr  \ hello

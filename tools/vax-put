@@ -1,0 +1,15 @@
+#!/bin/sh
+# Copies files to the vtil account's home directory on the VAX by FTP,
+# in active and ASCII mode (so VMS stores them as variable-length
+# records), each as its own file name.  The login and password come
+# from ~/.netrc-vtil-vax (or $VAX_NETRC), never the command line.
+#
+#   tools/vax-put <file>...
+host=${VAX_HOST:-192.168.2.20}
+netrc=${VAX_NETRC:-$HOME/.netrc-vtil-vax}
+status=0
+for f; do
+  curl -s -S --netrc-file "$netrc" -P - --use-ascii -T "$f" \
+    "ftp://$host/$(basename "$f" | tr a-z A-Z)" || status=1
+done
+exit $status

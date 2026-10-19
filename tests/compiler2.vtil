@@ -1,0 +1,12 @@
+: tn 32 token number ;
+tn 123 . .      \ -1 123
+tn 12x .        \ 0
+hex tn ff . . decimal  \ -1 255
+: ts 32 token context @ search ;
+ts dup . drop   \ -1 (address underneath)
+ts nosuchword . \ 0
+ts dup drop cfa swap - .  \ 8 = 4 link + 1 count + 3 "dup"
+: tq 32 token ?number ;
+tq 42 . .       \ -1 42
+: bb [ 1 ] b^ 65 ;
+.st

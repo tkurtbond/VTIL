@@ -1,0 +1,58 @@
+# Runs VTIL on the VAX interactively and feeds it a script, printing the
+# whole session.
+#
+#   expect -f tools/vtil-run.exp <script> [<image>]
+#
+# Logs in (tools/vax-login.tcl), runs <image> (default VTIL), and sends
+# each line of <script>, waiting after each for VTIL's prompt "VTIL> ".
+# A line that VTIL reads itself, with { read } or { readstr }, gets no
+# prompt, so after VTIL_LINE_TIMEOUT seconds (default 5) the next line
+# is sent anyway.  At the end it sends ^Z, which VTIL takes as EOF and
+# exits.  If VTIL leaves early (it exits or crashes), the rest of the
+# script is skipped.
+set host 192.168.2.20
+if {[info exists ::env(VAX_HOST)]} { set host $::env(VAX_HOST) }
+set script [lindex $argv 0]
+set image VTIL
+if {[llength $argv] > 1} { set image [lindex $argv 1] }
+set line_timeout 5
+if {[info exists ::env(VTIL_LINE_TIMEOUT)]} { set line_timeout $::env(VTIL_LINE_TIMEOUT) }
+encoding system iso8859-1
+source [file join [file dirname [info script]] vax-login.tcl]
+set f [open $script r]
+set lines [split [string trimright [read $f] "\n"] "\n"]
+close $f
+vax_login $host
+set dcl $prompt
+set vtil {VTIL> $}
+log_user 1
+send "RUN $image\r"
+set timeout 30
+set running 1
+expect {
+  -re $vtil {}
+  -re $dcl { set running 0 }
+  timeout { puts "\n*** vtil-run: no VTIL prompt" ; set running 0 }
+}
+set timeout $line_timeout
+foreach line $lines {
+  if {!$running} break
+  send -- "$line\r"
+  expect {
+    -re $vtil {}
+    -re $dcl { set running 0 }
+    timeout {}
+    eof { set running 0 }
+  }
+}
+if {$running} {
+  set timeout 10
+  send "\032"
+  expect {
+    -re $dcl {}
+    timeout { puts "\n*** vtil-run: VTIL did not exit on ^Z" }
+    eof {}
+  }
+}
+log_user 0
+catch {send "LOGOUT\r"; expect eof}

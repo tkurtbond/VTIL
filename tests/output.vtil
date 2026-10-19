@@ -1,0 +1,13 @@
+.( hello world) cr
+65 putc 66 putc cr
+space 3 spaces ascii x putc cr
+-123 . 0 . cr
+hex 1234abcd . decimal cr
+1234 <# #s #> write cr
+-56 dup abs <# #s swap sign #> write cr
+5 <# # # # #> write cr
+?cr .( after ?cr) ?cr .( next) cr
+70 ?n-cr .( after ?n-cr) cr
+36 tochar putc 9 tochar putc 10 tochar putc cr
+hld @ 0 = .
+.st

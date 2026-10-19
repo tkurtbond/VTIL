@@ -1,0 +1,10 @@
+drop
+.st
+: bad foo ;
+.st
+bad
+1 2 3 restart
+.st
+abort
+.st
+2147483648 .

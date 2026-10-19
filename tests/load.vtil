@@ -1,0 +1,8 @@
+load loadme.vtil
+loaded2
+load nosuchfile.vtil
+.st
+load loadbad.vtil
+okword
+oops
+.st

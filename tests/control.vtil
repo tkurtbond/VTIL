@@ -1,0 +1,28 @@
+: t1 if 1 . else 2 . endif ;
+1 t1 0 t1   \ 1 2
+: t2 if 3 . endif 4 . ;
+1 t2 0 t2   \ 3 4 4
+: t3 5 0 do i> . loop ;
+t3          \ 0 1 2 3 4
+: t4 10 0 do i> . 3 +loop ;
+t4          \ 0 3 6 9
+: t5 0 5 do i> . downloop ;
+t5          \ 5 4 3 2 1 0
+: t6 0 10 do i> . -3 +loop ;
+t6          \ 10 7 4 1
+: t7 0 repeat dup . 1+ dup 3 = until drop ;
+t7          \ 0 1 2
+: t8 0 repeat dup 3 < if dup . 1+ again drop ;
+t8          \ 0 1 2
+: t9 0 dup 3 < while dup . 1+ dup 3 < endwhile drop ;
+t9          \ 0 1 2
+: t10 10 0 do i> dup . 4 = if leave endif loop ;
+t10         \ 0 1 2 3 4
+: t11 ." hello there" cr ;
+t11
+: fact dup 1 > if dup 1- recurse * endif ;
+5 fact .    \ 120
+: t12 [ 2 3 + ] literal . ;
+t12         \ 5
+: t13 l^ 7 ;
+.st

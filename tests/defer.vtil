@@ -1,0 +1,8 @@
+5 ac: rsb,
+: mkc create defer< 5 . rsb, >defer ;
+mkc foo
+foo        \ 5
+: mk4 create defer< 6 . rsb, >defer , ;
+99 mk4 bar
+bar        \ 6
+.st

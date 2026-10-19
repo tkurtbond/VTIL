@@ -1,0 +1,14 @@
+: three 3 ; three .            \ 3
+: three three 1+ ; three .     \ 4
+: ct 9 . ; compiletime
+: usect ct ;                   \ prints 9 while compiling
+usect                          \ (nothing)
+ct                             \ unknown in execute mode
+: bb [ 1 ] b^ 65 ;
+: viaj [ ascii A ] literal putc ; viaj cr  \ A
+.st
+(bl) . hld . sp0 sp@ - .
+1 2 3 .sb drop drop drop
+: badone 1 2 nosuch ;
+.st
+three .

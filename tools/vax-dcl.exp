@@ -1,0 +1,26 @@
+# Runs DCL commands on the VAX by telnet and prints what they write.
+#
+#   expect -f tools/vax-dcl.exp <command>...
+#
+# Each argument is one DCL command, run in the vtil account's home
+# directory.  VAX_HOST names the guest (default 192.168.2.20) and
+# VAX_TIMEOUT how long one command may take (default 600 seconds).
+set host 192.168.2.20
+if {[info exists ::env(VAX_HOST)]} { set host $::env(VAX_HOST) }
+set timeout 600
+if {[info exists ::env(VAX_TIMEOUT)]} { set timeout $::env(VAX_TIMEOUT) }
+encoding system iso8859-1
+source [file join [file dirname [info script]] vax-login.tcl]
+vax_login $host
+log_user 1
+foreach command $argv {
+  send "$command\r"
+  expect {
+    -re $prompt {}
+    timeout { fail "no prompt after: $command" }
+    eof { fail "the session ended during: $command" }
+  }
+}
+log_user 0
+send "LOGOUT\r"
+expect eof

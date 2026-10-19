@@ -1,0 +1,23 @@
+block-open
+10 block b@ .   \ 10
+11 block b@ .   \ 11
+10 block 99 swap b!  update
+10 block b@ .   \ 99
+12 block b@ .   \ 12
+13 block b@ .   \ 13 (reuses an unmodified buffer)
+14 block b@ .   \ 14
+10 block b@ .   \ 99 (still in memory or written back)
+save-buffers
+empty-buffers
+10 block b@ .   \ 99 (re-read from file)
+20 buffer 77 swap b! update flush-buffers
+empty-buffers
+20 block b@ .   \ 77
+10 block 10 swap b! update
+20 block 20 swap b! update
+save-buffers
+block-close
+block-open
+10 block b@ . 20 block b@ .  \ 10 20
+block-close
+.st

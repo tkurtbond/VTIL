@@ -1,0 +1,3 @@
+: okword 5 . ;
+: oops nosuchword ;
+okword
