@@ -26,7 +26,7 @@
 .HL 1 INTRODUCTION
 VTIL is a VAX/VMS implementation of a stack based threaded
 interpretive language, using subroutine threading.  What is a threaded
-interpretive language (hereafter called a TIL}? The main ideas behind
+interpretive language (hereafter called a TIL)? The main ideas behind
 a threaded interpretive language are reasonable efficiency,
 extensibility, and flexibility: unlike a conventional language such as
 Pascal where the language is fixed and cannot be changed or added to,
@@ -67,7 +67,7 @@ string constants.  Since VTIL is case sensitive, you must type its
 commands in the same case as they are given in this manual.  To enter
 a number into VTIL's data stack (stacks will be discussed more later)
 just type the number, which can have a leading minus sign.  VTIL
-currently works only with integers.  VTIL will not execute the or
+currently works only with integers.  VTIL will not execute the word or
 enter the number into the stack until you hit <return>.  You can place
 as many words or numbers on a line as you wish.
 .P 
@@ -76,7 +76,7 @@ terminal and the line it was in is also echoed, like this:
 .BL
 .LM +5 
 .LT
- Unknown token { xxxx_I'm_unknown } In line: 1 2 3
+ Unknown Token: { xxxx_I'm_unknown } In line:
 xxxx_I'm_unknown xyz 1 3 + .  
 .EL 
 .LM -5 
@@ -113,7 +113,7 @@ subtraction, multiplication, division, and modulus are supplied and
 have the expected mathematical symbol as their name (except for
 modulus, which is {#mod#}).  Another arithmetic word is {#/mod#} which
 takes two stack items and leaves the quotient and remainder of those
-two words on the stack, the remainder on top.  Here are some example
+two items on the stack, the remainder on top.  Here are some example
 calculations in postfix followed by a backslash and their infix
 translations.  Note that in postfix parentheses are never needed.
 .BL 
@@ -154,7 +154,7 @@ as they would be entered by hand at the keyboard, so "n2" is the top
 of the stack before the word is executed and "n4" is the top of the
 stack after the word is executed.
 .HL 3 Stack Manipulation Words 
-Because VTIL users
+Because VTIL uses
 the stack to store so much information, it has many words for
 rearranging the contents of the stack.  For instance, since most words
 consume their arguments, you often need to duplicate a value so you
@@ -185,9 +185,9 @@ swap######( n1 n2 -- n2 n1 )  Swap the top two items on the stack.
 Of course, you can define new stack manipulation words with these and
 other VTIL words if you need them (we will discuss defining new words
 later).  One for you to consider writing is {#under#} which is sort of
-the reverse of {#over#}.  Its stack comment is {#(#n1#n2#--n2#n1#n2}.
+the reverse of {#over#}.  Its stack comment is {#(#n1#n2#--#n2#n1#n2#)#}.
 .HL 2 Defining New Words
-Now that you have learned how to execute words, you need to know old
+Now that you have learned how to execute words, you need to know how to use old
 words to make new words, which can themselves be combined with other
 words to make new words.  The idea of starting with a small set of
 basic capabilities and building the capabilities that you need, and
@@ -201,7 +201,7 @@ and colon definitions.  Names of words can contain any characters
 except a blank; however it is not a good idea to use any non-printing
 character, such as a tab or other control character (indeed, in a
 later version of VTIL such names may become illegal altogether).  This
-flexibility allows you to choose extremely meaning names, such as
+flexibility allows you to choose extremely meaningful names, such as
 {#all-here?#}, but it also allows you to choose extremely unmeaning
 names as well, such as {#-_&_^*!_##}.  If you choose your names well you
 often end up with very English-like source code.
@@ -210,12 +210,12 @@ The form of a constant definition is {#<n>#longconst#<name>#}, which
 creates a word <name> that pushes <n> on the stack whenever it is
 executed. 
 .HL 3 Variables
-The form of a variable definition is {#<n>#long#<name}#}, which
+The form of a variable definition is {#<n>#long#<name>#}, which
 creates a word <name> that pushes the address of a long variable to
 the stack whenever it is executed.  The variable is initialized to
 <n>.  The word {#@#} (pronounced fetch) is executed to obtain the
 value of the variable.  {#@#} fetches a long value from memory at the
-address on top of the stack.  Its stack comment is {#(a#--#n#}.  To
+address on top of the stack.  Its stack comment is {#(#a#--#n#)#}.  To
 store a value in a variable the word {#!#}, pronounced store, is used.
 {#!#}'s stack comment is {#(#n#a#--#}, where <n> is the value to store
 and <a> is the address to store it at.  An example of the use of
@@ -243,20 +243,20 @@ receive their initial data already on the data stack.  However, VTIL
 is flexible, so in those cases that you must work with a variable,
 incrementing a counter or some such, there are other, more convenient
 ways to deal directly with the value of a variable.  For instance, the
-sequence {#3#x#+!} adds three to the value of x, and words like
+sequence {#3#x#+!#} adds three to the value of x, and words like
 {#1+!#}, which adds one to the value of any variable, are easy to
 write if they are needed.
 .P
 There are also words {#byte#} and {#short#} that define byte and short
 integer variables.  To access byte variables you use {#b@#} and
-{#b!#}, and to access short variables you use {#s@} and {#s!#}.  The
+{#b!#}, and to access short variables you use {#s@#} and {#s!#}.  The
 data stack is a long wide, but byte and short variables are
 automatically extended to the correct size when they are placed on
 the stack by "zero extending" them.  That is, bytes and shorts are
 considered to be unsigned numbers when they are placed on the stack,
 and are always positive.  If you need to work with them as signed
 numbers, the words {#bs@#} and {#ss@#} fetch them and extend them to
-the correct size by "sign extending" them, considering them to the
+the correct size by "sign extending" them, considering them to be
 signed numbers instead.
 .HL 3 Colon Definitions
 Colon definitions are collections of words that execute one after
@@ -282,7 +282,7 @@ with the language.
 .EL
 .LM -5
 .HL 4  Why VTIL Words Should be *SHORT*
-VTIL words are almost always very short 5 to 10 lines is about right
+VTIL words are almost always very short: 5 to 10 lines is about right
 (if you use the horizontal coding style of Forth, which packs as many
 words on a line as possible, 3 to 5 lines is about right).  Why are
 VTIL words so short?  There are many good reasons.  Short words are
@@ -301,7 +301,7 @@ called the compiler vocabulary which is only searched when VTIL is in
 compile mode.  These words are called "compiletime" words because
 instead of being compiled into the dictionary when VTIL is in compile
 mode, they are executed.  That is, they are executed while the word is
-being compiled, at "compiletime"  All other words are executed at
+being compiled, at "compiletime."  All other words are executed at
 "runtime," when the word is executed.
 .P
 Why do we need compiletime words?  Well, all the loop control words,
@@ -363,9 +363,9 @@ occurred in will also be written to the terminal.
 To make it easier to make changes to your source code, a word that
 invokes the EVE editor has been included, so you can edit your
 program without leaving VTIL.  The form of this command is
-{#eve#<filename#}, where <filename> is the name of the file that you
+{#eve#<filename>#}, where <filename> is the name of the file that you
 want to edit.  Normal qualifiers for the EVE command can also be
-included after the <filename>, but now spaces are allowed in the
+included after the <filename>, but no spaces are allowed in the
 command line.
 .HL 2 Strings
 .HL 3 String Formats
@@ -386,8 +386,8 @@ Maxlen-short-counted Strings.
 Vocabularies are subsections of the dictionary.  They allow you to
 have different contexts, so that {#x#} in one vocabulary does one
 thing, but when you are in another vocabulary you can have another
-{#x#} that does something else.  The when you switch back to the first
-vocabulary the first vocabulary the first definition of {#x#} applies.
+{#x#} that does something else.  Then when you switch back to the first
+vocabulary the first definition of {#x#} applies.
 The word {#vocabulary#} used in the form {#vocabulary#<name>#} creates
 a new vocabulary with the name <name>, which is invoked by a word
 called <name>.  When the word <name> is executed it sets the
@@ -401,9 +401,9 @@ kernel vocabulary words even when you are in another vocabulary.  The
 sequence {#<name>#definitions#} changes the {#current#} vocabulary
 (the vocabulary new words are linked to when they are defined) so that
 all new definitions are compiled into vocabulary <name> instead of the
-previous {#current#} vocabulary.  You can switch {#context#} back to
+previous {#current#} vocabulary.  You can switch {#current#} back to
 the kernel vocabulary by saying {#kernel#definitions#} (which also sets
-{#context#} to the kernel vocabulary.
+{#context#} to the kernel vocabulary).
 .HL 2 Numeric Output Conversion
 .HL 2 Assembler
 VTIL includes its own assembler, and allows you to use assembly
@@ -445,7 +445,7 @@ Here is an example:
    >defer
    \ save space for variable 4 bytes long
    \ and initialize it to <n>
-   MOVL (ds)+ (edp) +
+   MOVL (ds)+ (edp)+
 ;
 .EL
 .LM -5
@@ -457,7 +457,7 @@ In essence, the compilation of the sequence of words between
 {#defer<#} and {#>defer#} is *deferred* until the word that is being
 defined is executed, at which point those words are compiled into
 whatever new word is then being defined.  Obviously, all words with
-{#defer<#...#>defer} sequences in them have to be compile time words.
+{#defer<#...#>defer#} sequences in them have to be compile time words.
 .HL 2 Block I/O Words
 .HL 1 REFERENCE MANUAL
 This part of the manual is intended for reference.  It contains a
@@ -500,7 +500,7 @@ create such string variables.
 that items to the left of the "?" (further down on the stack) may or
 may not be present, depending on the values of items to the right of
 the "?" (which are on top of the stack).  For instance, a stack
-comment of (#a#--#a#>#f#} indicates that the word leaves a flag on the
+comment of {#(#a#--#a#?#f#)#} indicates that the word leaves a flag on the
 top of the stack, and depending on the value of the flag will also
 leave an address on the stack.
 .INDENT -5
@@ -530,8 +530,8 @@ the stack pointer can only be manipulated in 4 byte increments or
 decrements.
 .HL 2 Format of Entries
 Each entry starts with a line containing the name of the word on the
-left side and the stack effect comment for the word on the other side,
-separated by two blank lines.  Following a blank line is the
+left side and the stack effect comment for the word on the right side.
+Entries are separated by two blank lines.  Following a blank line is the
 explanation of the word.
 .IFNOT NOPAGING
 .PAGE
@@ -550,8 +550,9 @@ _#                                                     ( n1 -- n2 )
 .SKIP 1
 Generate from number "n1" the next digit, starting from the right,
 place it in an output string and return quotient of "n1" divided 
-by the system radix.  Used between {#<_##}.  VTIL
-code for this would look like {#/radix @ /mod tochar hold#}.
+by the system radix.  "n1" is treated as an unsigned number.  Used
+between {#<_##} and {#_#>#}.  VTIL code for this would look like
+{#radix @ /mod tochar hold#}, except that {#/mod#} is signed.
 .SKIP 2
 .NF
 _#>                                                  ( n1 -- a n2 )
@@ -576,7 +577,7 @@ VTIL code for this would be
 : #s
    repeat
       #            \ output last digit
-      dup 0 - =    \ if number is equal to 0, then stop.
+      dup 0 =      \ if number is equal to 0, then stop.
    until           \ else, do it again
 ;
 .EL
@@ -598,10 +599,10 @@ _(and)                                              ( n1 n2 -- n3 )
 Leave bitwise and of "n1" and "n2" on the stack.
 .SKIP 2
 .NF
-_(not)                                              ( n1 n2 -- n3 )
+_(not)                                                 ( n1 -- n2 )
 .FILL
 .SKIP 1
-Leave the bitwise not of "n1" and "n2" on the stack.
+Leave the bitwise not of "n1" on the stack.
 .SKIP 2
 .NF
 _(or)                                               ( n1 n2 -- n3 )
@@ -695,21 +696,20 @@ item printed is the bottom of the stack.  ("print stack from top")
 _/                                                  ( n1 n2 -- n3 )
 .FILL
 .SKIP 1
-Divides "n1" by "n2" and leave the result on the stack.
+Divides "n1" by "n2" and leaves the result on the stack.
 .SKIP 2
 .NF
 _/mod                                            ( n1 n2 -- n3 n4 )
 .FILL
 .SKIP 1
 Divides "n1" by "n2" and leaves (#quotient remainder#) on the stack
-(n3 = n1 / n2, n4 = n1 - n3).  The remainder of has the same 
+(n3 = n1 / n2, n4 = n1 - (n3 * n2)).  The remainder has the same 
 sign as the dividend.
 .SKIP 2
 .NF
-_                                                            ( 1+ )
+_1+                                                    ( n -- n+1 )
 .FILL
 .SKIP 1
-n -- n+1
 Add one to the top of the stack.
 .SKIP 2
 .NF
@@ -749,7 +749,8 @@ Start numeric output conversion.  Other numeric output words are
 _<=                                                  ( n1 n2 -- f )
 .FILL
 .SKIP 1
-Leaves a true if "n1" is less than "n2", leaves false otherwise.
+Leaves a true if "n1" is less than or equal to "n2", leaves false
+otherwise.
 .SKIP 2
 .NF
 _=                                                   ( n1 n2 -- f )
@@ -771,9 +772,11 @@ _>                                                   ( n1 n2 -- f )
 Leaves true if "n1" is greater than "n2", leaves false otherwise.
 .SKIP 2
 .NF
-_>= ( Leaves true if "n1" is greater than "n2", leaves false otherwise. )
+_>=                                                  ( n1 n2 -- f )
 .FILL
 .SKIP 1
+Leaves true if "n1" is greater than or equal to "n2", leaves false
+otherwise.
 .SKIP 2
 .NF
 _?                                                         ( a -- )
@@ -796,14 +799,14 @@ Duplicate top of stack only if it is true (non-zero).  This word
 is used so one doesn't always have to drop a 0 in else.
 .SKIP 2
 .NF
-_?n-cr                                                    ( n --  )
+_?n-cr                                                     ( n -- )
 .FILL
 .SKIP 1
 Starts new line at the terminal if less than "n" characters are
 left on the current line.
 .SKIP 2
 .NF
-_?number                                                ( -- n ? f )
+_?number                                               ( -- n ? f )
 .FILL
 .SKIP 1
 Try to convert the token at {#eodp#} to a number.  If compiling,
@@ -812,7 +815,7 @@ it on the stack.  If not a number, leave false on stack, if a number
 leave a true on the stack.
 .SKIP 2
 .NF
-_search                                                ( -- a ? f )
+_?search                                               ( -- a ? f )
 .FILL
 .SKIP 1
 Search the {#context#} vocabulary for most recent token, return false
@@ -888,11 +891,11 @@ _b@                                                      ( a -- b )
 Fetch the value of the byte at address "a" and leave it on the stack.
 .SKIP 2
 .NF
-_bcount                                               ( a -- a -n )
+_bcount                                                ( a -- a n )
 .FILL
 .SKIP 1
 Given the address of a byte-counted string, leave the address of the
-first character of the stack and the number of characters in the
+first character of the string and the number of characters in the
 string on the stack.  A byte-counted string has its length in its 
 first byte and its text in the following bytes.
 .SKIP 2
@@ -946,7 +949,7 @@ Read block "l" into the block buffer at address "a".
 _block-write                                             ( l a -- )
 .FILL
 .SKIP 1
-Write block l from block buffer at address "a".
+Write block "l" from the block buffer at address "a".
 .SKIP 2
 .NF
 _break                                                       ( -- )
@@ -1014,7 +1017,7 @@ _compile-jsb                                               ( a -- )
 .FILL
 .SKIP 1
 Compile a jump to subroutine to location "a" into the dictionary and
-advance the dictionary over the code.
+advance the dictionary pointer over the code.
 .SKIP 2
 .NF
 _compiletime                                                 ( -- )
@@ -1052,8 +1055,11 @@ Start new output line at the terminal (carriage return).
 _create                                                      ( -- )
 .FILL
 .SKIP 1
-Enclose next space delimited token from the input stream in the dictionary.
-.!~~~ Is that an accurate description???  NO, it is not.
+Make a dictionary header for the next space delimited token in the input
+stream: link it into the {#current#} vocabulary and enclose its name,
+truncated to 80 characters if it is longer.  The end of dictionary
+pointer is left at the code field of the new word.
+.!~~~ Rewritten 2026-10-19 to say what create actually does.
 .SKIP 2
 .NF
 _current                                                   ( -- a )
@@ -1073,8 +1079,8 @@ _definitions                                                 ( -- )
 .FILL
 .SKIP 1
 Sets {#current#} to {#context#}.  {#<name> definitions#} makes all new
-words link into vocabulary <name> (i.e, new words will be linked to
-the dictionary currently being searched.
+words link into vocabulary <name> (i.e., new words will be linked to
+the vocabulary currently being searched).
 .SKIP 2
 .NF
 _drop                                                      ( n -- )
@@ -1151,7 +1157,7 @@ unmodified.
 _forget                                                      ( -- )
 .FILL
 .SKIP 1
-Used in the form {#forget<name>#}.  Resets context vocabulary back to
+Used in the form {#forget#<name>#}.  Resets context vocabulary back to
 word before word forgotten.  Note that while this makes the forgotten
 word and any words defined after it unavailable, it does not
 reclaim any space, since the other vocabularies can be threaded through 
@@ -1170,7 +1176,8 @@ truncated BEFORE the word forgotten.
 _halt                                                      ( l -- )
 .FILL
 .SKIP 1
-Halt VTIL, use "l" as returned value.  Never returns.
+Signal the VMS condition value "l".  VTIL's condition handler reports
+it and returns to the "VTIL>" prompt.
 .SKIP 2
 .NF
 _hex                                                         ( -- )
@@ -1224,7 +1231,7 @@ _long                                                      ( n -- )
 .FILL
 .SKIP 1
 Used in the form {#<n> long <name>#}, it creates a long variable
-called <name? and initializes it to <n>.  When the word <name> is
+called <name> and initializes it to <n>.  When the word <name> is
 executed the address of the variable is pushed onto the stack.  A long
 integer is a VAX "longword", 4 bytes.
 .SKIP 2
@@ -1242,11 +1249,11 @@ _ls>ds                                                     ( -- n )
 Move "n" from loop stack to the data stack.
 .SKIP 2
 .NF
-_match                                    ( a2 n1 a2 n2 -- a3 ? f )
+_match                                    ( a1 n1 a2 n2 -- a3 ? f )
 .FILL
 .SKIP 1
 Search for string of length "n2" at "a2" in string of length "n1" at
-"a2".  If successful, leave (#address true#) on the stack, otherwise
+"a1".  If successful, leave (#address true#) on the stack, otherwise
 leave false.
 .SKIP 2
 .NF
@@ -1289,7 +1296,7 @@ filled with character "c".  If "s2" < "s1", only "s2" bytes are moved
 from "a1" (truncate).
 .SKIP 2
 .NF
-_negate                                                  ( n -- -n )
+_negate                                                 ( n -- -n )
 .FILL
 .SKIP 1
 Leave two's complement of top stack item on stack.
@@ -1321,7 +1328,7 @@ _or                                                  ( f1 f2 -- f )
 Leave the logical or of "f1" and "f2" on the stack.
 .SKIP 2
 .NF
-_over                                         ( n1 n2 -- n2 n2 n1 )
+_over                                         ( n1 n2 -- n1 n2 n1 )
 .FILL
 .SKIP 1
 Leave a copy of the second stack item ("n1") on the top of the stack.
@@ -1347,7 +1354,7 @@ _radix                                                     ( -- a )
 .FILL
 .SKIP 1
 Leave the address of system radix long on the stack.  This longword
-contains the current and output radix (number base).  Changing this
+contains the current input and output radix (number base).  Changing this
 variable will cause numeric input and output to be made in another
 base.
 .SKIP 2
@@ -1397,7 +1404,7 @@ unsigned long on the stack.
 _ss@                                                     ( a -- n )
 .FILL
 .SKIP 1
-Fetch a short from address 'a' and sign extend it to a long.  That is,
+Fetch a short from address "a" and sign extend it to a long.  That is,
 consider the short to be a signed number and extend it to a signed
 long on the stack.
 .SKIP 2
@@ -1411,7 +1418,7 @@ Write all modified buffers and mark them unmodified.
 _search                                            ( a1 -- a2 ? f )
 .FILL
 .SKIP 1
-Search vocabulary at "a" for a match with byte-counted string at
+Search vocabulary at "a1" for a match with byte-counted string at
 {#eodp#}.  Return (#false#) if a match is not found, or (#address
 true#) if a match is found.
 .SKIP 2
@@ -1420,7 +1427,7 @@ _short                                                     ( n -- )
 .FILL
 .SKIP 1
 Used in the form {#<n> short <name>#}, it creates  a short
-variable called <name? and initializes it to <n>.  When the word
+variable called <name> and initializes it to <n>.  When the word
 <name> is executed the address of the variable is pushed onto the stack.  A short integer is a VAX "word", two bytes.
 .SKIP 2
 .NF
@@ -1467,7 +1474,7 @@ from file; otherwise read from terminal.  Used by the text
 interpreter.
 .SKIP 2
 .NF
-_strcat                                                ( a2 a2 -- )
+_strcat                                                ( a1 a2 -- )
 .FILL
 .SKIP 1
 Concatenate string at "a1" to string at "a2".  Works only with strings
@@ -1476,34 +1483,35 @@ the string at "a2", and only {#string#} and {#string"#} create those
 maxlen fields.
 .SKIP 2
 .NF
-_strcmp                                              ( a2 a2 -- n )
+_strcmp                                              ( a1 a2 -- n )
 .FILL
 .SKIP 1
 Compare word-counted strings, return 0 if string at "a1" = string
-at "a2", return >0 if string at "a" > string at "2", or return
-<0 if string at "a" < string at "a2".
+at "a2", return >0 if string at "a1" > string at "a2", or return
+<0 if string at "a1" < string at "a2".
 .SKIP 2
 .NF
-_strcpy                                                   ( a1 a2 )
+_strcpy                                                ( a1 a2 -- )
 .FILL
 .SKIP 1
-Copy word-counted string at "a2' to word-counted string at "a2".  Both
+Copy word-counted string at "a1" to word-counted string at "a2".  Both
 must be word-counted, and the string at "a2" must have a maxlen field
-(i.e., defined by {#string#} or {#string#"}.
+(i.e., defined by {#string#} or {#string"#}).
 .SKIP 2
 .NF
 _string                                                    ( n -- )
 .FILL
 .SKIP 1
 Create a string variable with maximum length of "n".  The first 2
-bytes of the string variable contains its length.  The 2 bytes
+bytes of the string variable contain its length.  The 2 bytes
 previous to the string contain its maximum length.
 .SKIP 2
 .NF
 _string"                                                   ( n -- )
 .FILL
 .SKIP 1
-Create a string variable with a maximum length of "n", and initialize
+Used in the form {#<n>#string"#<name>#<text>"#}, it creates a string
+variable called <name> with a maximum length of "n", and initializes
 it with the string from the input stream up until next `"'.  The first
 2 bytes of the string contain its length.  The 2 bytes previous to the
 string contain its maximum length.
@@ -1620,8 +1628,8 @@ _+loop                                                     ( n -- )
 .FILL
 .SKIP 1
 Where n is an increment. Ends {#do ... +loop#}.  Adds top of stack to
-loop index and branches to {#do} if ((index >= 0) and (index <
-limit)), or if ((index < 0) and (index > limit)).  In other words,
+loop index and branches to {#do#} if the increment is positive and
+(index <= limit), or if the increment is negative and (index >= limit).  In other words,
 {#+loop#} with a positive argument is like Pascal's {#for index :=
 start to finish do ...#} and with a negative argument it is like {#for
 index := start downto finish do#}.
@@ -1668,8 +1676,8 @@ _defer<                                                      ( -- )
 .SKIP 1
 Start a section of code that is to be copied to the dictionary
 whenever this word is executed (i.e., {#defer<#} starts code to be
-executed by all words defined by the word we are now compiling.  Used
-in defining words that are to define words.  See {#>defer}.
+executed by all words defined by the word we are now compiling).  Used
+in defining words that are to define words.  See {#>defer#}.
 .SKIP 2
 .NF
 _do                                                    ( n1 n2 -- )
@@ -1685,7 +1693,7 @@ _downloop                                                    ( -- )
 .FILL
 .SKIP 1
 Ends a {#do ... downloop#}.  Adds -1 to the loop index and branches to
-{#do#} if ((index < 0) and (index > limit)).
+{#do#} if (index >= limit).
 .!~~~ WTF!!!
 In other words, {#downloop#} is like Pascal's {#for index := start
 downto finish do ...#}.
@@ -1694,7 +1702,7 @@ downto finish do ...#}.
 _else                                                        ( -- )
 .FILL
 .SKIP 1
-In the control structure {#if ... else .. endif#} an {#else#} ends the
+In the control structure {#if ... else ... endif#} an {#else#} ends the
 true branch and starts the false branch.
 .!~~~ s/branch/part/???
 .SKIP 2
@@ -1712,7 +1720,7 @@ Used in the forms {#if ... endif#} and {#if ... else ... endif#}.
 Used only in colon definitions.  If the flag "f" is true the words
 following the {#if#} are executed and the words following the {#else#}
 are skipped.  The {#else#} part is optional.  If the flag "f" is
-false, the word between the {#if#} and the {#else#} (or {#endif#} if
+false, the words between the {#if#} and the {#else#} (or {#endif#} if
 no else is used) are skipped.  See also {#else#} and {#endif#}.
 .SKIP 2
 .NF
@@ -1722,7 +1730,7 @@ _l^                                                          ( -- )
 Convert next token to a number and enclose it in dictionary.
 .SKIP 2
 .NF
-_literal                                                     ( n -- )
+_literal                                                   ( n -- )
 .FILL
 .SKIP 1
 Convert top of stack to a literal in the current word.
@@ -1732,7 +1740,7 @@ _loop                                                        ( -- )
 .FILL
 .SKIP 1
 Ends a {#do#} loop.  Adds 1 to loop index and branches to {#do#} if
-((index >= 0) and (index < limit)).  In other words, {#loop#] is like
+(index <= limit).  In other words, {#loop#} is like
 Pascal's {#for index := start to finish do ...#}, except that a {#do ... loop#} always executes at least once.
 .SKIP 2
 .NF
@@ -1758,7 +1766,7 @@ commonly denoted n! for the factorial of n.
 _repeat                                                      ( -- )
 .FILL
 .SKIP 1
-Start {#repeat ... until#} and {#repeat ... if .. again#} loops.
+Start {#repeat ... until#} and {#repeat ... if ... again#} loops.
 .SKIP 2
 .NF
 _w^                                                          ( -- )
@@ -1827,7 +1835,7 @@ long######--#link to previous word in dictionary (header field
 address, HFA; link field address LFA)
 .INDENT -13
 byte######--#number of bytes in the name of the word, maximum 80 (name
-field address, nfa)
+field address, NFA)
 .INDENT -13
 byte(s)###--#characters of name
 .INDENT -13
