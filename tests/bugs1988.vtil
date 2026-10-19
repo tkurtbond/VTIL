@@ -1,0 +1,9 @@
+1 . -2147483648 . 2147483648 . cr     \ 1 -2147483648 -2147483648
+hex -1 <# #s #> write cr decimal       \ FFFFFFFF
+-56 dup abs <# #s swap sign #> write cr  \ -56
+: nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn 1 . ;
+nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn cr                     \ 1 (the name was truncated to 80)
+: mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm 2 . ;
+mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm cr                     \ 2
+.st
+1 2 3 . exit

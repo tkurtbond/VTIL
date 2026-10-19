@@ -574,11 +574,11 @@ _kernel_begin:
 ;	used between { <# } and { #> }.
 ;---
 	header	i_sharp,<#>
-	movl	v_radix,-(r11)	; put radix on stack
-	jsb	i_div_mod	; get next digit
+	movl	(r11),-(r11)	;~~~ make n1 an unsigned quadword: ( n1 n1 )
+	clrl	4(r11)		;~~~ ( n1 0 ), which is n1 zero-extended
+	ediv	v_radix,(r11),4(r11),(r11) ;~~~ ( n2 digit ), unsigned
 	jsb	tochar		; make it appropriate ascii char
-	jsb	hold		; put in output string
-	rsb			; end of #
+	brw	hold		; put in output string; end of #~~~ was jsb i_div_mod for the digit, which went wrong for -2147483648
 
 
 ;+++
@@ -1573,8 +1573,8 @@ _kernel_begin:
 	addl2	#4,r9			; move eodp over link field
 	movl	#c_blank,-(r11)		; set up to get blank separated token
 	jsb	token			; get token
-	cmpl	#c_max_name_len,(r9)	; is the name over the maximum length?
-	bneq	10$			; no, go on
+	cmpb	(r9),#c_max_name_len	; is the name over the maximum length?~~~ was cmpl #c_max_name_len,(r9)
+	blequ	10$			; no, go on~~~ was bneq, so long names were never truncated
 	movab	v_nametoolong,-(r11)	; address of error message on stack
 	jsb	bcount			; get ( addr count )
 	jsb	write			; write out message
@@ -1582,7 +1582,7 @@ _kernel_begin:
 	movzbl	(r9),-(r11)		; count of name
 	jsb	write			; write out untruncated name
 	jsb	cr			; start new line
-	movl	#c_max_name_len,(r9)	; truncate name
+	movb	#c_max_name_len,(r9)	; truncate name~~~ was movl
 	movab	v_nametrunc,-(r11)	; get address of error message on stack
 	jsb	bcount			; get ( addr count )
 	jsb	write			; write out message
@@ -3387,7 +3387,7 @@ vtil_exit:
 	.entry	s_trap,^m<>
 ; output some sort of error message
 	movl	chf$l_sigarglst(ap),r1
-	pushl	#1
+	subl2	#2,(r1)		;~~~ leave PC and PSL out of the message
 	pushl	chf$l_sig_name(r1)
 	$putmsg_s msgvec=(r1)
 ; somewhere we need to figure out how to message this as well
@@ -3587,8 +3587,8 @@ _unknowntoken:
 ; Exit Routines -- Routines to handle successful and nonsuccessful exits
 ;
 ;*******************************************************************************
-_error_exit:				; die messily
-	pushl	r0			; put error message number on rstack
+_error_exit:	pushl	r0		; die messily: put error number on rstack~~~ pushl was on the next line
+	jsb	q_cr			;~~~ output anything outstanding
 	calls	#1,g^lib$signal		; signal error
 	ret				; return
 
@@ -3608,8 +3608,8 @@ _done:	$close	fab=v_infab		; close input
 
 
 _exit:
-	movl	#1,r0			; successful completion
-	$exit_s	r0			; exit with status
+	jsb	q_cr			;~~~ output anything outstanding
+	$exit_s	#1			; exit with status of successful completion~~~ was movl #1,r0 and $exit_s r0
 
 
 	newpage <Dictionary Space>
