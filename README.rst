@@ -15,11 +15,15 @@ and the source code (on 132 character wide green bar paper; such
 nostalgia!) came to light, so now I've typed it all in again,
 for posterity.
 
-I'm currently working on fixing all the bugs introduced by typos from
-typing VTIL.MAR in again.
+**Note:** I used Anthropic's Claude to find and fix the typos,
+comparing my typed in code to the pictures of the green bar printout.
 
-**WARNING:** Right now VTIL.MAR is **full** of typos!  It compiles and
-runs, but many things don't work.
+I didn't have the source to the utility that I used to create the
+blocks file for the block words, so I wrote MAKE-VTILBLOCKS.MAR and
+READ-VTILBLOCKS.MAR from scratch.
+
+I also didn't have the source to the line oriented block editor I
+wrote for working with blocks, and I haven't rewritten that yet.
 
 **WARNING:** This is not Forth!  A lot of words work like words in
 Forth, but a lot of them do something completely different.
